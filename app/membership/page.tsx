@@ -243,7 +243,7 @@ export default function MembershipPage() {
         .from("newcomers")
         .select("*")
         .eq("email", email)
-        .single();
+        .maybeSingle();
 
       // Smart merge notes - prevents duplicates and updates existing fields
       const notes = mergeNotes(existingRecord?.notes || null, {

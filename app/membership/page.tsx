@@ -325,8 +325,18 @@ export default function MembershipPage() {
 
       if (record) {
         // UPDATE existing record
-        // Convert Insert type to Update type (Update makes all fields optional)
-        const updateData: NewcomerUpdate = dataToSave;
+        // Create proper NewcomerUpdate object (all fields optional) instead of casting
+        const updateData: NewcomerUpdate = {
+          full_name: dataToSave.full_name,
+          email: dataToSave.email,
+          phone: dataToSave.phone ?? null,
+          marital_status: dataToSave.marital_status ?? null,
+          address: dataToSave.address ?? null,
+          occupation: dataToSave.occupation ?? null,
+          interest_areas: dataToSave.interest_areas ?? null,
+          notes: dataToSave.notes ?? null,
+          status: dataToSave.status ?? null,
+        };
         const { error: updateError } = await supabase
           .from("newcomers")
           .update(updateData)

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
-import type { Newcomer, NewcomerInsert } from "@/types/database.types";
+import type { Newcomer, NewcomerInsert, NewcomerUpdate } from "@/types/database.types";
 import { Button } from "@/components/ui/button";
 import {
   Card,

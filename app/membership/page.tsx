@@ -245,8 +245,19 @@ export default function MembershipPage() {
         .eq("email", email)
         .maybeSingle();
 
+      // #region agent log
+      fetch('http://127.0.0.1:7242/ingest/2f7dee51-1168-41d3-a81f-2777c65ab77d',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'app/membership/page.tsx:246',message:'existingRecord type check',data:{type:typeof existingRecord,isNull:existingRecord===null,hasFullName:'full_name' in (existingRecord||{})},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+      // #endregion
+
+      // Type assertion for existingRecord to fix TypeScript inference issues (pattern from welcome/page.tsx)
+      const record = existingRecord as Newcomer | null;
+
+      // #region agent log
+      fetch('http://127.0.0.1:7242/ingest/2f7dee51-1168-41d3-a81f-2777c65ab77d',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'app/membership/page.tsx:252',message:'record type after assertion',data:{type:typeof record,isNull:record===null,hasFullName:record?.full_name?true:false},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'D'})}).catch(()=>{});
+      // #endregion
+
       // Smart merge notes - prevents duplicates and updates existing fields
-      const notes = mergeNotes((existingRecord as Newcomer | null)?.notes || null, {
+      const notes = mergeNotes(record?.notes || null, {
         "Gender": formData.gender || "",
         "Birthday": formData.birthday_month && formData.birthday_day 
           ? `${formData.birthday_month}/${formData.birthday_day}` 
@@ -278,26 +289,26 @@ export default function MembershipPage() {
       // Prepare the data with smart merging (prefer new data, preserve existing if new is empty)
       const dataToSave: NewcomerInsert = {
         // Name: Keep existing if it's more complete, otherwise use new
-        full_name: existingRecord?.full_name || fullName,
+        full_name: record?.full_name || fullName,
         
         // Email: Always use the one from form (it's the lookup key)
         email: email,
         
         // Phone: Prefer new, fallback to existing
-        phone: formData.phone?.trim() || existingRecord?.phone || null,
+        phone: formData.phone?.trim() || record?.phone || null,
         
         // Marital status: Prefer new, fallback to existing
-        marital_status: formData.status || existingRecord?.marital_status || null,
+        marital_status: formData.status || record?.marital_status || null,
         
         // Address: Prefer new, fallback to existing
-        address: formData.address?.trim() || existingRecord?.address || null,
+        address: formData.address?.trim() || record?.address || null,
         
         // Occupation: Prefer new, fallback to existing
-        occupation: formData.profession?.trim() || existingRecord?.occupation || null,
+        occupation: formData.profession?.trim() || record?.occupation || null,
         
         // Interest areas: Smart merge (combines existing and new, removes duplicates)
         interest_areas: mergeInterestAreas(
-          existingRecord?.interest_areas || null,
+          record?.interest_areas || null,
           formData.departments
         ),
         
@@ -305,8 +316,12 @@ export default function MembershipPage() {
         notes: notes,
         
         // Status: Smart progression (advances when appropriate - completing membership form shows commitment)
-        status: getNewStatus(existingRecord?.status || null, true),
+        status: getNewStatus(record?.status || null, true),
       };
+
+      // #region agent log
+      fetch('http://127.0.0.1:7242/ingest/2f7dee51-1168-41d3-a81f-2777c65ab77d',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'app/membership/page.tsx:310',message:'dataToSave created successfully',data:{hasFullName:!!dataToSave.full_name,hasEmail:!!dataToSave.email},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'D'})}).catch(()=>{});
+      // #endregion
 
       if (existingRecord) {
         // UPDATE existing record

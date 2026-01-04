@@ -327,10 +327,10 @@ export default function MembershipPage() {
         // UPDATE existing record
         // Convert Insert type to Update type (Update makes all fields optional)
         const updateData: NewcomerUpdate = dataToSave;
-        // @ts-ignore - TypeScript inference issue with Supabase update, works at runtime
-        const { error: updateError } = await supabase
+        // @ts-expect-error - TypeScript inference issue with Supabase update method, works at runtime
+        const { error: updateError } = await (supabase
           .from("newcomers")
-          .update(updateData as any)
+          .update(updateData as any) as any)
           .eq("email", email);
 
         if (updateError) throw updateError;

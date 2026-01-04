@@ -327,7 +327,6 @@ export default function MembershipPage() {
         // UPDATE existing record
         // Convert Insert type to Update type (Update makes all fields optional)
         const updateData: NewcomerUpdate = dataToSave;
-        // @ts-expect-error - TypeScript inference issue with Supabase update method, works at runtime
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const { error: updateError } = await (supabase
           .from("newcomers")

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
-import type { NewcomerInsert } from "@/types/database.types";
+import type { Newcomer, NewcomerInsert } from "@/types/database.types";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -246,7 +246,7 @@ export default function MembershipPage() {
         .maybeSingle();
 
       // Smart merge notes - prevents duplicates and updates existing fields
-      const notes = mergeNotes(existingRecord?.notes || null, {
+      const notes = mergeNotes((existingRecord as Newcomer | null)?.notes || null, {
         "Gender": formData.gender || "",
         "Birthday": formData.birthday_month && formData.birthday_day 
           ? `${formData.birthday_month}/${formData.birthday_day}` 

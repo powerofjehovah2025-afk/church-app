@@ -327,13 +327,10 @@ export default function MembershipPage() {
         // UPDATE existing record
         // Convert Insert type to Update type (Update makes all fields optional)
         const updateData: NewcomerUpdate = dataToSave;
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const { error: updateError } = await (supabase
+        const { error: updateError } = await supabase
           .from("newcomers")
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          .update(updateData as any) as any)
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          .eq("email", email) as any;
+          .update(updateData)
+          .eq("email", email);
 
         if (updateError) throw updateError;
       } else {

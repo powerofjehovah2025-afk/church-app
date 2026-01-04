@@ -331,7 +331,7 @@ export default function MembershipPage() {
         const { error: updateError } = await (supabase
           .from("newcomers")
           .update(updateData as any) as any)
-          .eq("email", email);
+          .eq("email", email) as any;
 
         if (updateError) throw updateError;
       } else {

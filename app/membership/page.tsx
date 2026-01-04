@@ -323,7 +323,7 @@ export default function MembershipPage() {
       fetch('http://127.0.0.1:7242/ingest/2f7dee51-1168-41d3-a81f-2777c65ab77d',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'app/membership/page.tsx:310',message:'dataToSave created successfully',data:{hasFullName:!!dataToSave.full_name,hasEmail:!!dataToSave.email},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'D'})}).catch(()=>{});
       // #endregion
 
-      if (existingRecord) {
+      if (record) {
         // UPDATE existing record
         const { error: updateError } = await supabase
           .from("newcomers")

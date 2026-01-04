@@ -12,7 +12,7 @@ interface StepperProps {
 
 export function Stepper({
   currentStep,
-  totalSteps,
+  totalSteps: _totalSteps,
   steps,
   className,
 }: StepperProps) {

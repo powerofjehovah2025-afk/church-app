@@ -23,11 +23,9 @@ import {
   Phone,
   MessageCircle,
   Users,
-  Clock,
   AlertCircle,
   Loader2,
   Mail,
-  Save,
   User,
   Plus,
   TrendingUp,
@@ -198,9 +196,9 @@ export function NewcomersKanban({ initialData }: NewcomersKanbanProps) {
     null,
   );
   const [isSheetOpen, setIsSheetOpen] = useState(false);
-  const [updatingId, setUpdatingId] = useState<string | null>(null);
+  const [updatingId] = useState<string | null>(null);
   const [adminNotes, setAdminNotes] = useState("");
-  const [savingNotes, setSavingNotes] = useState(false);
+  const [savingNotes] = useState(false);
   const [saveStatus, setSaveStatus] = useState<"idle" | "saving" | "saved">("idle");
   const [activityLog, setActivityLog] = useState<ActivityLog[]>([]);
   const [hoveredCard, setHoveredCard] = useState<string | null>(null);
@@ -226,7 +224,7 @@ export function NewcomersKanban({ initialData }: NewcomersKanbanProps) {
   const [newcomerToAssign, setNewcomerToAssign] = useState<Newcomer | null>(null);
   
   // Assignment filter state
-  const [assignmentFilter, setAssignmentFilter] = useState<"all" | "unassigned" | "assigned" | "contacted">("all");
+  const [assignmentFilter] = useState<"all" | "unassigned" | "assigned" | "contacted">("all");
 
   // Cache for parseNotes to avoid repeated parsing
   const parseNotesCache = useRef<Map<string, ReturnType<typeof parseNotes>>>(new Map());
@@ -278,7 +276,7 @@ export function NewcomersKanban({ initialData }: NewcomersKanbanProps) {
       parish?: string;
       startDate?: string;
       joinWorkforce?: boolean;
-      [key: string]: any;
+      [key: string]: unknown;
     } = {};
 
     const parts = notes.split(" | ");
@@ -390,7 +388,7 @@ export function NewcomersKanban({ initialData }: NewcomersKanbanProps) {
     };
 
     // Unified handler for all postgres_changes events
-    const handleRealtimeChange = (payload: any) => {
+    const handleRealtimeChange = (payload: { eventType: string; new?: unknown; old?: unknown }) => {
       if (!isMounted) return;
 
       console.log(`📡 Real-time event received: ${payload.eventType}`, payload);
@@ -676,7 +674,7 @@ export function NewcomersKanban({ initialData }: NewcomersKanbanProps) {
     return filtered;
   }, [groupedNewcomers, assignmentFilter]);
 
-  const handleDragEnd = useCallback((result: any) => {
+  const handleDragEnd = useCallback((result: { destination: { droppableId: string; index: number } | null; source: { droppableId: string; index: number }; draggableId: string }) => {
     const { destination, source, draggableId } = result;
 
     if (!destination) return;
@@ -1100,7 +1098,7 @@ export function NewcomersKanban({ initialData }: NewcomersKanbanProps) {
             <div className="flex items-center gap-2">
               <AlertCircle className="h-4 w-4 flex-shrink-0" />
               <span className="text-xs">
-                Real-time updates disabled. Dashboard still works - refresh to see new entries. Enable in Supabase: Database → Replication → Enable for "newcomers" table.
+                Real-time updates disabled. Dashboard still works - refresh to see new entries. Enable in Supabase: Database → Replication → Enable for &quot;newcomers&quot; table.
               </span>
             </div>
           </div>
@@ -1353,7 +1351,7 @@ export function NewcomersKanban({ initialData }: NewcomersKanbanProps) {
                                           // parsed is already available from above
                                           // Check needs_transport field if it exists, otherwise check parsed notes
                                           const needsTransport = 
-                                            (newcomer as any).needs_transport === true || // Check database field if exists
+                                            (newcomer as Newcomer & { needs_transport?: boolean }).needs_transport === true || // Check database field if exists
                                             (parsed.transport && 
                                              parsed.transport !== "My Car" && 
                                              parsed.transport !== "Public Transport");

@@ -1,6 +1,6 @@
 "use client";
 
-import { QRCodeSVG } from "react-qr-code";
+import QRCodeSVG from "react-qr-code";
 import { Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useRef } from "react";

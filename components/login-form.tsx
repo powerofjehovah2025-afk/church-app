@@ -3,7 +3,6 @@
 import { cn } from "@/lib/utils";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
-import type { ProfileInsert } from "@/types/database.types";
 import {
   Card,
   CardContent,
@@ -38,7 +37,7 @@ export function LoginForm({
     setError(null);
 
     try {
-      const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
+      const { error: authError } = await supabase.auth.signInWithPassword({
         email,
         password,
       });

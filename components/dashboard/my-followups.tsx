@@ -214,7 +214,6 @@ export function MyFollowups() {
   };
 
   const uncontactedCount = followups.filter((f) => !f.contacted).length;
-  const contactedCount = followups.filter((f) => f.contacted).length;
 
   if (isLoading) {
     return (

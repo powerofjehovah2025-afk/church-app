@@ -7,7 +7,6 @@ import {
   LayoutDashboard, 
   QrCode, 
   Menu, 
-  X,
   LogOut 
 } from "lucide-react";
 import { Button } from "@/components/ui/button";

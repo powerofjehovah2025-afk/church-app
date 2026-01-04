@@ -325,9 +325,11 @@ export default function MembershipPage() {
 
       if (record) {
         // UPDATE existing record
+        // Convert Insert type to Update type (Update makes all fields optional)
+        const updateData: NewcomerUpdate = dataToSave;
         const { error: updateError } = await supabase
           .from("newcomers")
-          .update(dataToSave)
+          .update(updateData)
           .eq("email", email);
 
         if (updateError) throw updateError;

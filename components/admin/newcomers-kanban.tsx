@@ -198,7 +198,6 @@ export function NewcomersKanban({ initialData }: NewcomersKanbanProps) {
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   const [updatingId] = useState<string | null>(null);
   const [adminNotes, setAdminNotes] = useState("");
-  const [savingNotes] = useState(false);
   const [saveStatus, setSaveStatus] = useState<"idle" | "saving" | "saved">("idle");
   const [activityLog, setActivityLog] = useState<ActivityLog[]>([]);
   const [hoveredCard, setHoveredCard] = useState<string | null>(null);

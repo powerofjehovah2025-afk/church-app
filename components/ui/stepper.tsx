@@ -12,7 +12,7 @@ interface StepperProps {
 
 export function Stepper({
   currentStep,
-  totalSteps: _totalSteps,
+  totalSteps: _totalSteps, // eslint-disable-line @typescript-eslint/no-unused-vars
   steps,
   className,
 }: StepperProps) {

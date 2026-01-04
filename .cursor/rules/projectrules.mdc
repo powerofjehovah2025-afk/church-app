@@ -1,0 +1,23 @@
+---
+alwaysApply: true
+---
+
+# Church Management App Rules
+You are building a high-quality church management system.
+
+## Tech Stack
+- Frontend: Next.js (App Router)
+- Database: Supabase
+- UI: Tailwind CSS + Shadcn UI
+
+## Core Features (Reference PRD.md)
+1. Rota System with 14-day and 2-day notifications.
+2. Newcomer registration form and follow-up dashboard.
+3. Live church event calendar.
+4. Admin dashboard for data management.
+
+## Code Standards
+- Use TypeScript for everything.
+- Put UI components in /components/ui.
+- Put database logic in /lib/supabase.
+- Always check PRD.md before suggesting new features.

@@ -329,7 +329,7 @@ export default function MembershipPage() {
         const updateData: NewcomerUpdate = dataToSave;
         const { error: updateError } = await supabase
           .from("newcomers")
-          .update(updateData)
+          .update(updateData as any)
           .eq("email", email);
 
         if (updateError) throw updateError;

@@ -245,16 +245,8 @@ export default function MembershipPage() {
         .eq("email", email)
         .maybeSingle();
 
-      // #region agent log
-      fetch('http://127.0.0.1:7242/ingest/2f7dee51-1168-41d3-a81f-2777c65ab77d',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'app/membership/page.tsx:246',message:'existingRecord type check',data:{type:typeof existingRecord,isNull:existingRecord===null,hasFullName:'full_name' in (existingRecord||{})},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
-      // #endregion
-
       // Type assertion for existingRecord to fix TypeScript inference issues (pattern from welcome/page.tsx)
       const record = existingRecord as Newcomer | null;
-
-      // #region agent log
-      fetch('http://127.0.0.1:7242/ingest/2f7dee51-1168-41d3-a81f-2777c65ab77d',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'app/membership/page.tsx:252',message:'record type after assertion',data:{type:typeof record,isNull:record===null,hasFullName:record?.full_name?true:false},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'D'})}).catch(()=>{});
-      // #endregion
 
       // Smart merge notes - prevents duplicates and updates existing fields
       const notes = mergeNotes(record?.notes || null, {
@@ -318,10 +310,6 @@ export default function MembershipPage() {
         // Status: Smart progression (advances when appropriate - completing membership form shows commitment)
         status: getNewStatus(record?.status || null, true),
       };
-
-      // #region agent log
-      fetch('http://127.0.0.1:7242/ingest/2f7dee51-1168-41d3-a81f-2777c65ab77d',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'app/membership/page.tsx:310',message:'dataToSave created successfully',data:{hasFullName:!!dataToSave.full_name,hasEmail:!!dataToSave.email},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'D'})}).catch(()=>{});
-      // #endregion
 
       if (record) {
         // UPDATE existing record

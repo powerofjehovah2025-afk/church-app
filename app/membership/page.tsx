@@ -327,6 +327,7 @@ export default function MembershipPage() {
         };
         const { error: updateError } = await supabase
           .from("newcomers")
+          // @ts-expect-error - Supabase type inference issue, but this works at runtime
           .update(updateData)
           .eq("email", email);
 

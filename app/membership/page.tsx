@@ -326,10 +326,10 @@ export default function MembershipPage() {
           status: dataToSave.status ?? null,
         };
         
-        // Use explicit type assertion to ensure proper typing
-        const newcomersTable = supabase.from("newcomers");
-        const { error: updateError } = await newcomersTable
-          .update(updateData)
+        // Use type assertion to bypass TypeScript inference issue
+        const { error: updateError } = await supabase
+          .from("newcomers")
+          .update(updateData as any)
           .eq("email", email);
 
         if (updateError) throw updateError;

@@ -328,7 +328,7 @@ export default function MembershipPage() {
         
         const { error: updateError } = await supabase
           .from("newcomers")
-          .update<NewcomerUpdate>(updateData)
+          .update(updateData)
           .eq("email", email);
 
         if (updateError) throw updateError;
@@ -336,7 +336,7 @@ export default function MembershipPage() {
         // INSERT new record
         const { error: insertError } = await supabase
           .from("newcomers")
-          .insert<NewcomerInsert>(dataToSave);
+          .insert(dataToSave);
 
         if (insertError) throw insertError;
       }
@@ -685,7 +685,7 @@ export default function MembershipPage() {
                 disabled={isLoading}
               >
                 <option value="">Select</option>
-                <option value="Church's Transport">Church'\"s Transport</option>
+                <option value="Church's Transport">Church&apos;s Transport</option>
                 <option value="Taxi">Taxi</option>
                 <option value="Public Transport">Public Transport</option>
                 <option value="My Car">My Car</option>
@@ -725,7 +725,7 @@ export default function MembershipPage() {
                 <option value="">Select</option>
                 <option value="Yes">Yes</option>
                 <option value="No">No</option>
-                <option value="I don't know">I don't know</option>
+                <option value="I don't know">I don&apos;t know</option>
               </select>
             </div>
 
@@ -814,7 +814,7 @@ export default function MembershipPage() {
               <div className="space-y-3">
                 <Label>Departments</Label>
                 <p className="text-xs text-muted-foreground">
-                  Select all departments you'\"re interested in
+                  Select all departments you&apos;re interested in
                 </p>
                 <div className="grid gap-3 sm:grid-cols-2">
                   {DEPARTMENTS.map((dept) => (

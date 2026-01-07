@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist } from "next/font/google";
+import localFont from "next/font/local";
 import { ThemeProvider } from "next-themes";
 import "./globals.css";
 
@@ -13,10 +13,29 @@ export const metadata: Metadata = {
   description: "The fastest way to build apps with Next.js and Supabase",
 };
 
-const geistSans = Geist({
+// Use system font stack as fallback when Google Fonts are unavailable
+const geistSans = localFont({
+  src: [
+    {
+      path: "./fonts/GeistVF.woff2",
+      style: "normal",
+    },
+  ],
   variable: "--font-geist-sans",
   display: "swap",
-  subsets: ["latin"],
+  fallback: [
+    "-apple-system",
+    "BlinkMacSystemFont",
+    "Segoe UI",
+    "Roboto",
+    "Oxygen",
+    "Ubuntu",
+    "Cantarell",
+    "Fira Sans",
+    "Droid Sans",
+    "Helvetica Neue",
+    "sans-serif",
+  ],
 });
 
 export default function RootLayout({

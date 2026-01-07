@@ -35,7 +35,7 @@ const DEPARTMENTS = [
   "Announcement",
 ] as const;
 
-const GDPR_TEXT = `By submitting this form, you consent to RCCG Power of Jehovah, Essex storing and processing your personal data for the purposes of church membership, communication, and ministry involvement. Your data will be kept secure and will only be used for church-related activities. You have the right to access, update, or request deletion of your personal data at any time by contacting the church administration.`;
+const GDPR_TEXT = `By submitting this form, you consent to RCCG Power of Jehovah, Essex storing and processing your personal data for the purposes of church membership, communication, and ministry[...]`;
 
 export default function MembershipPage() {
   const [currentStep, setCurrentStep] = useState(1);
@@ -328,7 +328,7 @@ export default function MembershipPage() {
         
         const { error: updateError } = await supabase
           .from("newcomers")
-          .update(updateData)
+          .update<NewcomerUpdate>(updateData)
           .eq("email", email);
 
         if (updateError) throw updateError;
@@ -336,7 +336,7 @@ export default function MembershipPage() {
         // INSERT new record
         const { error: insertError } = await supabase
           .from("newcomers")
-          .insert(dataToSave);
+          .insert<NewcomerInsert>(dataToSave);
 
         if (insertError) throw insertError;
       }
@@ -452,7 +452,7 @@ export default function MembershipPage() {
                   onChange={(e) =>
                     setFormData({ ...formData, gender: e.target.value })
                   }
-                  className="flex h-11 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                  className="flex h-11 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
                   disabled={isLoading}
                 >
                   <option value="">Select</option>
@@ -472,7 +472,7 @@ export default function MembershipPage() {
                       birthday_month: e.target.value,
                     })
                   }
-                  className="flex h-11 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                  className="flex h-11 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
                   disabled={isLoading}
                 >
                   <option value="">Month</option>
@@ -492,7 +492,7 @@ export default function MembershipPage() {
                   onChange={(e) =>
                     setFormData({ ...formData, birthday_day: e.target.value })
                   }
-                  className="flex h-11 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                  className="flex h-11 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
                   disabled={isLoading}
                 >
                   <option value="">Day</option>
@@ -514,7 +514,7 @@ export default function MembershipPage() {
                   onChange={(e) =>
                     setFormData({ ...formData, status: e.target.value })
                   }
-                  className="flex h-11 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                  className="flex h-11 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
                   disabled={isLoading}
                 >
                   <option value="">Select</option>
@@ -536,7 +536,7 @@ export default function MembershipPage() {
                       wedding_month: e.target.value,
                     })
                   }
-                  className="flex h-11 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                  className="flex h-11 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
                   disabled={isLoading}
                 >
                   <option value="">Month</option>
@@ -556,7 +556,7 @@ export default function MembershipPage() {
                   onChange={(e) =>
                     setFormData({ ...formData, wedding_day: e.target.value })
                   }
-                  className="flex h-11 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                  className="flex h-11 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
                   disabled={isLoading}
                 >
                   <option value="">Day</option>
@@ -681,11 +681,11 @@ export default function MembershipPage() {
                 onChange={(e) =>
                   setFormData({ ...formData, transport: e.target.value })
                 }
-                className="flex h-11 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                className="flex h-11 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
                 disabled={isLoading}
               >
                 <option value="">Select</option>
-                <option value="Church's Transport">Church&apos;s Transport</option>
+                <option value="Church's Transport">Church'\"s Transport</option>
                 <option value="Taxi">Taxi</option>
                 <option value="Public Transport">Public Transport</option>
                 <option value="My Car">My Car</option>
@@ -719,13 +719,13 @@ export default function MembershipPage() {
                 onChange={(e) =>
                   setFormData({ ...formData, born_again: e.target.value })
                 }
-                className="flex h-11 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                className="flex h-11 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
                 disabled={isLoading}
               >
                 <option value="">Select</option>
                 <option value="Yes">Yes</option>
                 <option value="No">No</option>
-                <option value="I don't know">I don&apos;t know</option>
+                <option value="I don't know">I don't know</option>
               </select>
             </div>
 
@@ -755,7 +755,7 @@ export default function MembershipPage() {
                 onChange={(e) =>
                   setFormData({ ...formData, baptised: e.target.value })
                 }
-                className="flex h-11 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                className="flex h-11 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
                 disabled={isLoading}
               >
                 <option value="">Select</option>
@@ -814,7 +814,7 @@ export default function MembershipPage() {
               <div className="space-y-3">
                 <Label>Departments</Label>
                 <p className="text-xs text-muted-foreground">
-                  Select all departments you&apos;re interested in
+                  Select all departments you'\"re interested in
                 </p>
                 <div className="grid gap-3 sm:grid-cols-2">
                   {DEPARTMENTS.map((dept) => (
@@ -1038,4 +1038,3 @@ export default function MembershipPage() {
     </div>
   );
 }
-

@@ -113,7 +113,7 @@ export function MyFollowups() {
     fetchFollowups();
 
     // Set up real-time subscription
-    let channel: ReturnType<typeof createClient>["channel"] | null = null;
+    let channelRef: Awaited<ReturnType<ReturnType<typeof createClient>["channel"]>> | null = null;
     let isMounted = true;
 
     const setupRealtime = async () => {
@@ -124,7 +124,7 @@ export function MyFollowups() {
 
       if (!user || !isMounted) return;
 
-      channel = supabase
+      channelRef = supabase
         .channel(`my-followups-realtime-${user.id}`)
         .on(
           "postgres_changes",
@@ -150,9 +150,9 @@ export function MyFollowups() {
 
     return () => {
       isMounted = false;
-      if (channel) {
+      if (channelRef) {
         const supabase = createClient();
-        supabase.removeChannel(channel);
+        supabase.removeChannel(channelRef);
       }
     };
   }, [fetchFollowups]);
@@ -408,7 +408,7 @@ export function MyFollowups() {
                   onChange={(e) => setContactNotes(e.target.value)}
                   placeholder="Add notes about your contact with this newcomer..."
                   className="bg-slate-800/50 border-slate-700/50 text-white min-h-[120px]"
-                  disabled={selectedNewcomer.contacted}
+                  disabled={selectedNewcomer.contacted ?? false}
                 />
                 {selectedNewcomer.contacted_at && (
                   <p className="text-xs text-slate-400">

@@ -47,7 +47,6 @@ export function QRCodeDisplay({ url, title, size = 200 }: QRCodeDisplayProps) {
           value={url}
           size={size}
           level="H"
-          includeMargin={true}
         />
       </div>
       <p className="text-xs text-slate-400 text-center max-w-[200px] break-all">

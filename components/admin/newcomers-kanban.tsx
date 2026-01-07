@@ -421,7 +421,7 @@ export function NewcomersKanban({ initialData }: NewcomersKanbanProps) {
           selectedNewcomerRef.current = updatedRecord;
         }
       } else if (payload.eventType === 'DELETE') {
-        const deletedRecordId = payload.old.id;
+        const deletedRecordId = (payload.old as { id: string })?.id;
         console.log('🗑️ Row deleted:', deletedRecordId);
         setNewcomers((prev) => prev.filter((item) => item.id !== deletedRecordId));
         // Close sheet if the deleted record is currently selected
@@ -711,64 +711,64 @@ export function NewcomersKanban({ initialData }: NewcomersKanbanProps) {
     });
 
     // DEFER all non-critical operations using setTimeout (runs after UI update)
-    setTimeout(() => {
+    setTimeout(async () => {
       // Trigger confetti if moved to Member (deferred)
       if (destination.droppableId === "member") {
         triggerConfetti();
       }
 
       // Update database in background (truly non-blocking, fire-and-forget)
-      const supabase = createClient();
-      const updateData: NewcomerUpdate = {
-        status: newStatus,
-      };
+      try {
+        const supabase = createClient();
+        const updateData: NewcomerUpdate = {
+          status: newStatus,
+        };
 
-      supabase
-        .from("newcomers")
-        .update(updateData)
-        .eq("id", newcomerId)
-        .then(({ error }) => {
-          if (error) {
-            // Rollback on error
-            setNewcomers((prev) =>
-              prev.map((item) =>
-                item.id === newcomerId ? { ...item, status: originalStatus } : item
-              )
-            );
-            if (selectedNewcomer?.id === newcomerId) {
-              setSelectedNewcomer((prev) => prev ? { ...prev, status: originalStatus } : null);
-              selectedNewcomerRef.current = selectedNewcomer ? { ...selectedNewcomer, status: originalStatus } : null;
-            }
-            console.error("Error updating status:", error);
-            return;
+        const { error } = await supabase
+          .from("newcomers")
+          .update(updateData)
+          .eq("id", newcomerId);
+
+        if (error) {
+          // Rollback on error
+          setNewcomers((prev) =>
+            prev.map((item) =>
+              item.id === newcomerId ? { ...item, status: originalStatus } : item
+            )
+          );
+          if (selectedNewcomer?.id === newcomerId) {
+            setSelectedNewcomer((prev) => prev ? { ...prev, status: originalStatus } : null);
+            selectedNewcomerRef.current = selectedNewcomer ? { ...selectedNewcomer, status: originalStatus } : null;
           }
-
-          // Store undo information (deferred)
-          setLastDragOperation({
-            newcomerId: newcomerId,
-            fromStatus: originalStatus,
-            toStatus: newStatus,
-            newcomerName: newcomer.full_name,
-          });
-
-          // Auto-hide undo button after 10 seconds
-          setTimeout(() => {
-            setLastDragOperation(null);
-          }, 10000);
-
-          // Add to activity log (deferred)
-          setActivityLog((prev) => [
-            {
-              id: Date.now().toString(),
-              message: `${currentUserName} moved ${newcomer.full_name} to ${columnTitle}`,
-              timestamp: new Date(),
-            },
-            ...prev.slice(0, 9), // Keep last 10 activities
-          ]);
-        })
-        .catch((error) => {
           console.error("Error updating status:", error);
+          return;
+        }
+
+        // Store undo information (deferred)
+        setLastDragOperation({
+          newcomerId: newcomerId,
+          fromStatus: originalStatus,
+          toStatus: newStatus,
+          newcomerName: newcomer.full_name,
         });
+
+        // Auto-hide undo button after 10 seconds
+        setTimeout(() => {
+          setLastDragOperation(null);
+        }, 10000);
+
+        // Add to activity log (deferred)
+        setActivityLog((prev) => [
+          {
+            id: Date.now().toString(),
+            message: `${currentUserName} moved ${newcomer.full_name} to ${columnTitle}`,
+            timestamp: new Date(),
+          },
+          ...prev.slice(0, 9), // Keep last 10 activities
+        ]);
+      } catch (error) {
+        console.error("Error updating status:", error);
+      }
     }, 0); // Execute on next tick, after UI update completes
   }, [newcomers, selectedNewcomer, currentUserName]);
 
@@ -818,53 +818,52 @@ export function NewcomersKanban({ initialData }: NewcomersKanbanProps) {
     });
 
     // Update database in background
-    setTimeout(() => {
-      const updateData: NewcomerUpdate = {
-        assigned_to: userId,
-        assigned_at: new Date().toISOString(),
-        assigned_by: user.id,
-      };
+    setTimeout(async () => {
+      try {
+        const updateData: NewcomerUpdate = {
+          assigned_to: userId,
+          assigned_at: new Date().toISOString(),
+          assigned_by: user.id,
+        };
 
-      supabase
-        .from("newcomers")
-        .update(updateData)
-        .eq("id", newcomerId)
-        .then(({ error }) => {
-          if (error) {
-            // Rollback on error
-            setNewcomers((prev) =>
-              prev.map((item) =>
-                item.id === newcomerId
-                  ? { ...item, assigned_to: originalAssignee }
-                  : item
-              )
-            );
-            console.error("Error assigning follow-up:", error);
-            alert("Failed to assign follow-up. Please try again.");
-            return;
-          }
+        const { error } = await supabase
+          .from("newcomers")
+          .update(updateData)
+          .eq("id", newcomerId);
 
-          // Fetch assigned user name for activity log
-          supabase
-            .from("profiles")
-            .select("full_name")
-            .eq("id", userId)
-            .single()
-            .then(({ data: assignedUser }) => {
-              const assignedUserName = assignedUser?.full_name || "Team Member";
-              setActivityLog((prev) => [
-                {
-                  id: Date.now().toString(),
-                  message: `${currentUserName} assigned ${newcomerToAssign.full_name} to ${assignedUserName}`,
-                  timestamp: new Date(),
-                },
-                ...prev.slice(0, 9),
-              ]);
-            });
-        })
-        .catch((error: unknown) => {
+        if (error) {
+          // Rollback on error
+          setNewcomers((prev) =>
+            prev.map((item) =>
+              item.id === newcomerId
+                ? { ...item, assigned_to: originalAssignee }
+                : item
+            )
+          );
           console.error("Error assigning follow-up:", error);
-        });
+          alert("Failed to assign follow-up. Please try again.");
+          return;
+        }
+
+        // Fetch assigned user name for activity log
+        const { data: assignedUser } = await supabase
+          .from("profiles")
+          .select("full_name")
+          .eq("id", userId)
+          .single();
+        
+        const assignedUserName = assignedUser?.full_name || "Team Member";
+        setActivityLog((prev) => [
+          {
+            id: Date.now().toString(),
+            message: `${currentUserName} assigned ${newcomerToAssign.full_name} to ${assignedUserName}`,
+            timestamp: new Date(),
+          },
+          ...prev.slice(0, 9),
+        ]);
+      } catch (error) {
+        console.error("Error assigning follow-up:", error);
+      }
     }, 0);
   }, [newcomerToAssign, selectedNewcomer, currentUserName]);
 
@@ -950,7 +949,6 @@ export function NewcomersKanban({ initialData }: NewcomersKanbanProps) {
     if (!selectedNewcomer) return;
 
     setSaveStatus("saving");
-    setSavingNotes(true);
     try {
       const supabase = createClient();
       const updateData: NewcomerUpdate = {
@@ -989,8 +987,6 @@ export function NewcomersKanban({ initialData }: NewcomersKanbanProps) {
     } catch (error) {
       console.error("Error saving notes:", error);
       setSaveStatus("idle");
-    } finally {
-      setSavingNotes(false);
     }
   };
 
@@ -1356,10 +1352,11 @@ export function NewcomersKanban({ initialData }: NewcomersKanbanProps) {
                                              parsed.transport !== "Public Transport");
                                           
                                           return needsTransport ? (
-                                            <Bus 
-                                              className="h-3.5 w-3.5 text-amber-400/70 flex-shrink-0 mt-0.5" 
-                                              title={`Needs Transport: ${parsed.transport || 'Yes'}`}
-                                            />
+                                            <span title={`Needs Transport: ${parsed.transport || 'Yes'}`}>
+                                              <Bus 
+                                                className="h-3.5 w-3.5 text-amber-400/70 flex-shrink-0 mt-0.5" 
+                                              />
+                                            </span>
                                           ) : null;
                                         })()}
                                       </div>
@@ -1816,7 +1813,7 @@ export function NewcomersKanban({ initialData }: NewcomersKanbanProps) {
                               size="sm"
                               onClick={() =>
                                 window.open(
-                                  generateWhatsAppUrl(parsedNotes.whatsapp, selectedNewcomer.full_name),
+                                  generateWhatsAppUrl(parsedNotes.whatsapp ?? null, selectedNewcomer.full_name),
                                   "_blank",
                                 )
                               }

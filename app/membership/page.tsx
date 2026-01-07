@@ -326,11 +326,11 @@ export default function MembershipPage() {
           status: dataToSave.status ?? null,
         };
         
-        // Use type assertion to bypass TypeScript inference issue
+        // Use @ts-ignore to bypass TypeScript inference issue with Supabase
+        // @ts-ignore
         const { error: updateError } = await supabase
           .from("newcomers")
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          .update(updateData as any)
+          .update(updateData)
           .eq("email", email);
 
         if (updateError) throw updateError;

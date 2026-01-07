@@ -113,7 +113,8 @@ export function MyFollowups() {
     fetchFollowups();
 
     // Set up real-time subscription
-    let channelRef: Awaited<ReturnType<ReturnType<typeof createClient>["channel"]>> | null = null;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let channelRef: any = null;
     let isMounted = true;
 
     const setupRealtime = async () => {

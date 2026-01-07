@@ -193,8 +193,29 @@ Required environment variables:
 
 ```env
 NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=your_supabase_anon_key
 ```
+
+## 🚀 Deployment
+
+### Deploy to Vercel
+
+1. **Connect to Vercel**
+   - Go to [vercel.com](https://vercel.com) and import your GitHub repository
+   - Or use the "Deploy to Vercel" button in the app
+
+2. **Configure Environment Variables in Vercel**
+   - `NEXT_PUBLIC_SUPABASE_URL` - Your Supabase project URL
+   - `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` - Your Supabase anon key
+
+3. **CI/CD with GitHub Actions**
+   
+   To enable automated deployments, add these secrets to your GitHub repository:
+   - `VERCEL_TOKEN` - Your Vercel API token (from vercel.com/account/tokens)
+   - `VERCEL_ORG_ID` - Your Vercel organization ID
+   - `VERCEL_PROJECT_ID` - Your Vercel project ID
+   
+   You can find the org and project IDs by running `vercel link` locally.
 
 ## 🧪 Available Scripts
 

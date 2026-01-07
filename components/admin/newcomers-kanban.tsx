@@ -421,7 +421,7 @@ export function NewcomersKanban({ initialData }: NewcomersKanbanProps) {
           selectedNewcomerRef.current = updatedRecord;
         }
       } else if (payload.eventType === 'DELETE') {
-        const deletedRecordId = (payload.old as { id: string })?.id;
+        const deletedRecordId = (payload.old as { id: string }).id;
         console.log('🗑️ Row deleted:', deletedRecordId);
         setNewcomers((prev) => prev.filter((item) => item.id !== deletedRecordId));
         // Close sheet if the deleted record is currently selected

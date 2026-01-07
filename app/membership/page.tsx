@@ -326,9 +326,6 @@ export default function MembershipPage() {
           status: dataToSave.status ?? null,
         };
         
-        // Use @ts-expect-error to bypass TypeScript inference issue with Supabase
-        // This is a known limitation of the Supabase client type inference in some versions
-        // @ts-expect-error - Supabase query builder sometimes infers 'never' for update parameters
         const { error: updateError } = await supabase
           .from("newcomers")
           .update(updateData)

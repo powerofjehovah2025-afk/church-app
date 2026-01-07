@@ -3,6 +3,10 @@
 import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import type { Newcomer, NewcomerInsert, NewcomerUpdate } from "@/types/database.types";
+
+// #region agent log
+fetch('http://127.0.0.1:7242/ingest/2f7dee51-1168-41d3-a81f-2777c65ab77d',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'membership/page.tsx:5',message:'Type imports check',data:{NewcomerUpdateType:typeof NewcomerUpdate,isTypeImport:true},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
+// #endregion
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -231,6 +235,10 @@ export default function MembershipPage() {
     }
 
     const supabase = createClient();
+    
+    // #region agent log
+    fetch('http://127.0.0.1:7242/ingest/2f7dee51-1168-41d3-a81f-2777c65ab77d',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'membership/page.tsx:234',message:'Supabase client instantiated',data:{supabaseType:typeof supabase,hasFrom:typeof supabase?.from === 'function',clientConstructor:supabase?.constructor?.name},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'E'})}).catch(()=>{});
+    // #endregion
     setIsLoading(true);
 
     try {
@@ -325,9 +333,23 @@ export default function MembershipPage() {
           notes: dataToSave.notes ?? null,
           status: dataToSave.status ?? null,
         };
-        const { error: updateError } = await supabase
-          .from("newcomers")
-          // @ts-expect-error - Supabase type inference issue, but this works at runtime
+        
+        // #region agent log
+        fetch('http://127.0.0.1:7242/ingest/2f7dee51-1168-41d3-a81f-2777c65ab77d',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'membership/page.tsx:329',message:'Before update - updateData type check',data:{updateDataType:typeof updateData,updateDataKeys:Object.keys(updateData),supabaseType:typeof supabase,hasFromMethod:typeof supabase.from === 'function'},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+        // #endregion
+        
+        // #region agent log
+        const fromResult = supabase.from("newcomers");
+        fetch('http://127.0.0.1:7242/ingest/2f7dee51-1168-41d3-a81f-2777c65ab77d',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'membership/page.tsx:333',message:'After from() call',data:{fromResultType:typeof fromResult,hasUpdateMethod:typeof fromResult?.update === 'function',fromResultConstructor:fromResult?.constructor?.name},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
+        // #endregion
+        
+        // #region agent log
+        fetch('http://127.0.0.1:7242/ingest/2f7dee51-1168-41d3-a81f-2777c65ab77d',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'membership/page.tsx:342',message:'Update data fields check',data:{updateDataFields:Object.keys(updateData),fieldTypes:Object.fromEntries(Object.entries(updateData).map(([k,v])=>[k,typeof v]))},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
+        // #endregion
+        
+        // Use explicit type assertion to ensure proper typing
+        const newcomersTable = supabase.from("newcomers");
+        const { error: updateError } = await newcomersTable
           .update(updateData)
           .eq("email", email);
 

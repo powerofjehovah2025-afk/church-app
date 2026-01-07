@@ -327,9 +327,9 @@ export default function MembershipPage() {
         };
         
         // Use type assertion to bypass TypeScript inference issue
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const { error: updateError } = await supabase
           .from("newcomers")
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           .update(updateData as any)
           .eq("email", email);
 

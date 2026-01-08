@@ -11,29 +11,11 @@ export default function Home() {
           Church Management System
         </p>
         
-        {/* Public Forms Section */}
-        <div className="space-y-4 mb-8">
-          <h2 className="text-xl font-semibold text-slate-300 mb-4">Visitor Forms</h2>
-          <Link 
-            href="/welcome" 
-            className="block px-6 py-4 bg-blue-600 hover:bg-blue-700 border border-blue-500 rounded-lg text-white font-medium transition-colors shadow-lg shadow-blue-500/20"
-          >
-            Welcome Form
-          </Link>
-          <Link 
-            href="/membership" 
-            className="block px-6 py-4 bg-green-600 hover:bg-green-700 border border-green-500 rounded-lg text-white font-medium transition-colors shadow-lg shadow-green-500/20"
-          >
-            Membership Form
-          </Link>
-        </div>
-
-        {/* Staff Login Section */}
-        <div className="border-t border-slate-700/50 pt-8">
-          <h2 className="text-xl font-semibold text-slate-300 mb-4">Staff Access</h2>
+        {/* Staff Login Only */}
+        <div>
           <Link 
             href="/auth/login" 
-            className="block px-6 py-4 bg-slate-700 hover:bg-slate-600 border border-slate-600 rounded-lg text-white font-medium transition-colors"
+            className="inline-block px-8 py-4 bg-blue-600 hover:bg-blue-700 border border-blue-500 rounded-lg text-white font-medium transition-colors shadow-lg shadow-blue-500/20"
           >
             Staff Login
           </Link>

@@ -229,3 +229,5 @@ This project is private and proprietary.
 ---
 
 Built with ❤️ for church management
+
+> **Note**: Automatic deployments are enabled - every push to `main` branch triggers a new Vercel deployment.

@@ -6,7 +6,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
  * GET: List all invitation codes (admin only)
  * POST: Create a new invitation code (admin only)
  */
-export async function GET(request: Request) {
+export async function GET() {
   try {
     const supabase = await createClient();
     const {

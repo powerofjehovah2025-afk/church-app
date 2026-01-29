@@ -42,7 +42,11 @@ export async function PATCH(
     const { is_active, expires_at, max_uses } = body;
 
     const admin = createAdminClient();
-    const updateData: any = {};
+    const updateData: {
+      is_active?: boolean;
+      expires_at?: string | null;
+      max_uses?: number | null;
+    } = {};
     
     if (is_active !== undefined) updateData.is_active = is_active;
     if (expires_at !== undefined) updateData.expires_at = expires_at;

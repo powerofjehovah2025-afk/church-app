@@ -14,7 +14,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Chrome } from "lucide-react";
 
 export function SignUpForm({
@@ -32,6 +32,7 @@ export function SignUpForm({
   const [isLoading, setIsLoading] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const router = useRouter();
+  const validationTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const validateInvitationCode = async (code: string) => {
     if (!code.trim()) {
@@ -54,7 +55,7 @@ export function SignUpForm({
       } else {
         setError(null);
       }
-    } catch (error) {
+    } catch {
       setCodeValid(false);
       setError("Failed to validate invitation code");
     } finally {
@@ -68,14 +69,16 @@ export function SignUpForm({
     setError(null);
     setCodeValid(null);
     
+    // Clear any existing timeout
+    if (validationTimeoutRef.current) {
+      clearTimeout(validationTimeoutRef.current);
+    }
+    
     // Validate code when user stops typing (debounce)
     if (code.length >= 4) {
-      const timeoutId = setTimeout(() => {
+      validationTimeoutRef.current = setTimeout(() => {
         validateInvitationCode(code);
       }, 500);
-      
-      // Cleanup function will be handled by useEffect if needed
-      // For now, we'll let the timeout run
     } else if (code.length === 0) {
       setCodeValid(null);
     }

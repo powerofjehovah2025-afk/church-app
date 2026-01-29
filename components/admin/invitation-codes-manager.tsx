@@ -13,7 +13,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Copy, Plus, X, CheckCircle2, AlertCircle, Loader2, Shield } from "lucide-react";
+import { Copy, Plus, X, CheckCircle2, AlertCircle, Loader2 } from "lucide-react";
 
 interface InvitationCode {
   id: string;

@@ -7,7 +7,8 @@ import {
   LayoutDashboard, 
   QrCode, 
   Menu, 
-  LogOut 
+  LogOut,
+  Users
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
@@ -47,6 +48,11 @@ export default function AdminLayout({
       name: "Ministry Growth Center",
       href: "/admin/newcomers",
       icon: LayoutDashboard,
+    },
+    {
+      name: "User Management",
+      href: "/admin/users",
+      icon: Users,
     },
   ];
 

@@ -6,6 +6,7 @@ import { LogOut, Calendar, Users, Bell } from "lucide-react";
 import Link from "next/link";
 import { MyFollowups } from "@/components/dashboard/my-followups";
 import { ProfileError } from "@/components/dashboard/profile-error";
+import { DevRoleSwitcher } from "@/components/dev-role-switcher";
 
 async function getUserProfile() {
   const supabase = await createClient();
@@ -197,6 +198,13 @@ export default async function DashboardPage() {
               <p className="text-sm text-slate-400">Role</p>
               <p className="text-white capitalize">{(profile as { role?: string | null } | null)?.role || "member"}</p>
             </div>
+            <DevRoleSwitcher
+              email={user.email || ""}
+              currentRole={
+                (((profile as { role?: string | null } | null)?.role ||
+                  "member") as "admin" | "member")
+              }
+            />
           </CardContent>
         </Card>
       </div>

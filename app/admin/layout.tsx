@@ -8,7 +8,8 @@ import {
   QrCode, 
   Menu, 
   LogOut,
-  Users
+  Users,
+  Key
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
@@ -53,6 +54,11 @@ export default function AdminLayout({
       name: "User Management",
       href: "/admin/users",
       icon: Users,
+    },
+    {
+      name: "Invitation Codes",
+      href: "/admin/invitation-codes",
+      icon: Key,
     },
   ];
 

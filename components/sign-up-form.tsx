@@ -25,16 +25,94 @@ export function SignUpForm({
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [repeatPassword, setRepeatPassword] = useState("");
+  const [invitationCode, setInvitationCode] = useState("");
+  const [codeValid, setCodeValid] = useState<boolean | null>(null);
+  const [validatingCode, setValidatingCode] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const router = useRouter();
+
+  const validateInvitationCode = async (code: string) => {
+    if (!code.trim()) {
+      setCodeValid(null);
+      return;
+    }
+
+    setValidatingCode(true);
+    try {
+      const response = await fetch("/api/invitation-codes/validate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code: code.trim().toUpperCase() }),
+      });
+
+      const data = await response.json();
+      setCodeValid(data.valid);
+      if (!data.valid) {
+        setError(data.error || "Invalid invitation code");
+      } else {
+        setError(null);
+      }
+    } catch (error) {
+      setCodeValid(false);
+      setError("Failed to validate invitation code");
+    } finally {
+      setValidatingCode(false);
+    }
+  };
+
+  const handleCodeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const code = e.target.value.toUpperCase();
+    setInvitationCode(code);
+    setError(null);
+    setCodeValid(null);
+    
+    // Validate code when user stops typing (debounce)
+    if (code.length >= 4) {
+      const timeoutId = setTimeout(() => {
+        validateInvitationCode(code);
+      }, 500);
+      
+      // Cleanup function will be handled by useEffect if needed
+      // For now, we'll let the timeout run
+    } else if (code.length === 0) {
+      setCodeValid(null);
+    }
+  };
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
     const supabase = createClient();
     setIsLoading(true);
     setError(null);
+
+    // Validate invitation code first
+    if (!invitationCode.trim()) {
+      setError("Invitation code is required");
+      setIsLoading(false);
+      return;
+    }
+
+    if (codeValid === false) {
+      setError("Please enter a valid invitation code");
+      setIsLoading(false);
+      return;
+    }
+
+    // Re-validate code before signup
+    const validationResponse = await fetch("/api/invitation-codes/validate", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ code: invitationCode.trim().toUpperCase() }),
+    });
+
+    const validationData = await validationResponse.json();
+    if (!validationData.valid) {
+      setError(validationData.error || "Invalid invitation code");
+      setIsLoading(false);
+      return;
+    }
 
     if (password !== repeatPassword) {
       setError("Passwords do not match");
@@ -57,13 +135,15 @@ export function SignUpForm({
           emailRedirectTo: `${window.location.origin}/auth/confirm`,
           data: {
             full_name: fullName,
+            invitation_code: invitationCode.trim().toUpperCase(),
+            invitation_code_id: validationData.codeId,
           },
         },
       });
 
       if (signUpError) throw signUpError;
 
-      // If user is created, create profile record
+      // If user is created, create profile record and record code usage
       if (authData.user) {
         const { error: profileError } = await supabase
           .from("profiles")
@@ -79,6 +159,21 @@ export function SignUpForm({
           console.error("Error creating profile:", profileError);
           // Don't throw - the user is created, profile can be created later
         }
+
+        // Record invitation code usage (using admin client to bypass RLS)
+        try {
+          await fetch("/api/invitation-codes/use", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              codeId: validationData.codeId,
+              userId: authData.user.id,
+            }),
+          });
+        } catch (err) {
+          console.error("Error recording code usage:", err);
+          // Don't fail signup if usage recording fails
+        }
       }
 
       router.push("/auth/sign-up-success");
@@ -90,6 +185,32 @@ export function SignUpForm({
   };
 
   const handleGoogleSignUp = async () => {
+    // For Google OAuth, we need an invitation code first
+    // Since OAuth redirects, we'll validate the code first
+    if (!invitationCode.trim()) {
+      setError("Please enter an invitation code before signing up with Google");
+      return;
+    }
+
+    // Validate code before proceeding
+    const validationResponse = await fetch("/api/invitation-codes/validate", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ code: invitationCode.trim().toUpperCase() }),
+    });
+
+    const validationData = await validationResponse.json();
+    if (!validationData.valid) {
+      setError(validationData.error || "Invalid invitation code");
+      return;
+    }
+
+    // Store code in sessionStorage for use after OAuth redirect
+    if (typeof window !== "undefined") {
+      sessionStorage.setItem("pending_invitation_code", invitationCode.trim().toUpperCase());
+      sessionStorage.setItem("pending_invitation_code_id", validationData.codeId);
+    }
+
     const supabase = createClient();
     setIsGoogleLoading(true);
     setError(null);
@@ -131,6 +252,35 @@ export function SignUpForm({
                   onChange={(e) => setFullName(e.target.value)}
                   className="bg-slate-800/50 border-slate-700/50 text-white placeholder:text-slate-500 focus:border-slate-500"
                 />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="invitationCode" className="text-slate-300">
+                  Invitation Code <span className="text-red-400">*</span>
+                </Label>
+                <Input
+                  id="invitationCode"
+                  type="text"
+                  placeholder="Enter your invitation code"
+                  required
+                  value={invitationCode}
+                  onChange={handleCodeChange}
+                  className={`bg-slate-800/50 border-slate-700/50 text-white placeholder:text-slate-500 focus:border-slate-500 ${
+                    codeValid === true
+                      ? "border-green-500"
+                      : codeValid === false
+                      ? "border-red-500"
+                      : ""
+                  }`}
+                />
+                {validatingCode && (
+                  <p className="text-xs text-slate-400">Validating code...</p>
+                )}
+                {codeValid === true && (
+                  <p className="text-xs text-green-400">✓ Valid invitation code</p>
+                )}
+                {codeValid === false && invitationCode.length >= 4 && (
+                  <p className="text-xs text-red-400">Invalid or expired code</p>
+                )}
               </div>
               <div className="grid gap-2">
                 <Label htmlFor="email" className="text-slate-300">Email</Label>

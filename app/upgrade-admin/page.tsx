@@ -75,7 +75,7 @@ export default function UpgradeAdminPage() {
                   <strong className="text-white">What this does:</strong>
                 </p>
                 <ul className="text-sm text-slate-400 space-y-1 list-disc list-inside">
-                  <li>Upgrades your account role to "admin"</li>
+                  <li>Upgrades your account role to &quot;admin&quot;</li>
                   <li>Grants access to admin dashboard</li>
                   <li>Enables full administrative privileges</li>
                 </ul>

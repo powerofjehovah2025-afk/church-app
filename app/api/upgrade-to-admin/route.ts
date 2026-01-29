@@ -6,7 +6,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
  * API endpoint to upgrade the currently authenticated user to admin role.
  * This is a one-time upgrade endpoint for development/testing purposes.
  */
-export async function POST(request: Request) {
+export async function POST() {
   try {
     const supabase = await createClient();
     const {

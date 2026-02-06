@@ -80,13 +80,13 @@ export default function AdminLayout({
     <div className="min-h-screen bg-[#0f172a] flex">
       {/* Sidebar - Desktop */}
       <aside className={`hidden lg:flex ${sidebarCollapsed ? 'w-16' : 'w-64'} flex-col border-r border-slate-800 bg-slate-900/50 backdrop-blur-md transition-all duration-300`}>
-        <div className="flex h-16 items-center justify-between border-b border-slate-800 px-6">
+        <div className={`flex h-16 items-center border-b border-slate-800 ${sidebarCollapsed ? 'justify-center px-2' : 'justify-between px-6'}`}>
           {!sidebarCollapsed && <h2 className="text-xl font-bold text-white">Admin Panel</h2>}
           <Button
             variant="ghost"
             size="icon"
             onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-            className="text-white hover:bg-slate-800 ml-auto"
+            className={`text-white hover:bg-slate-800 ${sidebarCollapsed ? '' : 'ml-auto'}`}
             title={sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
           >
             {sidebarCollapsed ? (

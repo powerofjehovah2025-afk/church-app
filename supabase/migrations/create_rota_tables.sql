@@ -2,20 +2,6 @@
 -- This migration creates tables for managing church service duties and assignments
 -- Updated to handle existing policies gracefully
 
--- Drop existing policies if they exist (for safe re-running)
-DROP POLICY IF EXISTS "Admins can view all services" ON public.services;
-DROP POLICY IF EXISTS "Admins can manage services" ON public.services;
-DROP POLICY IF EXISTS "Members can view services" ON public.services;
-DROP POLICY IF EXISTS "Admins can view all duty types" ON public.duty_types;
-DROP POLICY IF EXISTS "Admins can manage duty types" ON public.duty_types;
-DROP POLICY IF EXISTS "Members can view active duty types" ON public.duty_types;
-DROP POLICY IF EXISTS "Admins can view all assignments" ON public.service_assignments;
-DROP POLICY IF EXISTS "Admins can manage assignments" ON public.service_assignments;
-DROP POLICY IF EXISTS "Members can view own assignments" ON public.service_assignments;
-
--- Drop existing triggers if they exist
-DROP TRIGGER IF EXISTS update_services_updated_at ON public.services;
-
 -- Create services table
 CREATE TABLE IF NOT EXISTS public.services (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -52,7 +38,7 @@ CREATE TABLE IF NOT EXISTS public.service_assignments (
   duty_type_id UUID NOT NULL REFERENCES public.duty_types(id) ON DELETE CASCADE,
   member_id UUID NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
   status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'confirmed', 'declined', 'completed')),
-  assigned_by UUID NOT NULL REFERENCES public.profiles(id) ON DELETE SET NULL,
+  assigned_by UUID REFERENCES public.profiles(id) ON DELETE SET NULL,
   assigned_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   notes TEXT,
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
@@ -71,6 +57,23 @@ CREATE INDEX IF NOT EXISTS idx_service_assignments_assigned_at ON public.service
 ALTER TABLE public.services ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.duty_types ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.service_assignments ENABLE ROW LEVEL SECURITY;
+
+-- Drop existing policies if they exist (for safe re-running)
+-- Note: These must come after table creation
+DROP POLICY IF EXISTS "Admins can view all services" ON public.services;
+DROP POLICY IF EXISTS "Admins can manage services" ON public.services;
+DROP POLICY IF EXISTS "Members can view services" ON public.services;
+DROP POLICY IF EXISTS "Admins can view all duty types" ON public.duty_types;
+DROP POLICY IF EXISTS "Admins can manage duty types" ON public.duty_types;
+DROP POLICY IF EXISTS "Members can view active duty types" ON public.duty_types;
+DROP POLICY IF EXISTS "Admins can view all assignments" ON public.service_assignments;
+DROP POLICY IF EXISTS "Admins can manage assignments" ON public.service_assignments;
+DROP POLICY IF EXISTS "Members can view own assignments" ON public.service_assignments;
+
+-- Drop existing triggers if they exist
+DROP TRIGGER IF EXISTS update_services_updated_at ON public.services;
+DROP TRIGGER IF EXISTS update_duty_types_updated_at ON public.duty_types;
+DROP TRIGGER IF EXISTS update_service_assignments_updated_at ON public.service_assignments;
 
 -- RLS Policies for services
 -- Admins can view all services

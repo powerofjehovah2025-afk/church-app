@@ -259,6 +259,128 @@ export type Database = {
           },
         ]
       }
+      services: {
+        Row: {
+          id: string
+          date: string
+          name: string
+          time: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          date: string
+          name: string
+          time?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          date?: string
+          name?: string
+          time?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      duty_types: {
+        Row: {
+          id: string
+          name: string
+          description: string | null
+          is_active: boolean
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          name: string
+          description?: string | null
+          is_active?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          name?: string
+          description?: string | null
+          is_active?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      service_assignments: {
+        Row: {
+          id: string
+          service_id: string
+          duty_type_id: string
+          member_id: string
+          status: string
+          assigned_by: string
+          assigned_at: string
+          notes: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          service_id: string
+          duty_type_id: string
+          member_id: string
+          status?: string
+          assigned_by: string
+          assigned_at?: string
+          notes?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          service_id?: string
+          duty_type_id?: string
+          member_id?: string
+          status?: string
+          assigned_by?: string
+          assigned_at?: string
+          notes?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "service_assignments_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "services"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "service_assignments_duty_type_id_fkey"
+            columns: ["duty_type_id"]
+            isOneToOne: false
+            referencedRelation: "duty_types"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "service_assignments_member_id_fkey"
+            columns: ["member_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "service_assignments_assigned_by_fkey"
+            columns: ["assigned_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -410,3 +532,15 @@ export type ProfileUpdate = Database["public"]["Tables"]["profiles"]["Update"]
 export type Event = Database["public"]["Tables"]["events"]["Row"]
 export type EventInsert = Database["public"]["Tables"]["events"]["Insert"]
 export type EventUpdate = Database["public"]["Tables"]["events"]["Update"]
+
+export type Service = Database["public"]["Tables"]["services"]["Row"]
+export type ServiceInsert = Database["public"]["Tables"]["services"]["Insert"]
+export type ServiceUpdate = Database["public"]["Tables"]["services"]["Update"]
+
+export type DutyType = Database["public"]["Tables"]["duty_types"]["Row"]
+export type DutyTypeInsert = Database["public"]["Tables"]["duty_types"]["Insert"]
+export type DutyTypeUpdate = Database["public"]["Tables"]["duty_types"]["Update"]
+
+export type ServiceAssignment = Database["public"]["Tables"]["service_assignments"]["Row"]
+export type ServiceAssignmentInsert = Database["public"]["Tables"]["service_assignments"]["Insert"]
+export type ServiceAssignmentUpdate = Database["public"]["Tables"]["service_assignments"]["Update"]

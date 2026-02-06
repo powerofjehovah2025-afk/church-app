@@ -9,7 +9,10 @@ import {
   Menu, 
   LogOut,
   Users,
-  Key
+  Key,
+  Calendar,
+  ChevronLeft,
+  ChevronRight
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
@@ -24,6 +27,7 @@ export default function AdminLayout({
 }) {
   const [hasMounted, setHasMounted] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [qrSheetOpen, setQrSheetOpen] = useState(false);
   const [mobileQrSheetOpen, setMobileQrSheetOpen] = useState(false);
   const pathname = usePathname();
@@ -51,6 +55,11 @@ export default function AdminLayout({
       icon: LayoutDashboard,
     },
     {
+      name: "Rota Management",
+      href: "/admin/rota",
+      icon: Calendar,
+    },
+    {
       name: "User Management",
       href: "/admin/users",
       icon: Users,
@@ -70,9 +79,22 @@ export default function AdminLayout({
   return (
     <div className="min-h-screen bg-[#0f172a] flex">
       {/* Sidebar - Desktop */}
-      <aside className="hidden lg:flex w-64 flex-col border-r border-slate-800 bg-slate-900/50 backdrop-blur-md">
-        <div className="flex h-16 items-center border-b border-slate-800 px-6">
-          <h2 className="text-xl font-bold text-white">Admin Panel</h2>
+      <aside className={`hidden lg:flex ${sidebarCollapsed ? 'w-16' : 'w-64'} flex-col border-r border-slate-800 bg-slate-900/50 backdrop-blur-md transition-all duration-300`}>
+        <div className="flex h-16 items-center justify-between border-b border-slate-800 px-6">
+          {!sidebarCollapsed && <h2 className="text-xl font-bold text-white">Admin Panel</h2>}
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
+            className="text-white hover:bg-slate-800 ml-auto"
+            title={sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+          >
+            {sidebarCollapsed ? (
+              <ChevronRight className="h-5 w-5" />
+            ) : (
+              <ChevronLeft className="h-5 w-5" />
+            )}
+          </Button>
         </div>
         
         <nav className="flex-1 space-y-1 p-4">
@@ -87,10 +109,11 @@ export default function AdminLayout({
                   isActive
                     ? "bg-slate-800 text-white"
                     : "text-slate-300 hover:bg-slate-800/50 hover:text-white"
-                }`}
+                } ${sidebarCollapsed ? 'justify-center' : ''}`}
+                title={sidebarCollapsed ? item.name : undefined}
               >
-                <Icon className="h-5 w-5" />
-                {item.name}
+                <Icon className="h-5 w-5 flex-shrink-0" />
+                {!sidebarCollapsed && <span>{item.name}</span>}
               </Link>
             );
           })}
@@ -103,10 +126,11 @@ export default function AdminLayout({
               <SheetTrigger asChild>
                 <Button
                   variant="outline"
-                  className="w-full justify-start bg-slate-800/50 border-slate-700/50 hover:bg-slate-700/50 text-white"
+                  className={`w-full ${sidebarCollapsed ? 'px-0 justify-center' : 'justify-start'} bg-slate-800/50 border-slate-700/50 hover:bg-slate-700/50 text-white`}
+                  title={sidebarCollapsed ? "QR Code Generator" : undefined}
                 >
-                  <QrCode className="h-5 w-5 mr-2" />
-                  QR Code Generator
+                  <QrCode className={`h-5 w-5 ${sidebarCollapsed ? '' : 'mr-2'}`} />
+                  {!sidebarCollapsed && "QR Code Generator"}
                 </Button>
               </SheetTrigger>
               <SheetContent 
@@ -138,10 +162,11 @@ export default function AdminLayout({
           <Button
             onClick={handleLogout}
             variant="outline"
-            className="w-full justify-start bg-slate-800/50 border-slate-700/50 hover:bg-slate-700/50 text-white"
+            className={`w-full ${sidebarCollapsed ? 'px-0 justify-center' : 'justify-start'} bg-slate-800/50 border-slate-700/50 hover:bg-slate-700/50 text-white`}
+            title={sidebarCollapsed ? "Logout" : undefined}
           >
-            <LogOut className="h-5 w-5 mr-2" />
-            Logout
+            <LogOut className={`h-5 w-5 ${sidebarCollapsed ? '' : 'mr-2'}`} />
+            {!sidebarCollapsed && "Logout"}
           </Button>
         </div>
       </aside>

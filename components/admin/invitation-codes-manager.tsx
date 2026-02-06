@@ -46,16 +46,51 @@ export function InvitationCodesManager() {
 
   const fetchCodes = useCallback(async () => {
     setIsLoading(true);
+    // #region agent log
+    fetch('http://127.0.0.1:7242/ingest/2f7dee51-1168-41d3-a81f-2777c65ab77d',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'components/admin/invitation-codes-manager.tsx:47',message:'fetchCodes entry',data:{},timestamp:Date.now(),sessionId:'debug-session',runId:'run4',hypothesisId:'A'})}).catch(()=>{});
+    // #endregion
     try {
       const response = await fetch("/api/admin/invitation-codes");
+      // #region agent log
+      fetch('http://127.0.0.1:7242/ingest/2f7dee51-1168-41d3-a81f-2777c65ab77d',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'components/admin/invitation-codes-manager.tsx:50',message:'Fetch response received',data:{status:response.status,statusText:response.statusText,ok:response.ok},timestamp:Date.now(),sessionId:'debug-session',runId:'run4',hypothesisId:'A'})}).catch(()=>{});
+      // #endregion
+      
+      const responseText = await response.text();
+      console.log("[DEBUG] API Response:", { status: response.status, text: responseText });
+      
       if (!response.ok) {
-        throw new Error("Failed to fetch codes");
+        let errorData;
+        try {
+          errorData = JSON.parse(responseText);
+        } catch {
+          errorData = { error: responseText || "Unknown error" };
+        }
+        console.error("[ERROR] API Error:", errorData);
+        // #region agent log
+        fetch('http://127.0.0.1:7242/ingest/2f7dee51-1168-41d3-a81f-2777c65ab77d',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'components/admin/invitation-codes-manager.tsx:53',message:'Response not ok - throwing error',data:{status:response.status,errorData},timestamp:Date.now(),sessionId:'debug-session',runId:'run4',hypothesisId:'A'})}).catch(()=>{});
+        // #endregion
+        setMessage({ 
+          type: "error", 
+          text: errorData.error || `Failed to load invitation codes (${response.status})` 
+        });
+        return;
       }
-      const data = await response.json();
+      
+      const data = JSON.parse(responseText);
+      console.log("[DEBUG] Parsed data:", data);
+      // #region agent log
+      fetch('http://127.0.0.1:7242/ingest/2f7dee51-1168-41d3-a81f-2777c65ab77d',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'components/admin/invitation-codes-manager.tsx:56',message:'Response data parsed',data:{hasCodes:!!data.codes,codesCount:data.codes?.length,dataKeys:Object.keys(data)},timestamp:Date.now(),sessionId:'debug-session',runId:'run4',hypothesisId:'D'})}).catch(()=>{});
+      // #endregion
       setCodes(data.codes || []);
     } catch (error) {
-      console.error("Error fetching codes:", error);
-      setMessage({ type: "error", text: "Failed to load invitation codes" });
+      console.error("[ERROR] Error fetching codes:", error);
+      // #region agent log
+      fetch('http://127.0.0.1:7242/ingest/2f7dee51-1168-41d3-a81f-2777c65ab77d',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'components/admin/invitation-codes-manager.tsx:58',message:'Catch block - error occurred',data:{errorMessage:error instanceof Error ? error.message : String(error)},timestamp:Date.now(),sessionId:'debug-session',runId:'run4',hypothesisId:'E'})}).catch(()=>{});
+      // #endregion
+      setMessage({ 
+        type: "error", 
+        text: `Failed to load invitation codes: ${error instanceof Error ? error.message : String(error)}` 
+      });
     } finally {
       setIsLoading(false);
     }

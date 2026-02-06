@@ -1,5 +1,18 @@
 -- Migration: Create invitation_codes table
 -- This table stores invitation codes that control who can sign up
+-- Updated to handle existing policies gracefully
+
+-- Drop existing policies if they exist (for safe re-running)
+DROP POLICY IF EXISTS "Admins can view all invitation codes" ON public.invitation_codes;
+DROP POLICY IF EXISTS "Admins can create invitation codes" ON public.invitation_codes;
+DROP POLICY IF EXISTS "Admins can update invitation codes" ON public.invitation_codes;
+DROP POLICY IF EXISTS "Anyone can check code validity" ON public.invitation_codes;
+DROP POLICY IF EXISTS "Admins can view all code usage" ON public.invitation_code_usage;
+DROP POLICY IF EXISTS "Users can view own code usage" ON public.invitation_code_usage;
+DROP POLICY IF EXISTS "Users can track own code usage" ON public.invitation_code_usage;
+
+-- Drop existing triggers if they exist
+DROP TRIGGER IF EXISTS update_invitation_codes_updated_at ON public.invitation_codes;
 
 CREATE TABLE IF NOT EXISTS public.invitation_codes (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),

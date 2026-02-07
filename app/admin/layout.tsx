@@ -82,11 +82,10 @@ export default function AdminLayout({
       <aside className={`hidden lg:flex ${sidebarCollapsed ? 'w-16' : 'w-64'} flex-col border-r border-slate-800 bg-slate-900/50 backdrop-blur-md transition-all duration-300`}>
         <div className={`flex h-16 items-center border-b border-slate-800 ${sidebarCollapsed ? 'justify-center px-2' : 'justify-between px-6'}`}>
           {!sidebarCollapsed && <h2 className="text-xl font-bold text-white">Admin Panel</h2>}
-          <Button
-            variant="ghost"
-            size="icon"
+          <button
+            type="button"
             onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-            className={`text-white hover:bg-slate-700 hover:text-white border border-slate-700 bg-slate-800/50 ${sidebarCollapsed ? '' : 'ml-auto'}`}
+            className={`flex items-center justify-center h-9 w-9 rounded-md text-white hover:bg-slate-700 border border-slate-600 bg-slate-800 transition-colors ${sidebarCollapsed ? '' : 'ml-auto'}`}
             title={sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
             aria-label={sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
           >
@@ -95,7 +94,7 @@ export default function AdminLayout({
             ) : (
               <ChevronLeft className="h-5 w-5" />
             )}
-          </Button>
+          </button>
         </div>
         
         <nav className="flex-1 space-y-1 p-4">

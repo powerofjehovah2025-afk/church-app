@@ -1,0 +1,37 @@
+<svg width="200" height="200" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+  <!-- Outer golden-brown ring -->
+  <circle cx="100" cy="100" r="95" fill="#8B6914" stroke="#B8860B" stroke-width="3"/>
+  
+  <!-- Dark red inner ring -->
+  <circle cx="100" cy="100" r="85" fill="#8B1538" stroke="#7B1E3A" stroke-width="2"/>
+  
+  <!-- Stars around the ring -->
+  <g fill="#FFD700">
+    <path d="M100 15 L102 22 L109 22 L103 27 L105 34 L100 29 L95 34 L97 27 L91 22 L98 22 Z"/>
+    <path d="M185 100 L178 102 L178 109 L173 103 L166 105 L171 100 L166 95 L173 97 L178 91 L178 98 Z"/>
+    <path d="M100 185 L102 178 L109 178 L103 173 L105 166 L100 171 L95 166 L97 173 L91 178 L98 178 Z"/>
+    <path d="M15 100 L22 98 L22 91 L27 97 L34 95 L29 100 L34 105 L27 103 L22 109 L22 102 Z"/>
+    <!-- Additional stars at 45-degree positions -->
+    <path d="M142 58 L144 65 L151 65 L145 70 L147 77 L142 72 L137 77 L139 70 L133 65 L140 65 Z"/>
+    <path d="M142 142 L144 135 L151 135 L145 130 L147 123 L142 128 L137 123 L139 130 L133 135 L140 135 Z"/>
+    <path d="M58 58 L65 60 L65 67 L70 61 L77 63 L72 68 L77 73 L70 71 L65 77 L65 70 Z"/>
+    <path d="M58 142 L65 140 L65 133 L70 139 L77 137 L72 132 L77 127 L70 129 L65 123 L65 130 Z"/>
+  </g>
+  
+  <!-- Dark blue center circle -->
+  <circle cx="100" cy="100" r="60" fill="#1E3A5F"/>
+  
+  <!-- Green circular band -->
+  <circle cx="100" cy="100" r="55" fill="none" stroke="#2D5016" stroke-width="3"/>
+  
+  <!-- White dove (simplified) -->
+  <path d="M 85 95 Q 100 85 115 95 Q 110 100 100 110 Q 90 100 85 95 Z" fill="white" opacity="0.9"/>
+  <circle cx="95" cy="100" r="3" fill="white"/>
+  <path d="M 100 95 L 105 90 L 110 95" stroke="white" stroke-width="2" fill="none"/>
+  
+  <!-- Text around the circle (simplified representation) -->
+  <text x="100" y="50" font-family="Arial, sans-serif" font-size="8" fill="white" text-anchor="middle" font-weight="bold">THE REDEEMED</text>
+  <text x="100" y="60" font-family="Arial, sans-serif" font-size="8" fill="white" text-anchor="middle" font-weight="bold">CHRISTIAN CHURCH</text>
+  <text x="100" y="70" font-family="Arial, sans-serif" font-size="8" fill="white" text-anchor="middle" font-weight="bold">OF GOD</text>
+</svg>
+

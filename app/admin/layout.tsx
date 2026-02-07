@@ -86,8 +86,9 @@ export default function AdminLayout({
             variant="ghost"
             size="icon"
             onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-            className={`text-white hover:bg-slate-800 ${sidebarCollapsed ? '' : 'ml-auto'}`}
+            className={`text-white hover:bg-slate-700 hover:text-white border border-slate-700 bg-slate-800/50 ${sidebarCollapsed ? '' : 'ml-auto'}`}
             title={sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+            aria-label={sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
           >
             {sidebarCollapsed ? (
               <ChevronRight className="h-5 w-5" />

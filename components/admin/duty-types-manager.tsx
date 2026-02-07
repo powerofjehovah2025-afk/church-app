@@ -287,7 +287,7 @@ export function DutyTypesManager() {
           ) : dutyTypes.length === 0 ? (
             <div className="py-12 text-center text-slate-400">
               <p>No duty types created yet.</p>
-              <p className="mt-2 text-sm">Click "Create Duty Type" to get started.</p>
+              <p className="mt-2 text-sm">Click &quot;Create Duty Type&quot; to get started.</p>
             </div>
           ) : (
             <div className="space-y-2">

@@ -115,7 +115,7 @@ export async function GET() {
         .in("id", creatorIds);
       
       // Map creators to codes
-      const codesWithCreators = codes.map((code: any) => ({
+      const codesWithCreators = codes.map((code: { created_by: string; [key: string]: unknown }) => ({
         ...code,
         creator: creators?.find((c: { id: string }) => c.id === code.created_by) || null,
       }));

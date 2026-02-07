@@ -310,7 +310,7 @@ export function ServicesManager() {
             <div className="py-12 text-center text-slate-400">
               <Calendar className="mx-auto h-12 w-12 mb-4 opacity-50" />
               <p>No services created yet.</p>
-              <p className="mt-2 text-sm">Click "Create Service" to get started.</p>
+              <p className="mt-2 text-sm">Click &quot;Create Service&quot; to get started.</p>
             </div>
           ) : (
             <div className="space-y-2">

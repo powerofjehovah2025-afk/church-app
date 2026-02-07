@@ -52,6 +52,12 @@ export default {
           "4": "hsl(var(--chart-4))",
           "5": "hsl(var(--chart-5))",
         },
+        rccg: {
+          maroon: "hsl(var(--rccg-maroon))",
+          gold: "hsl(var(--rccg-gold))",
+          navy: "hsl(var(--rccg-navy))",
+          green: "hsl(var(--rccg-green))",
+        },
       },
       borderRadius: {
         lg: "var(--radius)",

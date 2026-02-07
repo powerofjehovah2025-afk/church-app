@@ -19,6 +19,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/co
 import { QRCodeDisplay } from "@/components/qr-code-display";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
+import { RCCGLogo, RCCGLogoIcon } from "@/components/rccg-logo";
 
 export default function AdminLayout({
   children,
@@ -73,19 +74,23 @@ export default function AdminLayout({
 
   // Return skeleton while mounting to prevent hydration mismatch
   if (!hasMounted) {
-    return <div className="min-h-screen bg-[#0f172a]" />;
+    return <div className="min-h-screen bg-background" />;
   }
 
   return (
-    <div className="min-h-screen bg-[#0f172a] flex">
+    <div className="min-h-screen bg-background flex">
       {/* Sidebar - Desktop */}
-      <aside className={`hidden lg:flex ${sidebarCollapsed ? 'w-16' : 'w-64'} flex-col border-r border-slate-800 bg-slate-900/50 backdrop-blur-md transition-all duration-300`}>
-        <div className={`flex h-16 items-center border-b border-slate-800 ${sidebarCollapsed ? 'justify-center px-2' : 'justify-between px-6'}`}>
-          {!sidebarCollapsed && <h2 className="text-xl font-bold text-white">Admin Panel</h2>}
+      <aside className={`hidden lg:flex ${sidebarCollapsed ? 'w-16' : 'w-64'} flex-col border-r border-rccg-navy/30 bg-rccg-navy/20 backdrop-blur-md transition-all duration-300`}>
+        <div className={`flex h-16 items-center border-b border-rccg-navy/30 ${sidebarCollapsed ? 'justify-center px-2' : 'justify-between px-4'}`}>
+          {sidebarCollapsed ? (
+            <RCCGLogoIcon size={32} />
+          ) : (
+            <RCCGLogo size={40} showText={true} className="flex-1" />
+          )}
           <button
             type="button"
             onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-            className={`flex items-center justify-center h-9 w-9 rounded-md text-white hover:bg-slate-700 border border-slate-600 bg-slate-800 transition-colors ${sidebarCollapsed ? '' : 'ml-auto'}`}
+            className={`flex items-center justify-center h-9 w-9 rounded-md text-white hover:bg-rccg-maroon/50 border border-rccg-navy/50 bg-rccg-navy/30 transition-colors ${sidebarCollapsed ? '' : 'ml-auto'}`}
             title={sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
             aria-label={sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
           >
@@ -107,8 +112,8 @@ export default function AdminLayout({
                 href={item.href}
                 className={`flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
                   isActive
-                    ? "bg-slate-800 text-white"
-                    : "text-slate-300 hover:bg-slate-800/50 hover:text-white"
+                    ? "bg-rccg-maroon text-white"
+                    : "text-slate-300 hover:bg-rccg-navy/30 hover:text-white"
                 } ${sidebarCollapsed ? 'justify-center' : ''}`}
                 title={sidebarCollapsed ? item.name : undefined}
               >
@@ -120,13 +125,13 @@ export default function AdminLayout({
         </nav>
 
         {/* QR Code Generator Section */}
-        <div className="border-t border-slate-800 p-4">
+        <div className="border-t border-rccg-navy/30 p-4">
           {hasMounted && (
             <Sheet open={qrSheetOpen} onOpenChange={setQrSheetOpen}>
               <SheetTrigger asChild>
                 <Button
                   variant="outline"
-                  className={`w-full ${sidebarCollapsed ? 'px-0 justify-center' : 'justify-start'} bg-slate-800/50 border-slate-700/50 hover:bg-slate-700/50 text-white`}
+                  className={`w-full ${sidebarCollapsed ? 'px-0 justify-center' : 'justify-start'} bg-rccg-navy/30 border-rccg-navy/50 hover:bg-rccg-maroon/50 text-white`}
                   title={sidebarCollapsed ? "QR Code Generator" : undefined}
                 >
                   <QrCode className={`h-5 w-5 ${sidebarCollapsed ? '' : 'mr-2'}`} />
@@ -135,7 +140,7 @@ export default function AdminLayout({
               </SheetTrigger>
               <SheetContent 
                 side="right" 
-                className="w-full sm:max-w-md bg-slate-900/95 backdrop-blur-md border-slate-800"
+                className="w-full sm:max-w-md bg-rccg-navy/95 backdrop-blur-md border-rccg-navy/50"
               >
                 <SheetHeader>
                   <SheetTitle className="text-white">Form QR Codes</SheetTitle>
@@ -158,11 +163,11 @@ export default function AdminLayout({
         </div>
 
         {/* Logout Button */}
-        <div className="border-t border-slate-800 p-4">
+        <div className="border-t border-rccg-navy/30 p-4">
           <Button
             onClick={handleLogout}
             variant="outline"
-            className={`w-full ${sidebarCollapsed ? 'px-0 justify-center' : 'justify-start'} bg-slate-800/50 border-slate-700/50 hover:bg-slate-700/50 text-white`}
+            className={`w-full ${sidebarCollapsed ? 'px-0 justify-center' : 'justify-start'} bg-rccg-navy/30 border-rccg-navy/50 hover:bg-rccg-maroon/50 text-white`}
             title={sidebarCollapsed ? "Logout" : undefined}
           >
             <LogOut className={`h-5 w-5 ${sidebarCollapsed ? '' : 'mr-2'}`} />
@@ -176,10 +181,10 @@ export default function AdminLayout({
         <Sheet open={sidebarOpen} onOpenChange={setSidebarOpen}>
           <SheetContent 
             side="left" 
-            className="w-64 bg-slate-900/95 backdrop-blur-md border-slate-800 p-0"
+            className="w-64 bg-rccg-navy/95 backdrop-blur-md border-rccg-navy/50 p-0"
           >
-          <div className="flex h-16 items-center border-b border-slate-800 px-6">
-            <h2 className="text-xl font-bold text-white">Admin Panel</h2>
+          <div className="flex h-16 items-center border-b border-rccg-navy/30 px-6">
+            <RCCGLogo size={40} showText={true} />
           </div>
           
           <nav className="flex-1 space-y-1 p-4">
@@ -193,8 +198,8 @@ export default function AdminLayout({
                   onClick={() => setSidebarOpen(false)}
                   className={`flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
                     isActive
-                      ? "bg-slate-800 text-white"
-                      : "text-slate-300 hover:bg-slate-800/50 hover:text-white"
+                      ? "bg-rccg-maroon text-white"
+                      : "text-slate-300 hover:bg-rccg-navy/30 hover:text-white"
                   }`}
                 >
                   <Icon className="h-5 w-5" />
@@ -204,14 +209,14 @@ export default function AdminLayout({
             })}
           </nav>
 
-          <div className="border-t border-slate-800 p-4 space-y-2">
+          <div className="border-t border-rccg-navy/30 p-4 space-y-2">
             <Button
               variant="outline"
               onClick={() => {
                 setSidebarOpen(false);
                 setTimeout(() => setMobileQrSheetOpen(true), 300);
               }}
-              className="w-full justify-start bg-slate-800/50 border-slate-700/50 hover:bg-slate-700/50 text-white"
+              className="w-full justify-start bg-rccg-navy/30 border-rccg-navy/50 hover:bg-rccg-maroon/50 text-white"
             >
               <QrCode className="h-5 w-5 mr-2" />
               QR Code Generator
@@ -220,7 +225,7 @@ export default function AdminLayout({
             <Button
               onClick={handleLogout}
               variant="outline"
-              className="w-full justify-start bg-slate-800/50 border-slate-700/50 hover:bg-slate-700/50 text-white"
+              className="w-full justify-start bg-rccg-navy/30 border-rccg-navy/50 hover:bg-rccg-maroon/50 text-white"
             >
               <LogOut className="h-5 w-5 mr-2" />
               Logout
@@ -235,7 +240,7 @@ export default function AdminLayout({
         <Sheet open={mobileQrSheetOpen} onOpenChange={setMobileQrSheetOpen}>
         <SheetContent 
           side="right" 
-          className="w-full sm:max-w-md bg-slate-900/95 backdrop-blur-md border-slate-800"
+          className="w-full sm:max-w-md bg-rccg-navy/95 backdrop-blur-md border-rccg-navy/50"
         >
           <SheetHeader>
             <SheetTitle className="text-white">Form QR Codes</SheetTitle>
@@ -259,21 +264,21 @@ export default function AdminLayout({
       {/* Main Content */}
       <div className="flex-1 flex flex-col">
         {/* Mobile Header */}
-        <header className="lg:hidden flex h-16 items-center border-b border-slate-800 px-4 bg-slate-900/50 backdrop-blur-md">
+        <header className="lg:hidden flex h-16 items-center border-b border-rccg-navy/30 px-4 bg-rccg-navy/20 backdrop-blur-md">
           {hasMounted && (
             <Sheet open={sidebarOpen} onOpenChange={setSidebarOpen}>
               <SheetTrigger asChild>
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="text-white hover:bg-slate-800"
+                  className="text-white hover:bg-rccg-maroon/50"
                 >
                   <Menu className="h-6 w-6" />
                 </Button>
               </SheetTrigger>
             </Sheet>
           )}
-          <h1 className="ml-4 text-lg font-semibold text-white">Admin Panel</h1>
+          <RCCGLogo size={36} showText={true} className="ml-2" />
         </header>
 
         {/* Page Content */}

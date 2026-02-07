@@ -70,15 +70,15 @@ export default async function DashboardPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0f172a] text-foreground">
+    <div className="min-h-screen bg-background text-foreground">
       <div className="mx-auto max-w-7xl p-6 pb-24">
         {/* Header */}
         <div className="mb-8 flex items-center justify-between">
           <div>
-            <h1 className="text-4xl font-bold tracking-tight text-white bg-gradient-to-r from-white to-slate-300 bg-clip-text text-transparent">
+            <h1 className="text-4xl font-bold tracking-tight text-foreground bg-gradient-to-r from-foreground to-muted-foreground bg-clip-text text-transparent">
               Welcome, {(profile as { full_name?: string | null } | null)?.full_name || user.email?.split("@")[0] || "Member"}!
             </h1>
-            <p className="text-slate-400 mt-2 text-lg">
+            <p className="text-muted-foreground mt-2 text-lg">
               Your church dashboard
             </p>
           </div>
@@ -86,7 +86,7 @@ export default async function DashboardPage() {
             <Button
               type="submit"
               variant="outline"
-              className="bg-slate-800/50 border-slate-700/50 hover:bg-slate-700/50 text-white"
+              className="bg-rccg-navy/30 border-rccg-navy/50 hover:bg-rccg-maroon/50 text-foreground"
             >
               <LogOut className="h-4 w-4 mr-2" />
               Logout

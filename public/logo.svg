@@ -1,37 +1,83 @@
-<svg width="200" height="200" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
-  <!-- Outer golden-brown ring -->
-  <circle cx="100" cy="100" r="95" fill="#8B6914" stroke="#B8860B" stroke-width="3"/>
+<svg width="400" height="500" viewBox="0 0 400 500" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="400" height="500" fill="#000000"/>
   
-  <!-- Dark red inner ring -->
-  <circle cx="100" cy="100" r="85" fill="#8B1538" stroke="#7B1E3A" stroke-width="2"/>
-  
-  <!-- Stars around the ring -->
-  <g fill="#FFD700">
-    <path d="M100 15 L102 22 L109 22 L103 27 L105 34 L100 29 L95 34 L97 27 L91 22 L98 22 Z"/>
-    <path d="M185 100 L178 102 L178 109 L173 103 L166 105 L171 100 L166 95 L173 97 L178 91 L178 98 Z"/>
-    <path d="M100 185 L102 178 L109 178 L103 173 L105 166 L100 171 L95 166 L97 173 L91 178 L98 178 Z"/>
-    <path d="M15 100 L22 98 L22 91 L27 97 L34 95 L29 100 L34 105 L27 103 L22 109 L22 102 Z"/>
-    <!-- Additional stars at 45-degree positions -->
-    <path d="M142 58 L144 65 L151 65 L145 70 L147 77 L142 72 L137 77 L139 70 L133 65 L140 65 Z"/>
-    <path d="M142 142 L144 135 L151 135 L145 130 L147 123 L142 128 L137 123 L139 130 L133 135 L140 135 Z"/>
-    <path d="M58 58 L65 60 L65 67 L70 61 L77 63 L72 68 L77 73 L70 71 L65 77 L65 70 Z"/>
-    <path d="M58 142 L65 140 L65 133 L70 139 L77 137 L72 132 L77 127 L70 129 L65 123 L65 130 Z"/>
+  <!-- Circular Emblem Group -->
+  <g transform="translate(200, 200)">
+    <!-- Outermost golden-brown ring with stars -->
+    <circle cx="0" cy="0" r="95" fill="#8B6914" stroke="#B8860B" stroke-width="2"/>
+    
+    <!-- Twelve golden-yellow stars evenly spaced -->
+    <g fill="#FFD700">
+      <!-- Top star -->
+      <path d="M 0 -95 L 2 -88 L 9 -88 L 3 -83 L 5 -76 L 0 -81 L -5 -76 L -3 -83 L -9 -88 L -2 -88 Z"/>
+      <!-- Right star -->
+      <path d="M 95 0 L 88 2 L 88 9 L 83 3 L 76 5 L 81 0 L 76 -5 L 83 -3 L 88 -9 L 88 -2 Z"/>
+      <!-- Bottom star -->
+      <path d="M 0 95 L 2 88 L 9 88 L 3 83 L 5 76 L 0 81 L -5 76 L -3 83 L -9 88 L -2 88 Z"/>
+      <!-- Left star -->
+      <path d="M -95 0 L -88 -2 L -88 -9 L -83 -3 L -76 -5 L -81 0 L -76 5 L -83 3 L -88 9 L -88 2 Z"/>
+      <!-- 45-degree positions -->
+      <path d="M 67 -67 L 70 -60 L 77 -60 L 71 -55 L 73 -48 L 67 -53 L 62 -48 L 64 -55 L 58 -60 L 65 -60 Z"/>
+      <path d="M 67 67 L 70 60 L 77 60 L 71 55 L 73 48 L 67 53 L 62 48 L 64 55 L 58 60 L 65 60 Z"/>
+      <path d="M -67 67 L -70 60 L -77 60 L -71 55 L -73 48 L -67 53 L -62 48 L -64 55 L -58 60 L -65 60 Z"/>
+      <path d="M -67 -67 L -70 -60 L -77 -60 L -71 -55 L -73 -48 L -67 -53 L -62 -48 L -64 -55 L -58 -60 L -65 -60 Z"/>
+      <!-- 30-degree positions -->
+      <path d="M 82 -48 L 85 -41 L 92 -41 L 86 -36 L 88 -29 L 82 -34 L 77 -29 L 79 -36 L 73 -41 L 80 -41 Z"/>
+      <path d="M 48 -82 L 51 -75 L 58 -75 L 52 -70 L 54 -63 L 48 -68 L 43 -63 L 45 -70 L 39 -75 L 46 -75 Z"/>
+      <path d="M 82 48 L 85 41 L 92 41 L 86 36 L 88 29 L 82 34 L 77 29 L 79 36 L 73 41 L 80 41 Z"/>
+      <path d="M 48 82 L 51 75 L 58 75 L 52 70 L 54 63 L 48 68 L 43 63 L 45 70 L 39 75 L 46 75 Z"/>
+      <path d="M -48 82 L -51 75 L -58 75 L -52 70 L -54 63 L -48 68 L -43 63 L -45 70 L -39 75 L -46 75 Z"/>
+      <path d="M -82 48 L -85 41 L -92 41 L -86 36 L -88 29 L -82 34 L -77 29 L -79 36 L -73 41 L -80 41 Z"/>
+      <path d="M -48 -82 L -51 -75 L -58 -75 L -52 -70 L -54 -63 L -48 -68 L -43 -63 L -45 -70 L -39 -75 L -46 -75 Z"/>
+      <path d="M -82 -48 L -85 -41 L -92 -41 L -86 -36 L -88 -29 L -82 -34 L -77 -29 L -79 -36 L -73 -41 L -80 -41 Z"/>
+    </g>
+    
+    <!-- Flame at the top (dark red with orange highlights) -->
+    <g transform="translate(0, -95)">
+      <path d="M -8 0 Q -5 -15 0 -25 Q 5 -15 8 0 L 5 5 Q 0 0 -5 5 Z" fill="#8B1538"/>
+      <path d="M -6 -5 Q -3 -18 0 -25 Q 3 -18 6 -5" fill="#FF6B35" opacity="0.7"/>
+      <path d="M -4 -10 Q -2 -20 0 -25 Q 2 -20 4 -10" fill="#FFA500" opacity="0.5"/>
+    </g>
+    
+    <!-- Middle dark red (maroon) ring with text -->
+    <circle cx="0" cy="0" r="85" fill="#8B1538" stroke="#7B1E3A" stroke-width="1"/>
+    
+    <!-- Green accent border around middle ring -->
+    <circle cx="0" cy="0" r="85" fill="none" stroke="#2D5016" stroke-width="1.5" opacity="0.6"/>
+    
+    <!-- Text on the middle ring: "THE REDEEMED CHRISTIAN CHURCH OF GOD" -->
+    <text x="0" y="0" font-family="Arial, sans-serif" font-size="9" fill="white" text-anchor="middle" font-weight="bold">
+      <textPath href="#textPath1" startOffset="50%">
+        THE REDEEMED * CHRISTIAN * CHURCH * OF * GOD
+      </textPath>
+    </text>
+    <circle id="textPath1" cx="0" cy="0" r="75" fill="none" stroke="none"/>
+    
+    <!-- Green accent around inner edge -->
+    <circle cx="0" cy="0" r="60" fill="none" stroke="#2D5016" stroke-width="1" opacity="0.7"/>
+    
+    <!-- Innermost dark blue circle -->
+    <circle cx="0" cy="0" r="55" fill="#1E3A5F" stroke="#1E40AF" stroke-width="1"/>
+    
+    <!-- White dove silhouette facing right -->
+    <g transform="translate(0, 0)">
+      <!-- Dove body -->
+      <ellipse cx="5" cy="0" rx="12" ry="8" fill="white" opacity="0.95"/>
+      <!-- Dove head -->
+      <circle cx="12" cy="-3" r="5" fill="white" opacity="0.95"/>
+      <!-- Dove beak -->
+      <path d="M 16 -3 L 19 -2 L 16 -1 Z" fill="white" opacity="0.95"/>
+      <!-- Dove wings (spread upwards) -->
+      <path d="M -5 -5 Q 0 -15 5 -8 Q 10 -15 15 -5" fill="white" opacity="0.9" stroke="none"/>
+      <path d="M -3 -3 Q 2 -12 7 -6 Q 12 -12 17 -3" fill="white" opacity="0.85" stroke="none"/>
+      <!-- Dove tail -->
+      <path d="M -8 2 Q -5 8 0 5 Q 5 8 8 2" fill="white" opacity="0.9"/>
+    </g>
   </g>
   
-  <!-- Dark blue center circle -->
-  <circle cx="100" cy="100" r="60" fill="#1E3A5F"/>
-  
-  <!-- Green circular band -->
-  <circle cx="100" cy="100" r="55" fill="none" stroke="#2D5016" stroke-width="3"/>
-  
-  <!-- White dove (simplified) -->
-  <path d="M 85 95 Q 100 85 115 95 Q 110 100 100 110 Q 90 100 85 95 Z" fill="white" opacity="0.9"/>
-  <circle cx="95" cy="100" r="3" fill="white"/>
-  <path d="M 100 95 L 105 90 L 110 95" stroke="white" stroke-width="2" fill="none"/>
-  
-  <!-- Text around the circle (simplified representation) -->
-  <text x="100" y="50" font-family="Arial, sans-serif" font-size="8" fill="white" text-anchor="middle" font-weight="bold">THE REDEEMED</text>
-  <text x="100" y="60" font-family="Arial, sans-serif" font-size="8" fill="white" text-anchor="middle" font-weight="bold">CHRISTIAN CHURCH</text>
-  <text x="100" y="70" font-family="Arial, sans-serif" font-size="8" fill="white" text-anchor="middle" font-weight="bold">OF GOD</text>
+  <!-- "POWER OF JEHOVAH" text below the emblem -->
+  <text x="200" y="350" font-family="Arial, sans-serif" font-size="42" fill="#8B1538" text-anchor="middle" font-weight="bold" letter-spacing="2">
+    POWER OF JEHOVAH
+  </text>
 </svg>
-

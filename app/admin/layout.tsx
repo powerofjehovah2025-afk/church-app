@@ -140,12 +140,12 @@ export default function AdminLayout({
               </SheetTrigger>
               <SheetContent 
                 side="right" 
-                className="w-full sm:max-w-md bg-rccg-navy/95 backdrop-blur-md border-rccg-navy/50"
+                className="w-full sm:max-w-md bg-rccg-navy/95 backdrop-blur-md border-rccg-navy/50 overflow-y-auto"
               >
                 <SheetHeader>
                   <SheetTitle className="text-white">Form QR Codes</SheetTitle>
                 </SheetHeader>
-                <div className="mt-6 space-y-6">
+                <div className="mt-6 space-y-6 pb-6">
                   <QRCodeDisplay 
                     url={`${baseUrl}/welcome`}
                     title="Welcome Form"
@@ -240,12 +240,12 @@ export default function AdminLayout({
         <Sheet open={mobileQrSheetOpen} onOpenChange={setMobileQrSheetOpen}>
         <SheetContent 
           side="right" 
-          className="w-full sm:max-w-md bg-rccg-navy/95 backdrop-blur-md border-rccg-navy/50"
+          className="w-full sm:max-w-md bg-rccg-navy/95 backdrop-blur-md border-rccg-navy/50 overflow-y-auto"
         >
           <SheetHeader>
             <SheetTitle className="text-white">Form QR Codes</SheetTitle>
           </SheetHeader>
-          <div className="mt-6 space-y-6">
+          <div className="mt-6 space-y-6 pb-6">
             <QRCodeDisplay 
               url={`${baseUrl}/welcome`}
               title="Welcome Form"

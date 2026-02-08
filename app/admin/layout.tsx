@@ -12,7 +12,8 @@ import {
   Key,
   Calendar,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  FileText
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
@@ -69,6 +70,11 @@ export default function AdminLayout({
       name: "Invitation Codes",
       href: "/admin/invitation-codes",
       icon: Key,
+    },
+    {
+      name: "Form Builder",
+      href: "/admin/forms",
+      icon: FileText,
     },
   ];
 

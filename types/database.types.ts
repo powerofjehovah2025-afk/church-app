@@ -381,6 +381,136 @@ export type Database = {
           },
         ]
       }
+      form_configs: {
+        Row: {
+          id: string
+          form_type: string
+          title: string
+          description: string | null
+          is_active: boolean
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          form_type: string
+          title: string
+          description?: string | null
+          is_active?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          form_type?: string
+          title?: string
+          description?: string | null
+          is_active?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      form_fields: {
+        Row: {
+          id: string
+          form_config_id: string
+          field_key: string
+          field_type: string
+          label: string
+          placeholder: string | null
+          description: string | null
+          is_required: boolean
+          validation_rules: Json
+          default_value: string | null
+          display_order: number
+          section: string | null
+          options: Json
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          form_config_id: string
+          field_key: string
+          field_type: string
+          label: string
+          placeholder?: string | null
+          description?: string | null
+          is_required?: boolean
+          validation_rules?: Json
+          default_value?: string | null
+          display_order?: number
+          section?: string | null
+          options?: Json
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          form_config_id?: string
+          field_key?: string
+          field_type?: string
+          label?: string
+          placeholder?: string | null
+          description?: string | null
+          is_required?: boolean
+          validation_rules?: Json
+          default_value?: string | null
+          display_order?: number
+          section?: string | null
+          options?: Json
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "form_fields_form_config_id_fkey"
+            columns: ["form_config_id"]
+            isOneToOne: false
+            referencedRelation: "form_configs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      form_static_content: {
+        Row: {
+          id: string
+          form_config_id: string
+          content_key: string
+          content: string
+          content_type: string
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          form_config_id: string
+          content_key: string
+          content: string
+          content_type?: string
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          form_config_id?: string
+          content_key?: string
+          content?: string
+          content_type?: string
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "form_static_content_form_config_id_fkey"
+            columns: ["form_config_id"]
+            isOneToOne: false
+            referencedRelation: "form_configs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -544,3 +674,15 @@ export type DutyTypeUpdate = Database["public"]["Tables"]["duty_types"]["Update"
 export type ServiceAssignment = Database["public"]["Tables"]["service_assignments"]["Row"]
 export type ServiceAssignmentInsert = Database["public"]["Tables"]["service_assignments"]["Insert"]
 export type ServiceAssignmentUpdate = Database["public"]["Tables"]["service_assignments"]["Update"]
+
+export type FormConfig = Database["public"]["Tables"]["form_configs"]["Row"]
+export type FormConfigInsert = Database["public"]["Tables"]["form_configs"]["Insert"]
+export type FormConfigUpdate = Database["public"]["Tables"]["form_configs"]["Update"]
+
+export type FormField = Database["public"]["Tables"]["form_fields"]["Row"]
+export type FormFieldInsert = Database["public"]["Tables"]["form_fields"]["Insert"]
+export type FormFieldUpdate = Database["public"]["Tables"]["form_fields"]["Update"]
+
+export type FormStaticContent = Database["public"]["Tables"]["form_static_content"]["Row"]
+export type FormStaticContentInsert = Database["public"]["Tables"]["form_static_content"]["Insert"]
+export type FormStaticContentUpdate = Database["public"]["Tables"]["form_static_content"]["Update"]

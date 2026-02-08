@@ -1,14 +1,19 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import type { DutyTypeInsert, DutyTypeUpdate } from "@/types/database.types";
+import type { FormConfigUpdate } from "@/types/database.types";
 
 /**
- * GET: List all duty types (admin can see all, members see active only)
- * POST: Create a new duty type (admin only)
+ * GET: Get specific form config with fields and static content (admin only)
+ * PUT: Update form config (admin only)
+ * DELETE: Deactivate form config (soft delete, admin only)
  */
-export async function GET() {
+export async function GET(
+  request: Request,
+  { params }: { params: Promise<{ formType: string }> }
+) {
   try {
+    const { formType } = await params;
     const supabase = await createClient();
     const {
       data: { user },
@@ -29,68 +34,6 @@ export async function GET() {
       .eq("id", user.id)
       .single();
 
-    const isAdmin = profile?.role === "admin";
-
-    // Use admin client for admin, regular client for members
-    const client = isAdmin ? createAdminClient() : supabase;
-
-    // Admins see all, members see only active
-    const query = client
-      .from("duty_types")
-      .select("*")
-      .order("name", { ascending: true });
-
-    if (!isAdmin) {
-      query.eq("is_active", true);
-    }
-
-    const { data: dutyTypes, error } = await query;
-
-    if (error) {
-      console.error("Error fetching duty types:", error);
-      return NextResponse.json(
-        { error: error.message },
-        { status: 500 }
-      );
-    }
-
-    return NextResponse.json({ dutyTypes: dutyTypes || [] });
-  } catch (error) {
-    console.error("Unexpected error:", error);
-    return NextResponse.json(
-      {
-        error: error instanceof Error ? error.message : "An unexpected error occurred",
-      },
-      { status: 500 }
-    );
-  }
-}
-
-/**
- * POST: Create a new duty type (admin only)
- */
-export async function POST(request: Request) {
-  try {
-    const supabase = await createClient();
-    const {
-      data: { user },
-      error: userError,
-    } = await supabase.auth.getUser();
-
-    if (userError || !user) {
-      return NextResponse.json(
-        { error: "Unauthorized" },
-        { status: 401 }
-      );
-    }
-
-    // Verify user is admin
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("role")
-      .eq("id", user.id)
-      .single();
-
     if (profile?.role !== "admin") {
       return NextResponse.json(
         { error: "Forbidden. Admin access required." },
@@ -98,38 +41,63 @@ export async function POST(request: Request) {
       );
     }
 
-    const body = await request.json().catch(() => ({}));
-    const { name, description, is_active } = body;
+    const admin = createAdminClient();
+    
+    // Get form config
+    const { data: formConfig, error: configError } = await admin
+      .from("form_configs")
+      .select("*")
+      .eq("form_type", formType)
+      .single();
 
-    if (!name || typeof name !== "string" || name.trim().length === 0) {
+    if (configError) {
+      console.error("Error fetching form config:", configError);
       return NextResponse.json(
-        { error: "Name is required" },
-        { status: 400 }
+        { error: configError.message },
+        { status: 500 }
       );
     }
 
-    const admin = createAdminClient();
-    const { data: newDutyType, error } = await admin
-      .from("duty_types")
-      .insert({
-        name: name.trim(),
-        description: description?.trim() || null,
-        is_active: is_active !== undefined ? Boolean(is_active) : true,
-      } as DutyTypeInsert)
-      .select()
-      .single();
-
-    if (error) {
-      console.error("Error creating duty type:", error);
+    if (!formConfig) {
       return NextResponse.json(
-        { error: error.message },
+        { error: "Form config not found" },
+        { status: 404 }
+      );
+    }
+
+    // Get form fields
+    const { data: formFields, error: fieldsError } = await admin
+      .from("form_fields")
+      .select("*")
+      .eq("form_config_id", formConfig.id)
+      .order("display_order", { ascending: true });
+
+    if (fieldsError) {
+      console.error("Error fetching form fields:", fieldsError);
+      return NextResponse.json(
+        { error: fieldsError.message },
+        { status: 500 }
+      );
+    }
+
+    // Get static content
+    const { data: staticContent, error: contentError } = await admin
+      .from("form_static_content")
+      .select("*")
+      .eq("form_config_id", formConfig.id);
+
+    if (contentError) {
+      console.error("Error fetching static content:", contentError);
+      return NextResponse.json(
+        { error: contentError.message },
         { status: 500 }
       );
     }
 
     return NextResponse.json({
-      success: true,
-      dutyType: newDutyType,
+      formConfig,
+      formFields: formFields || [],
+      staticContent: staticContent || [],
     });
   } catch (error) {
     console.error("Unexpected error:", error);
@@ -143,10 +111,14 @@ export async function POST(request: Request) {
 }
 
 /**
- * PUT: Update a duty type (admin only)
+ * PUT: Update form config (admin only)
  */
-export async function PUT(request: Request) {
+export async function PUT(
+  request: Request,
+  { params }: { params: Promise<{ formType: string }> }
+) {
   try {
+    const { formType } = await params;
     const supabase = await createClient();
     const {
       data: { user },
@@ -175,24 +147,17 @@ export async function PUT(request: Request) {
     }
 
     const body = await request.json().catch(() => ({}));
-    const { id, name, description, is_active } = body;
+    const { title, description, is_active } = body;
 
-    if (!id) {
-      return NextResponse.json(
-        { error: "Duty type ID is required" },
-        { status: 400 }
-      );
-    }
-
-    const updateData: DutyTypeUpdate = {};
-    if (name !== undefined) {
-      if (typeof name !== "string" || name.trim().length === 0) {
+    const updateData: FormConfigUpdate = {};
+    if (title !== undefined) {
+      if (typeof title !== "string" || title.trim().length === 0) {
         return NextResponse.json(
-          { error: "Name must be a non-empty string" },
+          { error: "Title must be a non-empty string" },
           { status: 400 }
         );
       }
-      updateData.name = name.trim();
+      updateData.title = title.trim();
     }
     if (description !== undefined) {
       updateData.description = description?.trim() || null;
@@ -202,15 +167,15 @@ export async function PUT(request: Request) {
     }
 
     const admin = createAdminClient();
-    const { data: updatedDutyType, error } = await admin
-      .from("duty_types")
+    const { data: updatedFormConfig, error } = await admin
+      .from("form_configs")
       .update(updateData)
-      .eq("id", id)
+      .eq("form_type", formType)
       .select()
       .single();
 
     if (error) {
-      console.error("Error updating duty type:", error);
+      console.error("Error updating form config:", error);
       return NextResponse.json(
         { error: error.message },
         { status: 500 }
@@ -219,7 +184,7 @@ export async function PUT(request: Request) {
 
     return NextResponse.json({
       success: true,
-      dutyType: updatedDutyType,
+      formConfig: updatedFormConfig,
     });
   } catch (error) {
     console.error("Unexpected error:", error);
@@ -233,10 +198,14 @@ export async function PUT(request: Request) {
 }
 
 /**
- * DELETE: Deactivate a duty type (soft delete, admin only)
+ * DELETE: Deactivate form config (soft delete, admin only)
  */
-export async function DELETE(request: Request) {
+export async function DELETE(
+  request: Request,
+  { params }: { params: Promise<{ formType: string }> }
+) {
   try {
+    const { formType } = await params;
     const supabase = await createClient();
     const {
       data: { user },
@@ -264,27 +233,17 @@ export async function DELETE(request: Request) {
       );
     }
 
-    const { searchParams } = new URL(request.url);
-    const id = searchParams.get("id");
-
-    if (!id) {
-      return NextResponse.json(
-        { error: "Duty type ID is required" },
-        { status: 400 }
-      );
-    }
-
     const admin = createAdminClient();
     // Soft delete by setting is_active to false
-    const { data: updatedDutyType, error } = await admin
-      .from("duty_types")
-      .update({ is_active: false } as DutyTypeUpdate)
-      .eq("id", id)
+    const { data: updatedFormConfig, error } = await admin
+      .from("form_configs")
+      .update({ is_active: false } as FormConfigUpdate)
+      .eq("form_type", formType)
       .select()
       .single();
 
     if (error) {
-      console.error("Error deactivating duty type:", error);
+      console.error("Error deactivating form config:", error);
       return NextResponse.json(
         { error: error.message },
         { status: 500 }
@@ -293,7 +252,7 @@ export async function DELETE(request: Request) {
 
     return NextResponse.json({
       success: true,
-      dutyType: updatedDutyType,
+      formConfig: updatedFormConfig,
     });
   } catch (error) {
     console.error("Unexpected error:", error);
@@ -305,5 +264,4 @@ export async function DELETE(request: Request) {
     );
   }
 }
-
 

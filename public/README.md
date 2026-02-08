@@ -14,3 +14,4 @@ The logo will be displayed in:
 - Login page
 - Mobile navigation header
 
+

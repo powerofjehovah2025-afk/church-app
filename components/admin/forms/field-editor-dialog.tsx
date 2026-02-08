@@ -255,7 +255,8 @@ export function FieldEditorDialog({
     onSave({
       ...formData,
       description: formData.description || null,
-      transformation_config: formData.transformation_config as unknown,
+      default_value: formData.default_value || null,
+      transformation_config: formData.transformation_config as Record<string, unknown> as unknown,
     });
   };
 

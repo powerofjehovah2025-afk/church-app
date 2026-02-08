@@ -194,6 +194,7 @@ export function FieldEditorDialog({
         section: (template.section as string | null) ?? prev.section,
         default_value: (template.default_value as string | null) ?? prev.default_value,
         db_column: (template.db_column as string | null) ?? prev.db_column,
+        transformation_type: (template.transformation_type as "direct" | "combine" | "notes" | "array" | "custom" | null) ?? prev.transformation_type,
         options: (template.options as Array<{ label: string; value: string }>) || prev.options,
       }));
     }

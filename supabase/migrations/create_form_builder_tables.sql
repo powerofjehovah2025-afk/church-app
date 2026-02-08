@@ -67,6 +67,11 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+-- Drop existing triggers if they exist (must be after tables are created)
+DROP TRIGGER IF EXISTS update_form_configs_updated_at ON public.form_configs;
+DROP TRIGGER IF EXISTS update_form_fields_updated_at ON public.form_fields;
+DROP TRIGGER IF EXISTS update_form_static_content_updated_at ON public.form_static_content;
+
 -- Create triggers for updated_at
 CREATE TRIGGER update_form_configs_updated_at
   BEFORE UPDATE ON public.form_configs

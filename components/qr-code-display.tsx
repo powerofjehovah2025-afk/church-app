@@ -40,7 +40,7 @@ export function QRCodeDisplay({ url, title, size = 200 }: QRCodeDisplayProps) {
   };
 
   return (
-    <div className="flex flex-col items-center gap-4 p-4 bg-slate-900/40 backdrop-blur-md rounded-lg border border-slate-700/50">
+    <div className="flex flex-col items-center gap-4 p-4 bg-slate-900/40 backdrop-blur-md rounded-lg border border-slate-700/50 flex-shrink-0">
       <h3 className="font-semibold text-white text-sm">{title}</h3>
       <div ref={qrRef} className="p-3 bg-white rounded-lg">
         <QRCodeSVG

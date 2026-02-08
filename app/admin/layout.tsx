@@ -151,21 +151,21 @@ export default function AdminLayout({
                 <SheetHeader>
                   <SheetTitle className="text-white">Form QR Codes</SheetTitle>
                 </SheetHeader>
-                <div className="mt-6 flex flex-wrap gap-4 pb-6 justify-center">
+                <div className="mt-6 flex flex-row flex-wrap gap-4 pb-6 justify-center items-start">
                   <QRCodeDisplay 
                     url={`${baseUrl}/welcome`}
                     title="Welcome Form"
-                    size={200}
+                    size={180}
                   />
                   <QRCodeDisplay 
                     url={`${baseUrl}/membership`}
                     title="Membership Form"
-                    size={200}
+                    size={180}
                   />
                   <QRCodeDisplay 
                     url={`${baseUrl}/newcomer`}
                     title="Newcomer Form"
-                    size={200}
+                    size={180}
                   />
                 </div>
               </SheetContent>
@@ -256,21 +256,21 @@ export default function AdminLayout({
           <SheetHeader>
             <SheetTitle className="text-white">Form QR Codes</SheetTitle>
           </SheetHeader>
-          <div className="mt-6 flex flex-wrap gap-4 pb-6 justify-center">
+          <div className="mt-6 flex flex-row flex-wrap gap-4 pb-6 justify-center items-start">
             <QRCodeDisplay 
               url={`${baseUrl}/welcome`}
               title="Welcome Form"
-              size={200}
+              size={180}
             />
             <QRCodeDisplay 
               url={`${baseUrl}/membership`}
               title="Membership Form"
-              size={200}
+              size={180}
             />
             <QRCodeDisplay 
               url={`${baseUrl}/newcomer`}
               title="Newcomer Form"
-              size={200}
+              size={180}
             />
           </div>
         </SheetContent>

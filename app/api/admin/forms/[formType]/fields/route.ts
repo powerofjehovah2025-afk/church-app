@@ -42,18 +42,32 @@ export async function GET(
 
     const admin = createAdminClient();
     
-    // Get form config first
+    // Get published version (or latest if none published)
     const { data: formConfig } = await admin
       .from("form_configs")
       .select("id")
       .eq("form_type", formType)
+      .eq("status", "published")
       .single();
 
     if (!formConfig) {
-      return NextResponse.json(
-        { error: "Form config not found" },
-        { status: 404 }
-      );
+      // Fallback to latest version
+      const { data: latestConfig } = await admin
+        .from("form_configs")
+        .select("id")
+        .eq("form_type", formType)
+        .order("version", { ascending: false })
+        .limit(1)
+        .single();
+
+      if (!latestConfig) {
+        return NextResponse.json(
+          { error: "Form config not found" },
+          { status: 404 }
+        );
+      }
+      // Use latestConfig.id instead of formConfig.id below
+      const formConfigId = latestConfig.id;
     }
 
     // Get form fields
@@ -122,6 +136,7 @@ export async function POST(
     const body = await request.json().catch(() => ({}));
     const {
       id, // If provided, update existing field
+      version_id, // Version to add field to
       field_key,
       field_type,
       label,
@@ -137,18 +152,53 @@ export async function POST(
 
     const admin = createAdminClient();
     
-    // Get form config
-    const { data: formConfig } = await admin
-      .from("form_configs")
-      .select("id")
-      .eq("form_type", formType)
-      .single();
+    // Get form config - use version_id if provided, otherwise get published version
+    let formConfigId: string;
+    
+    if (version_id) {
+      const { data: version } = await admin
+        .from("form_configs")
+        .select("id")
+        .eq("id", version_id)
+        .eq("form_type", formType)
+        .single();
 
-    if (!formConfig) {
-      return NextResponse.json(
-        { error: "Form config not found" },
-        { status: 404 }
-      );
+      if (!version) {
+        return NextResponse.json(
+          { error: "Form version not found" },
+          { status: 404 }
+        );
+      }
+      formConfigId = version.id;
+    } else {
+      // Get published version (or latest if none published)
+      const { data: formConfig } = await admin
+        .from("form_configs")
+        .select("id")
+        .eq("form_type", formType)
+        .eq("status", "published")
+        .single();
+
+      if (!formConfig) {
+        // Fallback to latest version
+        const { data: latestConfig } = await admin
+          .from("form_configs")
+          .select("id")
+          .eq("form_type", formType)
+          .order("version", { ascending: false })
+          .limit(1)
+          .single();
+
+        if (!latestConfig) {
+          return NextResponse.json(
+            { error: "Form config not found" },
+            { status: 404 }
+          );
+        }
+        formConfigId = latestConfig.id;
+      } else {
+        formConfigId = formConfig.id;
+      }
     }
 
     // Validate required fields
@@ -212,7 +262,7 @@ export async function POST(
     const { data: newField, error } = await admin
       .from("form_fields")
       .insert({
-        form_config_id: formConfig.id,
+        form_config_id: formConfigId,
         field_key: field_key.trim(),
         field_type: field_type.trim(),
         label: label.trim(),

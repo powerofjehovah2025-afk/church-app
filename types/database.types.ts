@@ -388,6 +388,10 @@ export type Database = {
           title: string
           description: string | null
           is_active: boolean
+          version: number
+          status: string
+          version_name: string | null
+          parent_version_id: string | null
           created_at: string
           updated_at: string
         }
@@ -397,6 +401,10 @@ export type Database = {
           title: string
           description?: string | null
           is_active?: boolean
+          version?: number
+          status?: string
+          version_name?: string | null
+          parent_version_id?: string | null
           created_at?: string
           updated_at?: string
         }
@@ -406,10 +414,22 @@ export type Database = {
           title?: string
           description?: string | null
           is_active?: boolean
+          version?: number
+          status?: string
+          version_name?: string | null
+          parent_version_id?: string | null
           created_at?: string
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "form_configs_parent_version_id_fkey"
+            columns: ["parent_version_id"]
+            isOneToOne: false
+            referencedRelation: "form_configs"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       form_fields: {
         Row: {

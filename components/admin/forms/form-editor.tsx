@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowLeft, Plus, Loader2, Copy, GripVertical } from "lucide-react";
+import { ArrowLeft, Plus, Loader2, Copy, GripVertical, GitBranch, Rocket, FileText } from "lucide-react";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import type { FormConfig, FormField, FormStaticContent } from "@/types/database.types";
 import { FieldEditorDialog } from "./field-editor-dialog";
@@ -20,7 +20,10 @@ export function FormEditor({ formType, onBack }: FormEditorProps) {
   const [formConfig, setFormConfig] = useState<FormConfig | null>(null);
   const [formFields, setFormFields] = useState<FormField[]>([]);
   const [staticContent, setStaticContent] = useState<FormStaticContent[]>([]);
+  const [allVersions, setAllVersions] = useState<FormConfig[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isCreatingVersion, setIsCreatingVersion] = useState(false);
+  const [isPublishing, setIsPublishing] = useState(false);
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
   const [editingField, setEditingField] = useState<FormField | null>(null);
   const [isFieldDialogOpen, setIsFieldDialogOpen] = useState(false);
@@ -44,6 +47,7 @@ export function FormEditor({ formType, onBack }: FormEditorProps) {
       setFormConfig(data.formConfig);
       setFormFields(data.formFields || []);
       setStaticContent(data.staticContent || []);
+      setAllVersions(data.allVersions || []);
     } catch (error) {
       console.error("Error fetching form data:", error);
       setMessage({
@@ -111,7 +115,10 @@ export function FormEditor({ formType, onBack }: FormEditorProps) {
       const response = await fetch(`/api/admin/forms/${formType}/fields`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(duplicatedField),
+        body: JSON.stringify({
+          ...duplicatedField,
+          version_id: formConfig?.id,
+        }),
       });
 
       if (!response.ok) {
@@ -190,6 +197,7 @@ export function FormEditor({ formType, onBack }: FormEditorProps) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           id: editingField?.id,
+          version_id: formConfig?.id,
           ...fieldData,
         }),
       });
@@ -214,12 +222,14 @@ export function FormEditor({ formType, onBack }: FormEditorProps) {
   };
 
   const handleUpdateConfig = async (updates: Partial<FormConfig>) => {
-    setIsSaving(true);
     try {
       const response = await fetch(`/api/admin/forms/${formType}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(updates),
+        body: JSON.stringify({
+          version_id: formConfig?.id,
+          ...updates,
+        }),
       });
 
       if (!response.ok) {
@@ -229,6 +239,7 @@ export function FormEditor({ formType, onBack }: FormEditorProps) {
 
       const data = await response.json();
       setFormConfig(data.formConfig);
+      await fetchFormData(); // Refresh to get updated versions
       setMessage({ type: "success", text: "Form updated successfully" });
       setTimeout(() => setMessage(null), 3000);
     } catch (error) {
@@ -237,8 +248,88 @@ export function FormEditor({ formType, onBack }: FormEditorProps) {
         type: "error",
         text: error instanceof Error ? error.message : "Failed to update form",
       });
+    }
+  };
+
+  const handleCreateVersion = async () => {
+    const versionName = prompt("Enter a name for this version (optional):");
+    setIsCreatingVersion(true);
+    try {
+      const response = await fetch(`/api/admin/forms/${formType}/versions`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ version_name: versionName || undefined }),
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || "Failed to create version");
+      }
+
+      await fetchFormData();
+      setMessage({ type: "success", text: "New version created successfully" });
+      setTimeout(() => setMessage(null), 3000);
+    } catch (error) {
+      console.error("Error creating version:", error);
+      setMessage({
+        type: "error",
+        text: error instanceof Error ? error.message : "Failed to create version",
+      });
     } finally {
-      setIsSaving(false);
+      setIsCreatingVersion(false);
+    }
+  };
+
+  const handlePublishVersion = async (versionId: string) => {
+    if (!confirm("Are you sure you want to publish this version? This will archive the current published version.")) {
+      return;
+    }
+
+    setIsPublishing(true);
+    try {
+      const response = await fetch(`/api/admin/forms/${formType}/publish`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ version_id: versionId }),
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || "Failed to publish version");
+      }
+
+      await fetchFormData();
+      setMessage({ type: "success", text: "Version published successfully" });
+      setTimeout(() => setMessage(null), 3000);
+    } catch (error) {
+      console.error("Error publishing version:", error);
+      setMessage({
+        type: "error",
+        text: error instanceof Error ? error.message : "Failed to publish version",
+      });
+    } finally {
+      setIsPublishing(false);
+    }
+  };
+
+  const handleSwitchVersion = async (versionId: string) => {
+    try {
+      const response = await fetch(`/api/admin/forms/${formType}/${versionId}`);
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to load version");
+      }
+
+      setFormConfig(data.formConfig);
+      setFormFields(data.formFields || []);
+      setStaticContent(data.staticContent || []);
+    } catch (error) {
+      console.error("Error loading version:", error);
+      setMessage({
+        type: "error",
+        text: error instanceof Error ? error.message : "Failed to load version",
+      });
     }
   };
 
@@ -283,7 +374,129 @@ export function FormEditor({ formType, onBack }: FormEditorProps) {
             Edit form fields, content, and settings
           </p>
         </div>
+        <div className="flex gap-2">
+          {formConfig.status === "draft" && (
+            <Button
+              onClick={() => handlePublishVersion(formConfig.id)}
+              disabled={isPublishing}
+              className="bg-green-600 hover:bg-green-700"
+            >
+              {isPublishing ? (
+                <Loader2 className="h-4 w-4 animate-spin mr-2" />
+              ) : (
+                <Rocket className="h-4 w-4 mr-2" />
+              )}
+              Publish Version
+            </Button>
+          )}
+          <Button
+            onClick={handleCreateVersion}
+            disabled={isCreatingVersion}
+            variant="outline"
+          >
+            {isCreatingVersion ? (
+              <Loader2 className="h-4 w-4 animate-spin mr-2" />
+            ) : (
+              <GitBranch className="h-4 w-4 mr-2" />
+            )}
+            Create New Version
+          </Button>
+        </div>
       </div>
+
+      {/* Version Selector */}
+      {allVersions.length > 1 && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg">Versions</CardTitle>
+            <CardDescription>Switch between versions or create a new one</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-2">
+              {allVersions.map((version) => (
+                <div
+                  key={version.id}
+                  className={`flex items-center justify-between p-3 border rounded-lg ${
+                    version.id === formConfig?.id
+                      ? "bg-primary/10 border-primary"
+                      : "hover:bg-muted/50"
+                  }`}
+                >
+                  <div className="flex items-center gap-3 flex-1">
+                    <div className="flex flex-col">
+                      <div className="flex items-center gap-2">
+                        <span className="font-medium">
+                          Version {version.version}
+                          {version.version_name && ` - ${version.version_name}`}
+                        </span>
+                        <span
+                          className={`text-xs px-2 py-0.5 rounded ${
+                            version.status === "published"
+                              ? "bg-green-100 text-green-800"
+                              : version.status === "draft"
+                              ? "bg-yellow-100 text-yellow-800"
+                              : "bg-gray-100 text-gray-800"
+                          }`}
+                        >
+                          {version.status}
+                        </span>
+                      </div>
+                      <div className="text-sm text-muted-foreground">
+                        {version.title} • Updated {new Date(version.updated_at).toLocaleDateString()}
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex gap-2">
+                    {version.id !== formConfig?.id && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleSwitchVersion(version.id)}
+                      >
+                        <FileText className="h-4 w-4 mr-1" />
+                        Switch
+                      </Button>
+                    )}
+                    {version.status === "draft" && version.id !== formConfig?.id && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handlePublishVersion(version.id)}
+                        disabled={isPublishing}
+                      >
+                        <Rocket className="h-4 w-4 mr-1" />
+                        Publish
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Current Version Info */}
+      {formConfig && (
+        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+          <span>Currently editing:</span>
+          <span className="font-medium text-foreground">
+            Version {formConfig.version}
+            {formConfig.version_name && ` - ${formConfig.version_name}`}
+          </span>
+          <span
+            className={`px-2 py-0.5 rounded text-xs ${
+              formConfig.status === "published"
+                ? "bg-green-100 text-green-800"
+                : formConfig.status === "draft"
+                ? "bg-yellow-100 text-yellow-800"
+                : "bg-gray-100 text-gray-800"
+            }`}
+          >
+            {formConfig.status}
+          </span>
+        </div>
+      )}
 
       {message && (
         <div

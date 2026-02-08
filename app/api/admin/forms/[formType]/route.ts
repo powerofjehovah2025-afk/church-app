@@ -43,20 +43,31 @@ export async function GET(
 
     const admin = createAdminClient();
     
-    // Get form config
-    const { data: formConfig, error: configError } = await admin
+    // Get all versions of this form type, ordered by version desc
+    const { data: formConfigs, error: configError } = await admin
       .from("form_configs")
       .select("*")
       .eq("form_type", formType)
-      .single();
+      .order("version", { ascending: false });
 
     if (configError) {
-      console.error("Error fetching form config:", configError);
+      console.error("Error fetching form configs:", configError);
       return NextResponse.json(
         { error: configError.message },
         { status: 500 }
       );
     }
+
+    if (!formConfigs || formConfigs.length === 0) {
+      return NextResponse.json(
+        { error: "Form config not found" },
+        { status: 404 }
+      );
+    }
+
+    // Get the published version (or first one if none published)
+    const publishedConfig = formConfigs.find((fc) => fc.status === "published") || formConfigs[0];
+    const formConfig = publishedConfig;
 
     if (!formConfig) {
       return NextResponse.json(
@@ -65,7 +76,7 @@ export async function GET(
       );
     }
 
-    // Get form fields
+    // Get form fields for the selected version
     const { data: formFields, error: fieldsError } = await admin
       .from("form_fields")
       .select("*")
@@ -98,6 +109,7 @@ export async function GET(
       formConfig,
       formFields: formFields || [],
       staticContent: staticContent || [],
+      allVersions: formConfigs || [],
     });
   } catch (error) {
     console.error("Unexpected error:", error);
@@ -147,7 +159,29 @@ export async function PUT(
     }
 
     const body = await request.json().catch(() => ({}));
-    const { title, description, is_active } = body;
+    const { version_id, title, description, is_active, version_name, status } = body;
+
+    // If version_id is provided, update that specific version
+    // Otherwise, update the published version
+    let targetId: string;
+    if (version_id) {
+      targetId = version_id;
+    } else {
+      const { data: publishedVersion } = await admin
+        .from("form_configs")
+        .select("id")
+        .eq("form_type", formType)
+        .eq("status", "published")
+        .single();
+      
+      if (!publishedVersion) {
+        return NextResponse.json(
+          { error: "No published version found to update" },
+          { status: 404 }
+        );
+      }
+      targetId = publishedVersion.id;
+    }
 
     const updateData: FormConfigUpdate = {};
     if (title !== undefined) {
@@ -165,12 +199,18 @@ export async function PUT(
     if (is_active !== undefined) {
       updateData.is_active = Boolean(is_active);
     }
+    if (version_name !== undefined) {
+      updateData.version_name = version_name?.trim() || null;
+    }
+    if (status !== undefined && ["draft", "published", "archived"].includes(status)) {
+      updateData.status = status;
+    }
 
     const admin = createAdminClient();
     const { data: updatedFormConfig, error } = await admin
       .from("form_configs")
       .update(updateData)
-      .eq("form_type", formType)
+      .eq("id", targetId)
       .select()
       .single();
 

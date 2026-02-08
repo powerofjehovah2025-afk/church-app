@@ -16,13 +16,36 @@ export async function loadFormConfig(
   try {
     const supabase = createClient();
 
-    // Get form config
-    const { data: formConfig, error: configError } = await supabase
+    // Get published form config (fallback to any active if no published version)
+    const { data: publishedConfig } = await supabase
       .from("form_configs")
       .select("*")
       .eq("form_type", formType)
-      .eq("is_active", true)
+      .eq("status", "published")
       .single();
+
+    let formConfig = publishedConfig;
+
+    // Fallback to any active version if no published version exists
+    if (!formConfig) {
+      const { data: activeConfig } = await supabase
+        .from("form_configs")
+        .select("*")
+        .eq("form_type", formType)
+        .eq("is_active", true)
+        .order("version", { ascending: false })
+        .limit(1)
+        .single();
+      
+      formConfig = activeConfig || null;
+    }
+
+    if (!formConfig) {
+      console.error("Error loading form config: No published or active version found");
+      return null;
+    }
+
+    const configError = null; // No error if we got here
 
     if (configError || !formConfig) {
       console.error("Error loading form config:", configError);

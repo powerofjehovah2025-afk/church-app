@@ -114,7 +114,7 @@ export function FieldEditorDialog({
     field_type: "text",
     label: "",
     placeholder: "",
-    description: "",
+    description: "" as string | null,
     is_required: false,
     default_value: "",
     display_order: 0,
@@ -252,7 +252,11 @@ export function FieldEditorDialog({
       return;
     }
 
-    onSave(formData);
+    onSave({
+      ...formData,
+      description: formData.description || null,
+      transformation_config: formData.transformation_config as unknown,
+    });
   };
 
   const handleAddOption = () => {

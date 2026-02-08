@@ -558,7 +558,7 @@ export function FieldEditorDialog({
                   <Label htmlFor="notes_format">Notes Format</Label>
                   <Input
                     id="notes_format"
-                    value={formData.notes_format}
+                    value={formData.notes_format || ""}
                     onChange={(e) => setFormData({ ...formData, notes_format: e.target.value })}
                     placeholder="e.g., Joining us: {value}"
                   />

@@ -256,8 +256,9 @@ export function FieldEditorDialog({
       ...formData,
       description: formData.description || null,
       default_value: formData.default_value || null,
+      section: formData.section || null,
       transformation_config: formData.transformation_config as Record<string, unknown> as unknown,
-    });
+    } as Partial<FormField>);
   };
 
   const handleAddOption = () => {

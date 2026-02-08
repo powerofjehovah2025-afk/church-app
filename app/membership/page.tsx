@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import type { NewcomerInsert } from "@/types/database.types";
 import { loadFormConfig } from "@/lib/forms/form-loader";
 import { DynamicForm } from "@/components/forms/dynamic-form";
 import { submitFormData } from "@/lib/forms/form-submission-handler";

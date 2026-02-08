@@ -111,7 +111,6 @@ export function FieldCombinationBuilder({
         <div className="space-y-2">
           <Label>Fields to Combine</Label>
           {selectedFields.map((fieldKey, index) => {
-            const field = availableFields.find((f) => f.field_key === fieldKey);
             const availableOptions = availableFields.filter(
               (f) => !selectedFields.includes(f.field_key) || f.field_key === fieldKey
             );

@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import type { NewcomerInsert } from "@/types/database.types";
 import { loadFormConfig } from "@/lib/forms/form-loader";
 import { DynamicForm } from "@/components/forms/dynamic-form";
 import { submitFormData } from "@/lib/forms/form-submission-handler";
@@ -31,38 +30,16 @@ export default function NewcomerPage() {
   }, []);
 
   const handleSubmit = async (formData: Record<string, unknown>) => {
-    const supabase = createClient();
     setIsSubmitting(true);
     setError(null);
 
     try {
-      const full_name = (formData.full_name as string)?.trim() || "";
-      const email = (formData.email as string)?.trim() || "";
+      const result = await submitFormData("newcomer", formData);
 
-      if (!email || !full_name) {
-        setError("Please fill in all required fields");
+      if (!result.success) {
+        setError(result.error || "Failed to submit form");
         return;
       }
-
-      const insertData: NewcomerInsert = {
-        full_name: full_name,
-        email: email || null,
-        phone: (formData.phone as string)?.trim() || null,
-        service_time: (formData.service_time as string) || null,
-        age_group: (formData.age_group as string) || null,
-        interest_areas: Array.isArray(formData.interest_areas) && (formData.interest_areas as string[]).length > 0
-          ? (formData.interest_areas as string[])
-          : null,
-        how_did_you_hear: (formData.how_did_you_hear as string)?.trim() || null,
-        prayer_request: (formData.prayer_request as string)?.trim() || null,
-        status: "New",
-      };
-
-      const { error: insertError } = await supabase
-        .from("newcomers")
-        .insert(insertData);
-
-      if (insertError) throw insertError;
 
       setSuccess(true);
       setTimeout(() => setSuccess(false), 5000);

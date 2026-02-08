@@ -1,6 +1,6 @@
 import { createClient } from "@/lib/supabase/client";
 import { loadFormConfig } from "./form-loader";
-import type { FormField, FormSubmissionRule, NewcomerInsert } from "@/types/database.types";
+import type { FormSubmissionRule, NewcomerInsert } from "@/types/database.types";
 
 export interface SubmissionResult {
   success: boolean;

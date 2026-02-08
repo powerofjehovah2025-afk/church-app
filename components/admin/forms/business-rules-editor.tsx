@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,7 +12,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
 import { Plus, Trash2, GripVertical } from "lucide-react";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import type { FormSubmissionRule, FormField } from "@/types/database.types";
@@ -33,10 +32,8 @@ export function BusinessRulesEditor({
   onDelete,
 }: BusinessRulesEditorProps) {
   const [editingRule, setEditingRule] = useState<Partial<FormSubmissionRule> | null>(null);
-  const [ruleType, setRuleType] = useState<"status_progression" | "validation" | "conditional_save">("status_progression");
 
   const handleAddRule = (type: "status_progression" | "validation" | "conditional_save") => {
-    setRuleType(type);
     setEditingRule({
       rule_type: type,
       rule_config: getDefaultRuleConfig(type),

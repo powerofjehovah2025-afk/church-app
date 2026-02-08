@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import type { FormFieldInsert, FormFieldUpdate } from "@/types/database.types";
+import type { FormFieldUpdate } from "@/types/database.types";
 
 /**
  * GET: Get all fields for a form (admin only)
@@ -67,7 +67,7 @@ export async function GET(
         );
       }
       // Use latestConfig.id instead of formConfig.id below
-      const formConfigId = latestConfig.id;
+      formConfig = latestConfig;
     }
 
     // Get form fields
@@ -202,6 +202,7 @@ export async function POST(
     }
 
     // Validate required fields
+    // formConfigId is used in insertData below
     if (!field_key || typeof field_key !== "string") {
       return NextResponse.json(
         { error: "Field key is required" },
@@ -264,6 +265,26 @@ export async function POST(
     }
 
     // Create new field
+    const insertData = {
+      form_config_id: formConfigId,
+      field_key: field_key.trim(),
+      field_type: field_type.trim(),
+      label: label.trim(),
+      placeholder: placeholder?.trim() || null,
+      description: description?.trim() || null,
+      is_required: is_required !== undefined ? Boolean(is_required) : false,
+      validation_rules: validation_rules || {},
+      default_value: default_value?.trim() || null,
+      display_order: display_order !== undefined ? Number(display_order) : 0,
+      section: section?.trim() || null,
+      options: options || [],
+      db_column: body.db_column?.trim() || null,
+      transformation_type: body.transformation_type || null,
+      transformation_config: body.transformation_config || {},
+      is_notes_field: Boolean(body.is_notes_field || false),
+      notes_format: body.notes_format?.trim() || null,
+    };
+
     const { data: newField, error } = await admin
       .from("form_fields")
       .insert(insertData)

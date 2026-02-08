@@ -10,7 +10,7 @@ export async function DELETE(
   { params }: { params: Promise<{ formType: string; ruleId: string }> }
 ) {
   try {
-    const { formType, ruleId } = await params;
+    const { ruleId } = await params;
     const supabase = await createClient();
     const {
       data: { user },
@@ -40,12 +40,19 @@ export async function DELETE(
 
     const admin = createAdminClient();
 
-    // Verify rule belongs to this form type
-    const { data: rule } = await admin
+    // Verify rule exists
+    const { data: ruleData } = await admin
       .from("form_submission_rules")
-      .select("form_config_id, form_configs!inner(form_type)")
+      .select("form_config_id")
       .eq("id", ruleId)
       .single();
+
+    if (!ruleData) {
+      return NextResponse.json(
+        { error: "Rule not found" },
+        { status: 404 }
+      );
+    }
 
     const { error } = await admin
       .from("form_submission_rules")

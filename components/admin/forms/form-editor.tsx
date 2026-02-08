@@ -4,6 +4,10 @@ import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
 import { ArrowLeft, Plus, Loader2, Copy, GripVertical, GitBranch, Rocket, FileText } from "lucide-react";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import type { FormConfig, FormField, FormStaticContent } from "@/types/database.types";
@@ -705,40 +709,39 @@ export function FormEditor({ formType, onBack }: FormEditorProps) {
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
-                <label className="text-sm font-medium">Title</label>
-                <input
-                  type="text"
-                  value={formConfig.title}
+                <Label htmlFor="title">Title</Label>
+                <Input
+                  id="title"
+                  value={formConfig?.title || ""}
                   onChange={(e) =>
                     handleUpdateConfig({ title: e.target.value })
                   }
-                  className="w-full px-3 py-2 border rounded-md"
+                  placeholder="Welcome Form"
                 />
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-medium">Description</label>
-                <textarea
-                  value={formConfig.description || ""}
+                <Label htmlFor="description">Description</Label>
+                <Textarea
+                  id="description"
+                  value={formConfig?.description || ""}
                   onChange={(e) =>
                     handleUpdateConfig({ description: e.target.value })
                   }
-                  className="w-full px-3 py-2 border rounded-md"
+                  placeholder="Welcome form for new visitors"
                   rows={3}
                 />
               </div>
               <div className="flex items-center space-x-2">
-                <input
-                  type="checkbox"
+                <Checkbox
                   id="is_active"
-                  checked={formConfig.is_active}
-                  onChange={(e) =>
-                    handleUpdateConfig({ is_active: e.target.checked })
+                  checked={formConfig?.is_active || false}
+                  onCheckedChange={(checked) =>
+                    handleUpdateConfig({ is_active: checked as boolean })
                   }
-                  className="h-4 w-4"
                 />
-                <label htmlFor="is_active" className="text-sm font-medium">
+                <Label htmlFor="is_active" className="cursor-pointer">
                   Form is active (visible to users)
-                </label>
+                </Label>
               </div>
             </CardContent>
           </Card>

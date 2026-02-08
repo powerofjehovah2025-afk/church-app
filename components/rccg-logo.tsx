@@ -14,14 +14,13 @@ interface RCCGLogoProps {
 }
 
 export function RCCGLogo({ className = "", showText = true, size = 50 }: RCCGLogoProps) {
-  const [imgSrc, setImgSrc] = useState(LOGO_SRC);
   const [hasError, setHasError] = useState(false);
 
   return (
     <div className={`flex items-center gap-3 ${className}`}>
       <div className="relative" style={{ width: size, height: size }}>
         <Image
-          src={hasError ? LOGO_SVG_FALLBACK : imgSrc}
+          src={hasError ? LOGO_SVG_FALLBACK : LOGO_SRC}
           alt="RCCG Power of Jehovah Logo"
           fill
           className="object-contain"
@@ -50,13 +49,12 @@ export function RCCGLogo({ className = "", showText = true, size = 50 }: RCCGLog
 }
 
 export function RCCGLogoIcon({ size = 40, className = "" }: { size?: number; className?: string }) {
-  const [imgSrc, setImgSrc] = useState(LOGO_SRC);
   const [hasError, setHasError] = useState(false);
 
   return (
     <div className={`relative ${className}`} style={{ width: size, height: size }}>
       <Image
-        src={hasError ? LOGO_SVG_FALLBACK : imgSrc}
+        src={hasError ? LOGO_SVG_FALLBACK : LOGO_SRC}
         alt="RCCG Logo"
         fill
         className="object-contain"

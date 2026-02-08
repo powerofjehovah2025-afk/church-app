@@ -2,19 +2,6 @@
 -- This migration creates tables for managing dynamic form configurations
 -- Updated to handle existing policies gracefully
 
--- Drop existing policies if they exist (for safe re-running)
-DROP POLICY IF EXISTS "Admins can view all form configs" ON public.form_configs;
-DROP POLICY IF EXISTS "Admins can manage form configs" ON public.form_configs;
-DROP POLICY IF EXISTS "Admins can view all form fields" ON public.form_fields;
-DROP POLICY IF EXISTS "Admins can manage form fields" ON public.form_fields;
-DROP POLICY IF EXISTS "Admins can view all form static content" ON public.form_static_content;
-DROP POLICY IF EXISTS "Admins can manage form static content" ON public.form_static_content;
-
--- Drop existing triggers if they exist
-DROP TRIGGER IF EXISTS update_form_configs_updated_at ON public.form_configs;
-DROP TRIGGER IF EXISTS update_form_fields_updated_at ON public.form_fields;
-DROP TRIGGER IF EXISTS update_form_static_content_updated_at ON public.form_static_content;
-
 -- Create form_configs table
 CREATE TABLE IF NOT EXISTS public.form_configs (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -100,6 +87,18 @@ CREATE TRIGGER update_form_static_content_updated_at
 ALTER TABLE public.form_configs ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.form_fields ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.form_static_content ENABLE ROW LEVEL SECURITY;
+
+-- Drop existing policies if they exist (for safe re-running)
+-- Must be done AFTER tables are created
+DROP POLICY IF EXISTS "Admins can view all form configs" ON public.form_configs;
+DROP POLICY IF EXISTS "Admins can manage form configs" ON public.form_configs;
+DROP POLICY IF EXISTS "Admins can view all form fields" ON public.form_fields;
+DROP POLICY IF EXISTS "Admins can manage form fields" ON public.form_fields;
+DROP POLICY IF EXISTS "Admins can view all form static content" ON public.form_static_content;
+DROP POLICY IF EXISTS "Admins can manage form static content" ON public.form_static_content;
+DROP POLICY IF EXISTS "Public can view active form configs" ON public.form_configs;
+DROP POLICY IF EXISTS "Public can view fields of active forms" ON public.form_fields;
+DROP POLICY IF EXISTS "Public can view static content of active forms" ON public.form_static_content;
 
 -- RLS Policies for form_configs
 CREATE POLICY "Admins can view all form configs"

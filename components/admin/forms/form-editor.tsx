@@ -717,6 +717,7 @@ export function FormEditor({ formType, onBack }: FormEditorProps) {
                     handleUpdateConfig({ title: e.target.value })
                   }
                   placeholder="Welcome Form"
+                  className="bg-muted/50 border-muted-foreground/20 text-foreground placeholder:text-muted-foreground focus-visible:bg-muted/70"
                 />
               </div>
               <div className="space-y-2">
@@ -729,6 +730,7 @@ export function FormEditor({ formType, onBack }: FormEditorProps) {
                   }
                   placeholder="Welcome form for new visitors"
                   rows={3}
+                  className="bg-muted/50 border-muted-foreground/20 text-foreground placeholder:text-muted-foreground focus-visible:bg-muted/70"
                 />
               </div>
               <div className="flex items-center space-x-2">

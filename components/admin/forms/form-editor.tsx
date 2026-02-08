@@ -34,6 +34,9 @@ export function FormEditor({ formType, onBack }: FormEditorProps) {
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
   const [editingField, setEditingField] = useState<FormField | null>(null);
   const [isFieldDialogOpen, setIsFieldDialogOpen] = useState(false);
+  // Local state for settings inputs to allow immediate typing
+  const [localTitle, setLocalTitle] = useState("");
+  const [localDescription, setLocalDescription] = useState("");
 
   const formTypeLabels: Record<string, string> = {
     welcome: "Welcome Form",
@@ -712,10 +715,16 @@ export function FormEditor({ formType, onBack }: FormEditorProps) {
                 <Label htmlFor="title">Title</Label>
                 <Input
                   id="title"
-                  value={formConfig?.title || ""}
-                  onChange={(e) =>
-                    handleUpdateConfig({ title: e.target.value })
-                  }
+                  value={localTitle}
+                  onChange={(e) => {
+                    setLocalTitle(e.target.value);
+                    setFormConfig((prev) => (prev ? { ...prev, title: e.target.value } : null));
+                  }}
+                  onBlur={() => {
+                    if (localTitle !== formConfig?.title) {
+                      handleUpdateConfig({ title: localTitle });
+                    }
+                  }}
                   placeholder="Welcome Form"
                   className="bg-muted/50 border-muted-foreground/20 text-foreground placeholder:text-muted-foreground focus-visible:bg-muted/70"
                 />
@@ -724,10 +733,16 @@ export function FormEditor({ formType, onBack }: FormEditorProps) {
                 <Label htmlFor="description">Description</Label>
                 <Textarea
                   id="description"
-                  value={formConfig?.description || ""}
-                  onChange={(e) =>
-                    handleUpdateConfig({ description: e.target.value })
-                  }
+                  value={localDescription}
+                  onChange={(e) => {
+                    setLocalDescription(e.target.value);
+                    setFormConfig((prev) => (prev ? { ...prev, description: e.target.value } : null));
+                  }}
+                  onBlur={() => {
+                    if (localDescription !== formConfig?.description) {
+                      handleUpdateConfig({ description: localDescription });
+                    }
+                  }}
                   placeholder="Welcome form for new visitors"
                   rows={3}
                   className="bg-muted/50 border-muted-foreground/20 text-foreground placeholder:text-muted-foreground focus-visible:bg-muted/70"

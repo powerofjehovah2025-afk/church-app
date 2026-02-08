@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import type { FormConfigInsert, FormConfigUpdate } from "@/types/database.types";
+import type { FormConfigInsert } from "@/types/database.types";
 
 /**
  * GET: List all form configs (admin only)

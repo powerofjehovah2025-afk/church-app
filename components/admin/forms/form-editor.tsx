@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowLeft, Plus, Save, Loader2, Copy, GripVertical } from "lucide-react";
+import { ArrowLeft, Plus, Loader2, Copy, GripVertical } from "lucide-react";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import type { FormConfig, FormField, FormStaticContent } from "@/types/database.types";
 import { FieldEditorDialog } from "./field-editor-dialog";
@@ -21,7 +21,6 @@ export function FormEditor({ formType, onBack }: FormEditorProps) {
   const [formFields, setFormFields] = useState<FormField[]>([]);
   const [staticContent, setStaticContent] = useState<FormStaticContent[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [isSaving, setIsSaving] = useState(false);
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
   const [editingField, setEditingField] = useState<FormField | null>(null);
   const [isFieldDialogOpen, setIsFieldDialogOpen] = useState(false);
@@ -58,6 +57,7 @@ export function FormEditor({ formType, onBack }: FormEditorProps) {
 
   useEffect(() => {
     fetchFormData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [formType]);
 
   const handleAddField = () => {
@@ -324,7 +324,7 @@ export function FormEditor({ formType, onBack }: FormEditorProps) {
             <CardContent>
               {formFields.length === 0 ? (
                 <p className="text-muted-foreground text-center py-8">
-                  No fields yet. Click "Add Field" to get started.
+                  No fields yet. Click &quot;Add Field&quot; to get started.
                 </p>
               ) : (
                 <DragDropContext onDragEnd={handleDragEnd}>

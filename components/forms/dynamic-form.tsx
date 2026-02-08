@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import type { FormConfig, FormField, FormStaticContent } from "@/types/database.types";
 import { FormSection } from "./form-section";
 import { groupFieldsBySection } from "@/lib/forms/form-loader";
-import { validateFormData, type ValidationError } from "@/lib/forms/form-validator";
+import { validateFormData } from "@/lib/forms/form-validator";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 

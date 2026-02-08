@@ -98,7 +98,7 @@ export function validateFormData(
             message: validationRules.patternMessage as string || `${field.label} format is invalid`,
           });
         }
-      } catch (e) {
+      } catch {
         // Invalid regex pattern, skip
         console.warn("Invalid regex pattern in validation rules:", validationRules.pattern);
       }

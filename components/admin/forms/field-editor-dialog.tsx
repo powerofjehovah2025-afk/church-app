@@ -163,7 +163,7 @@ export function FieldEditorDialog({
       const generatedKey = labelToFieldKey(formData.label);
       setFormData((prev) => ({ ...prev, field_key: generatedKey }));
     }
-  }, [formData.label, field]);
+  }, [formData.label, formData.field_key, field]);
 
   const handleApplyTemplate = (templateKey: string) => {
     const template = FIELD_TEMPLATES[templateKey];
@@ -422,7 +422,7 @@ export function FieldEditorDialog({
               placeholder="e.g., Personal Info, Church Info"
             />
             <p className="text-xs text-muted-foreground">
-              Group fields into sections (leave empty for "General")
+              Group fields into sections (leave empty for &quot;General&quot;)
             </p>
           </div>
 

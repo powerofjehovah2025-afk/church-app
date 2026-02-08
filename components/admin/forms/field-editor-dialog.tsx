@@ -190,6 +190,9 @@ export function FieldEditorDialog({
         field_key: labelToFieldKey(template.label || ""),
         label: template.label || prev.label,
         placeholder: template.placeholder || prev.placeholder,
+        description: (template.description as string | null) ?? prev.description,
+        section: (template.section as string | null) ?? prev.section,
+        default_value: (template.default_value as string | null) ?? prev.default_value,
         options: (template.options as Array<{ label: string; value: string }>) || prev.options,
       }));
     }
@@ -452,8 +455,8 @@ export function FieldEditorDialog({
             <Label htmlFor="default_value">Default Value</Label>
             <Input
               id="default_value"
-              value={formData.default_value}
-              onChange={(e) => setFormData({ ...formData, default_value: e.target.value })}
+              value={formData.default_value || ""}
+              onChange={(e) => setFormData({ ...formData, default_value: e.target.value || null })}
               placeholder="Default value for this field"
             />
           </div>

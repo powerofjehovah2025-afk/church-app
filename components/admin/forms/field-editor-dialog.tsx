@@ -124,7 +124,7 @@ export function FieldEditorDialog({
     transformation_type: "direct" as "direct" | "combine" | "notes" | "array" | "custom" | null,
     transformation_config: {} as Record<string, unknown> as unknown,
     is_notes_field: false,
-    notes_format: "",
+    notes_format: "" as string | null,
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [bulkOptionsText, setBulkOptionsText] = useState("");

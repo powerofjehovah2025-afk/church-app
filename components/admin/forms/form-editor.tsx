@@ -246,12 +246,17 @@ export function FormEditor({ formType, onBack }: FormEditorProps) {
   };
 
   const handleUpdateConfig = async (updates: Partial<FormConfig>) => {
+    if (!formConfig?.id) return;
+    
+    // Optimistically update local state
+    setFormConfig((prev) => (prev ? { ...prev, ...updates } : null));
+    
     try {
       const response = await fetch(`/api/admin/forms/${formType}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          version_id: formConfig?.id,
+          version_id: formConfig.id,
           ...updates,
         }),
       });
@@ -263,11 +268,15 @@ export function FormEditor({ formType, onBack }: FormEditorProps) {
 
       const data = await response.json();
       setFormConfig(data.formConfig);
-      await fetchFormData(); // Refresh to get updated versions
+      // Update local state to match server response
+      if (updates.title !== undefined) setLocalTitle(data.formConfig?.title || "");
+      if (updates.description !== undefined) setLocalDescription(data.formConfig?.description || "");
       setMessage({ type: "success", text: "Form updated successfully" });
       setTimeout(() => setMessage(null), 3000);
     } catch (error) {
       console.error("Error updating form:", error);
+      // Revert optimistic update on error by refreshing
+      await fetchFormData();
       setMessage({
         type: "error",
         text: error instanceof Error ? error.message : "Failed to update form",

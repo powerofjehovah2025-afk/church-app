@@ -116,13 +116,13 @@ export function FieldEditorDialog({
     placeholder: "",
     description: "" as string | null,
     is_required: false,
-    default_value: "",
+    default_value: "" as string | null,
     display_order: 0,
     section: "",
     options: [] as Array<{ label: string; value: string }>,
     db_column: "",
     transformation_type: "direct" as "direct" | "combine" | "notes" | "array" | "custom" | null,
-    transformation_config: {} as Record<string, unknown>,
+    transformation_config: {} as Record<string, unknown> as unknown,
     is_notes_field: false,
     notes_format: "",
   });
@@ -427,8 +427,8 @@ export function FieldEditorDialog({
             <Label htmlFor="description">Description</Label>
             <Textarea
               id="description"
-              value={formData.description}
-              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+              value={formData.description || ""}
+              onChange={(e) => setFormData({ ...formData, description: e.target.value || null })}
               placeholder="Help text shown below the field"
               rows={2}
             />

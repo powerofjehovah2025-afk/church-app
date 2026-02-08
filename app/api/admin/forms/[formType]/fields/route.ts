@@ -236,6 +236,11 @@ export async function POST(
       if (display_order !== undefined) updateData.display_order = Number(display_order);
       if (section !== undefined) updateData.section = section?.trim() || null;
       if (options !== undefined) updateData.options = options;
+      if (body.db_column !== undefined) updateData.db_column = body.db_column?.trim() || null;
+      if (body.transformation_type !== undefined) updateData.transformation_type = body.transformation_type || null;
+      if (body.transformation_config !== undefined) updateData.transformation_config = body.transformation_config;
+      if (body.is_notes_field !== undefined) updateData.is_notes_field = Boolean(body.is_notes_field);
+      if (body.notes_format !== undefined) updateData.notes_format = body.notes_format?.trim() || null;
 
       const { data: updatedField, error } = await admin
         .from("form_fields")
@@ -261,20 +266,7 @@ export async function POST(
     // Create new field
     const { data: newField, error } = await admin
       .from("form_fields")
-      .insert({
-        form_config_id: formConfigId,
-        field_key: field_key.trim(),
-        field_type: field_type.trim(),
-        label: label.trim(),
-        placeholder: placeholder?.trim() || null,
-        description: description?.trim() || null,
-        is_required: is_required !== undefined ? Boolean(is_required) : false,
-        validation_rules: validation_rules || {},
-        default_value: default_value?.trim() || null,
-        display_order: display_order !== undefined ? Number(display_order) : 0,
-        section: section?.trim() || null,
-        options: options || [],
-      } as FormFieldInsert)
+      .insert(insertData)
       .select()
       .single();
 

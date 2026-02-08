@@ -1,10 +1,10 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { createClient } from "@/lib/supabase/client";
 import type { NewcomerInsert } from "@/types/database.types";
 import { loadFormConfig } from "@/lib/forms/form-loader";
 import { DynamicForm } from "@/components/forms/dynamic-form";
+import { submitFormData } from "@/lib/forms/form-submission-handler";
 import type { FormConfig, FormField, FormStaticContent } from "@/types/database.types";
 
 export default function NewcomerPage() {

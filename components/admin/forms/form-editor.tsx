@@ -10,6 +10,8 @@ import type { FormConfig, FormField, FormStaticContent } from "@/types/database.
 import { FieldEditorDialog } from "./field-editor-dialog";
 import { StaticContentEditor } from "./static-content-editor";
 import { FormPreview } from "./form-preview";
+import { BusinessRulesEditor } from "./business-rules-editor";
+import type { FormSubmissionRule } from "@/types/database.types";
 
 interface FormEditorProps {
   formType: "welcome" | "membership" | "newcomer";
@@ -21,6 +23,7 @@ export function FormEditor({ formType, onBack }: FormEditorProps) {
   const [formFields, setFormFields] = useState<FormField[]>([]);
   const [staticContent, setStaticContent] = useState<FormStaticContent[]>([]);
   const [allVersions, setAllVersions] = useState<FormConfig[]>([]);
+  const [submissionRules, setSubmissionRules] = useState<FormSubmissionRule[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isCreatingVersion, setIsCreatingVersion] = useState(false);
   const [isPublishing, setIsPublishing] = useState(false);
@@ -48,6 +51,20 @@ export function FormEditor({ formType, onBack }: FormEditorProps) {
       setFormFields(data.formFields || []);
       setStaticContent(data.staticContent || []);
       setAllVersions(data.allVersions || []);
+      
+      // Fetch submission rules
+      if (data.formConfig?.id) {
+        try {
+          const rulesResponse = await fetch(`/api/admin/forms/${formType}/rules`);
+          if (rulesResponse.ok) {
+            const rulesData = await rulesResponse.json();
+            setSubmissionRules(rulesData.rules || []);
+          }
+        } catch (error) {
+          console.error("Error fetching rules:", error);
+          // Don't fail the whole form load if rules fail
+        }
+      }
     } catch (error) {
       console.error("Error fetching form data:", error);
       setMessage({
@@ -514,6 +531,7 @@ export function FormEditor({ formType, onBack }: FormEditorProps) {
         <TabsList>
           <TabsTrigger value="fields">Fields</TabsTrigger>
           <TabsTrigger value="content">Static Content</TabsTrigger>
+          <TabsTrigger value="rules">Business Rules</TabsTrigger>
           <TabsTrigger value="settings">Settings</TabsTrigger>
           <TabsTrigger value="preview">Preview</TabsTrigger>
         </TabsList>
@@ -625,6 +643,57 @@ export function FormEditor({ formType, onBack }: FormEditorProps) {
             formType={formType}
             staticContent={staticContent}
             onUpdate={fetchFormData}
+          />
+        </TabsContent>
+
+        <TabsContent value="rules" className="space-y-4">
+          <BusinessRulesEditor
+            formFields={formFields}
+            rules={submissionRules}
+            onRulesChange={setSubmissionRules}
+            onSave={async (rule) => {
+              try {
+                const response = await fetch(`/api/admin/forms/${formType}/rules`, {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({
+                    ...rule,
+                    form_config_id: formConfig?.id,
+                  }),
+                });
+                if (!response.ok) {
+                  const data = await response.json();
+                  throw new Error(data.error || "Failed to save rule");
+                }
+                await fetchFormData();
+                setMessage({ type: "success", text: "Rule saved successfully" });
+                setTimeout(() => setMessage(null), 3000);
+              } catch (error) {
+                setMessage({
+                  type: "error",
+                  text: error instanceof Error ? error.message : "Failed to save rule",
+                });
+              }
+            }}
+            onDelete={async (ruleId) => {
+              try {
+                const response = await fetch(`/api/admin/forms/${formType}/rules/${ruleId}`, {
+                  method: "DELETE",
+                });
+                if (!response.ok) {
+                  const data = await response.json();
+                  throw new Error(data.error || "Failed to delete rule");
+                }
+                await fetchFormData();
+                setMessage({ type: "success", text: "Rule deleted successfully" });
+                setTimeout(() => setMessage(null), 3000);
+              } catch (error) {
+                setMessage({
+                  type: "error",
+                  text: error instanceof Error ? error.message : "Failed to delete rule",
+                });
+              }
+            }}
           />
         </TabsContent>
 

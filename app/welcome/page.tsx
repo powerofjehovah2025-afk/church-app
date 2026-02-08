@@ -1,10 +1,10 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { createClient } from "@/lib/supabase/client";
 import type { NewcomerInsert } from "@/types/database.types";
 import { loadFormConfig } from "@/lib/forms/form-loader";
 import { DynamicForm } from "@/components/forms/dynamic-form";
+import { submitFormData } from "@/lib/forms/form-submission-handler";
 import type { FormConfig, FormField, FormStaticContent } from "@/types/database.types";
 
 export default function WelcomePage() {
@@ -32,85 +32,15 @@ export default function WelcomePage() {
   }, []);
 
   const handleSubmit = async (formData: Record<string, unknown>) => {
-    const supabase = createClient();
     setIsSubmitting(true);
     setError(null);
 
     try {
-      // Extract form data - map dynamic fields to database columns
-      const first_name = (formData.first_name as string)?.trim() || "";
-      const surname = (formData.surname as string)?.trim() || "";
-      const fullName = `${first_name} ${surname}`.trim();
-      const email = (formData.email as string)?.trim() || "";
+      const result = await submitFormData("welcome", formData);
 
-      if (!email || !first_name || !surname) {
-        setError("Please fill in all required fields");
+      if (!result.success) {
+        setError(result.error || "Failed to submit form");
         return;
-      }
-
-      // Check if record exists by email
-      const { data: existingRecord, error: fetchError } = await supabase
-        .from("newcomers")
-        .select("id, full_name, phone, marital_status, address, notes, status")
-        .eq("email", email)
-        .maybeSingle();
-
-      if (fetchError && fetchError.code !== "PGRST116") {
-        throw fetchError;
-      }
-
-      // Smart notes merging (simplified version)
-      const notesParts: string[] = [];
-      if (formData.joining_us) notesParts.push(`Joining us: ${formData.joining_us}`);
-      if (formData.can_visit) notesParts.push(`Can visit: ${formData.can_visit}`);
-      if (formData.whatsapp_group) notesParts.push(`WhatsApp Group: ${formData.whatsapp_group}`);
-      if (formData.sex) notesParts.push(`Sex: ${formData.sex}`);
-      if (formData.postcode) notesParts.push(`Postcode: ${formData.postcode}`);
-      if (formData.whatsapp) notesParts.push(`WhatsApp: ${formData.whatsapp}`);
-      notesParts.push(`Last Welcome Form Update: ${new Date().toISOString().split("T")[0]}`);
-
-      const notes = notesParts.length > 0 ? notesParts.join(" | ") : null;
-
-      // Smart status progression
-      const joiningUs = (formData.joining_us as string) || "";
-      let newStatus = "First Timer";
-      if (existingRecord?.status) {
-        if (existingRecord.status === "Member") {
-          newStatus = "Member";
-        } else if (joiningUs === "Yes") {
-          if (existingRecord.status === "First Timer" || existingRecord.status === "New") {
-            newStatus = "Contacted";
-          } else if (existingRecord.status === "Contacted") {
-            newStatus = "Engaged";
-          }
-        } else {
-          newStatus = existingRecord.status;
-        }
-      }
-
-      const dataToSave: NewcomerInsert = {
-        full_name: existingRecord?.full_name || fullName,
-        email: email,
-        phone: (formData.phone as string)?.trim() || existingRecord?.phone || null,
-        marital_status: (formData.marital_status as string) || existingRecord?.marital_status || null,
-        address: (formData.address as string)?.trim() || existingRecord?.address || null,
-        notes: notes,
-        status: newStatus,
-      };
-
-      if (existingRecord) {
-        const { error: updateError } = await supabase
-          .from("newcomers")
-          // @ts-expect-error - Supabase type inference issue
-          .update(dataToSave)
-          .eq("email", email);
-        if (updateError) throw updateError;
-      } else {
-        const { error: insertError } = await supabase
-          .from("newcomers")
-          // @ts-expect-error - Supabase type inference issue
-          .insert(dataToSave);
-        if (insertError) throw insertError;
       }
 
       setShowWhatsAppButton((formData.whatsapp_group as string) === "Yes");

@@ -21,8 +21,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Copy, Sparkles, AlertCircle } from "lucide-react";
+import { Copy, Sparkles, AlertCircle, Database } from "lucide-react";
 import type { FormField } from "@/types/database.types";
+import { NEWCOMERS_TABLE_COLUMNS } from "@/lib/forms/database-columns";
 
 // Field templates for quick setup
 const FIELD_TEMPLATES: Record<string, Partial<FormField>> = {
@@ -119,6 +120,11 @@ export function FieldEditorDialog({
     display_order: 0,
     section: "",
     options: [] as Array<{ label: string; value: string }>,
+    db_column: "",
+    transformation_type: "direct" as "direct" | "combine" | "notes" | "array" | "custom" | null,
+    transformation_config: {} as Record<string, unknown>,
+    is_notes_field: false,
+    notes_format: "",
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [bulkOptionsText, setBulkOptionsText] = useState("");
@@ -136,6 +142,11 @@ export function FieldEditorDialog({
         display_order: field.display_order,
         section: field.section || "",
         options: (field.options as Array<{ label: string; value: string }>) || [],
+        db_column: field.db_column || "",
+        transformation_type: (field.transformation_type as "direct" | "combine" | "notes" | "array" | "custom") || "direct",
+        transformation_config: (field.transformation_config as Record<string, unknown>) || {},
+        is_notes_field: field.is_notes_field || false,
+        notes_format: field.notes_format || "",
       });
       setBulkOptionsText("");
       setErrors({});
@@ -151,6 +162,11 @@ export function FieldEditorDialog({
         display_order: 0,
         section: "",
         options: [],
+        db_column: "",
+        transformation_type: "direct",
+        transformation_config: {},
+        is_notes_field: false,
+        notes_format: "",
       });
       setBulkOptionsText("");
       setErrors({});
@@ -447,6 +463,108 @@ export function FieldEditorDialog({
             <Label htmlFor="is_required" className="cursor-pointer">
               Required field
             </Label>
+          </div>
+
+          {/* Database Mapping Section */}
+          <div className="space-y-4 pt-4 border-t">
+            <div className="flex items-center gap-2">
+              <Database className="h-4 w-4 text-muted-foreground" />
+              <Label className="text-base font-semibold">Database Mapping</Label>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="db_column">Database Column</Label>
+              <Select
+                value={formData.db_column || ""}
+                onValueChange={(value) => setFormData({ ...formData, db_column: value })}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select database column (optional)" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="">None (not saved to database)</SelectItem>
+                  {NEWCOMERS_TABLE_COLUMNS.map((col) => (
+                    <SelectItem key={col.name} value={col.name}>
+                      {col.name} ({col.type})
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {formData.db_column && (
+                <p className="text-xs text-muted-foreground">
+                  {NEWCOMERS_TABLE_COLUMNS.find((c) => c.name === formData.db_column)?.description}
+                </p>
+              )}
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="transformation_type">Transformation Type</Label>
+              <Select
+                value={formData.transformation_type || "direct"}
+                onValueChange={(value) =>
+                  setFormData({
+                    ...formData,
+                    transformation_type: value as "direct" | "combine" | "notes" | "array" | "custom",
+                  })
+                }
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="direct">Direct Mapping (1:1)</SelectItem>
+                  <SelectItem value="combine">Combine Fields</SelectItem>
+                  <SelectItem value="notes">Store in Notes</SelectItem>
+                  <SelectItem value="array">Array Field</SelectItem>
+                  <SelectItem value="custom">Custom Logic</SelectItem>
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-muted-foreground">
+                {formData.transformation_type === "direct" && "Field value maps directly to database column"}
+                {formData.transformation_type === "combine" && "Combine multiple fields into one database column"}
+                {formData.transformation_type === "notes" && "Store field value in the notes column"}
+                {formData.transformation_type === "array" && "Store as array in database"}
+                {formData.transformation_type === "custom" && "Custom transformation logic"}
+              </p>
+            </div>
+
+            {formData.transformation_type === "notes" && (
+              <div className="space-y-2">
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id="is_notes_field"
+                    checked={formData.is_notes_field}
+                    onCheckedChange={(checked) =>
+                      setFormData({ ...formData, is_notes_field: checked as boolean })
+                    }
+                  />
+                  <Label htmlFor="is_notes_field" className="cursor-pointer">
+                    Aggregate into notes field
+                  </Label>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="notes_format">Notes Format</Label>
+                  <Input
+                    id="notes_format"
+                    value={formData.notes_format}
+                    onChange={(e) => setFormData({ ...formData, notes_format: e.target.value })}
+                    placeholder="e.g., Joining us: {value}"
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Use {"{value}"} as placeholder for the field value. Example: &quot;Field Name: {"{value}"}&quot;
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {formData.transformation_type === "combine" && (
+              <div className="space-y-2 p-3 bg-muted/30 rounded-lg border">
+                <Label className="text-sm">Field Combination</Label>
+                <p className="text-xs text-muted-foreground">
+                  Field combination configuration will be added in a separate component.
+                </p>
+              </div>
+            )}
           </div>
 
           {needsOptions && (

@@ -446,6 +446,11 @@ export type Database = {
           display_order: number
           section: string | null
           options: Json
+          db_column: string | null
+          transformation_type: string | null
+          transformation_config: Json
+          is_notes_field: boolean
+          notes_format: string | null
           created_at: string
           updated_at: string
         }
@@ -461,6 +466,11 @@ export type Database = {
           validation_rules?: Json
           default_value?: string | null
           display_order?: number
+          db_column?: string | null
+          transformation_type?: string | null
+          transformation_config?: Json
+          is_notes_field?: boolean
+          notes_format?: string | null
           section?: string | null
           options?: Json
           created_at?: string
@@ -524,6 +534,44 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "form_static_content_form_config_id_fkey"
+            columns: ["form_config_id"]
+            isOneToOne: false
+            referencedRelation: "form_configs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      form_submission_rules: {
+        Row: {
+          id: string
+          form_config_id: string
+          rule_type: string
+          rule_config: Json
+          priority: number
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          form_config_id: string
+          rule_type: string
+          rule_config?: Json
+          priority?: number
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          form_config_id?: string
+          rule_type?: string
+          rule_config?: Json
+          priority?: number
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "form_submission_rules_form_config_id_fkey"
             columns: ["form_config_id"]
             isOneToOne: false
             referencedRelation: "form_configs"
@@ -706,3 +754,7 @@ export type FormFieldUpdate = Database["public"]["Tables"]["form_fields"]["Updat
 export type FormStaticContent = Database["public"]["Tables"]["form_static_content"]["Row"]
 export type FormStaticContentInsert = Database["public"]["Tables"]["form_static_content"]["Insert"]
 export type FormStaticContentUpdate = Database["public"]["Tables"]["form_static_content"]["Update"]
+
+export type FormSubmissionRule = Database["public"]["Tables"]["form_submission_rules"]["Row"]
+export type FormSubmissionRuleInsert = Database["public"]["Tables"]["form_submission_rules"]["Insert"]
+export type FormSubmissionRuleUpdate = Database["public"]["Tables"]["form_submission_rules"]["Update"]

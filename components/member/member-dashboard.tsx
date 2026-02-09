@@ -11,7 +11,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Loader2, CheckSquare, Mail, Calendar } from "lucide-react";
+import { Loader2, CheckSquare, Mail, Calendar, User } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 
 interface Task {
@@ -58,10 +58,20 @@ interface ServiceAssignment {
   status: string;
 }
 
+interface AssignedNewcomer {
+  id: string;
+  full_name: string;
+  email: string | null;
+  phone: string | null;
+  status: string | null;
+  created_at: string;
+}
+
 export function MemberDashboard() {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [messages, setMessages] = useState<Message[]>([]);
   const [duties, setDuties] = useState<ServiceAssignment[]>([]);
+  const [assignedNewcomers, setAssignedNewcomers] = useState<AssignedNewcomer[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("tasks");
 
@@ -129,14 +139,39 @@ export function MemberDashboard() {
     }
   }, []);
 
+  const fetchAssignedNewcomers = useCallback(async () => {
+    try {
+      const supabase = createClient();
+      const { data: { user } } = await supabase.auth.getUser();
+
+      if (!user) return;
+
+      const { data, error } = await supabase
+        .from("newcomers")
+        .select("id, full_name, email, phone, status, created_at")
+        .eq("assigned_to", user.id)
+        .order("created_at", { ascending: false })
+        .limit(10);
+
+      if (error) {
+        console.error("Error fetching assigned newcomers:", error);
+        return;
+      }
+
+      setAssignedNewcomers((data as AssignedNewcomer[]) || []);
+    } catch (error) {
+      console.error("Error fetching assigned newcomers:", error);
+    }
+  }, []);
+
   useEffect(() => {
     const loadData = async () => {
       setIsLoading(true);
-      await Promise.all([fetchTasks(), fetchMessages(), fetchDuties()]);
+      await Promise.all([fetchTasks(), fetchMessages(), fetchDuties(), fetchAssignedNewcomers()]);
       setIsLoading(false);
     };
     loadData();
-  }, [fetchTasks, fetchMessages, fetchDuties]);
+  }, [fetchTasks, fetchMessages, fetchDuties, fetchAssignedNewcomers]);
 
   const handleTaskStatusUpdate = async (taskId: string, newStatus: string) => {
     try {
@@ -209,11 +244,12 @@ export function MemberDashboard() {
   const unreadMessagesCount = messages.filter((m) => !m.is_read).length;
   const pendingTasksCount = tasks.filter((t) => t.status === "pending").length;
   const upcomingDutiesCount = duties.filter((d) => d.status === "confirmed").length;
+  const assignedNewcomersCount = assignedNewcomers.length;
 
   return (
     <div className="space-y-6">
       {/* Summary Cards */}
-      <div className="grid gap-4 md:grid-cols-3">
+      <div className="grid gap-4 md:grid-cols-4">
         <Card className="bg-slate-900/40 backdrop-blur-md border-slate-700/50 shadow-xl">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-slate-300">Tasks</CardTitle>
@@ -244,6 +280,16 @@ export function MemberDashboard() {
             <p className="text-xs text-slate-400">Upcoming duties</p>
           </CardContent>
         </Card>
+        <Card className="bg-slate-900/40 backdrop-blur-md border-slate-700/50 shadow-xl">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium text-slate-300">Follow-ups</CardTitle>
+            <User className="h-4 w-4 text-blue-400" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-white">{assignedNewcomersCount}</div>
+            <p className="text-xs text-slate-400">Assigned newcomers</p>
+          </CardContent>
+        </Card>
       </div>
 
       {/* Tabs */}
@@ -251,12 +297,12 @@ export function MemberDashboard() {
         <CardHeader>
           <CardTitle className="text-white">My Dashboard</CardTitle>
           <CardDescription className="text-slate-400">
-            View your tasks, messages, and assigned duties
+            View your tasks, messages, assigned duties, and follow-ups
           </CardDescription>
         </CardHeader>
         <CardContent>
           <Tabs value={activeTab} onValueChange={setActiveTab}>
-            <TabsList className="grid w-full grid-cols-3 bg-slate-800/50">
+            <TabsList className="grid w-full grid-cols-4 bg-slate-800/50">
               <TabsTrigger value="tasks" className="data-[state=active]:bg-blue-600">
                 Tasks ({tasks.length})
               </TabsTrigger>
@@ -270,6 +316,9 @@ export function MemberDashboard() {
               </TabsTrigger>
               <TabsTrigger value="duties" className="data-[state=active]:bg-blue-600">
                 Duties ({duties.length})
+              </TabsTrigger>
+              <TabsTrigger value="followups" className="data-[state=active]:bg-blue-600">
+                Follow-ups ({assignedNewcomers.length})
               </TabsTrigger>
             </TabsList>
 
@@ -413,6 +462,44 @@ export function MemberDashboard() {
                           className={`px-2 py-1 rounded text-xs font-medium border ${getStatusColor(duty.status)}`}
                         >
                           {duty.status}
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </TabsContent>
+
+            <TabsContent value="followups" className="mt-4">
+              {assignedNewcomers.length === 0 ? (
+                <div className="text-center py-12">
+                  <User className="h-12 w-12 text-slate-500 mx-auto mb-4" />
+                  <p className="text-slate-400">No follow-ups assigned</p>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {assignedNewcomers.map((newcomer) => (
+                    <div
+                      key={newcomer.id}
+                      className="p-4 rounded-lg bg-slate-800/50 border border-slate-700/50"
+                    >
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <h3 className="text-white font-medium">{newcomer.full_name}</h3>
+                          {newcomer.email && (
+                            <p className="text-sm text-slate-400 mt-1">{newcomer.email}</p>
+                          )}
+                          {newcomer.phone && (
+                            <p className="text-sm text-slate-400">{newcomer.phone}</p>
+                          )}
+                          <p className="text-xs text-slate-500 mt-2">
+                            Added: {new Date(newcomer.created_at).toLocaleDateString()}
+                          </p>
+                        </div>
+                        <span
+                          className={`px-2 py-1 rounded text-xs font-medium border ${getStatusColor(newcomer.status || "New")}`}
+                        >
+                          {newcomer.status || "New"}
                         </span>
                       </div>
                     </div>

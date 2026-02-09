@@ -5,7 +5,7 @@ import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import { motion, AnimatePresence } from "framer-motion";
 import { createClient } from "@/lib/supabase/client";
 import confetti from "canvas-confetti";
-import type { Newcomer, NewcomerUpdate } from "@/types/database.types";
+import type { Newcomer, NewcomerUpdate, Profile } from "@/types/database.types";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -49,16 +49,7 @@ interface ActivityLog {
   timestamp: Date;
 }
 
-// List of pastors/leaders for assignment
-const PASTORS_AND_LEADERS = [
-  { id: "", name: "Unassigned" },
-  { id: "pastor-steve", name: "Pastor Steve" },
-  { id: "pastor-jane", name: "Pastor Jane" },
-  { id: "elder-mike", name: "Elder Mike" },
-  { id: "deacon-sarah", name: "Deacon Sarah" },
-  { id: "leader-david", name: "Leader David" },
-  { id: "leader-emily", name: "Leader Emily" },
-];
+// Staff members will be loaded from profiles table
 
 // Column configuration - Ministry Growth Center
 const COLUMNS = [
@@ -224,6 +215,9 @@ export function NewcomersKanban({ initialData }: NewcomersKanbanProps) {
   
   // Assignment filter state
   const [assignmentFilter] = useState<"all" | "unassigned" | "assigned" | "contacted">("all");
+  
+  // Staff members for assignment (loaded from profiles)
+  const [staffMembers, setStaffMembers] = useState<Profile[]>([]);
 
   // Cache for parseNotes to avoid repeated parsing
   const parseNotesCache = useRef<Map<string, ReturnType<typeof parseNotes>>>(new Map());
@@ -231,6 +225,33 @@ export function NewcomersKanban({ initialData }: NewcomersKanbanProps) {
   // Track when component has mounted on the client to prevent hydration mismatches
   useEffect(() => {
     setHasMounted(true);
+  }, []);
+
+  // Fetch staff members for assignment
+  useEffect(() => {
+    const fetchStaffMembers = async () => {
+      try {
+        const supabase = createClient();
+        const { data, error } = await supabase
+          .from("profiles")
+          .select("id, full_name, email, role")
+          .in("role", ["admin", "pastor", "elder", "deacon", "leader", "member"])
+          .order("full_name", { ascending: true });
+
+        if (error) {
+          console.error("Error fetching staff members:", error);
+          return;
+        }
+
+        if (data) {
+          setStaffMembers(data as Profile[]);
+        }
+      } catch (error) {
+        console.error("Error fetching staff members:", error);
+      }
+    };
+
+    fetchStaffMembers();
   }, []);
 
   // Debounce search input for better performance
@@ -845,22 +866,16 @@ export function NewcomersKanban({ initialData }: NewcomersKanbanProps) {
           }
 
           // Fetch assigned user name for activity log
-          supabase
-            .from("profiles")
-            .select("full_name")
-            .eq("id", userId)
-            .single()
-            .then(({ data: assignedUser }) => {
-              const assignedUserName = assignedUser?.full_name || "Team Member";
-              setActivityLog((prev) => [
-                {
-                  id: Date.now().toString(),
-                  message: `${currentUserName} assigned ${newcomerToAssign.full_name} to ${assignedUserName}`,
-                  timestamp: new Date(),
-                },
-                ...prev.slice(0, 9),
-              ]);
-            });
+          const assignedUser = staffMembers.find((s) => s.id === userId);
+          const assignedUserName = assignedUser?.full_name || assignedUser?.email || "Team Member";
+          setActivityLog((prev) => [
+            {
+              id: Date.now().toString(),
+              message: `${currentUserName} assigned ${newcomerToAssign.full_name} to ${assignedUserName}`,
+              timestamp: new Date(),
+            },
+            ...prev.slice(0, 9),
+          ]);
         })
         .catch((error: unknown) => {
           console.error("Error assigning follow-up:", error);
@@ -1073,12 +1088,13 @@ export function NewcomersKanban({ initialData }: NewcomersKanbanProps) {
       }
 
       // Add to activity log
-      const pastorName = PASTORS_AND_LEADERS.find((p) => p.id === assignedTo)?.name || "Unassigned";
+      const assignedStaff = staffMembers.find((s) => s.id === assignedTo);
+      const staffName = assignedStaff?.full_name || assignedStaff?.email || "Unassigned";
       const newcomerName = newcomers.find((n) => n.id === newcomerId)?.full_name || "Unknown";
       setActivityLog((prev) => [
         {
           id: Date.now().toString(),
-          message: `${newcomerName} assigned to ${pastorName}`,
+          message: `${newcomerName} assigned to ${staffName}`,
           timestamp: new Date(),
         },
         ...prev.slice(0, 9),
@@ -1086,7 +1102,7 @@ export function NewcomersKanban({ initialData }: NewcomersKanbanProps) {
     } catch (error) {
       console.error("Error updating assignment:", error);
     }
-  }, [newcomers, selectedNewcomer]);
+  }, [newcomers, selectedNewcomer, staffMembers]);
 
   return (
     <div className="space-y-3">
@@ -1461,14 +1477,17 @@ export function NewcomersKanban({ initialData }: NewcomersKanbanProps) {
                                         </div>
                                       )}
 
-                                      {/* Assigned Pastor Badge - More Muted */}
-                                      {newcomer.assigned_to && (
-                                        <div className="flex items-center gap-1">
-                                          <Badge className="text-[10px] px-1.5 py-0.5 bg-indigo-500/15 text-indigo-300/70 border-indigo-500/20">
-                                            {PASTORS_AND_LEADERS.find((p) => p.id === newcomer.assigned_to)?.name || "Assigned"}
-                                          </Badge>
-                                        </div>
-                                      )}
+                                      {/* Assigned Staff Badge - More Muted */}
+                                      {newcomer.assigned_to && (() => {
+                                        const assignedStaff = staffMembers.find((s) => s.id === newcomer.assigned_to);
+                                        return assignedStaff ? (
+                                          <div className="flex items-center gap-1">
+                                            <Badge className="text-[10px] px-1.5 py-0.5 bg-indigo-500/15 text-indigo-300/70 border-indigo-500/20">
+                                              {assignedStaff.full_name || assignedStaff.email || "Assigned"}
+                                            </Badge>
+                                          </div>
+                                        ) : null;
+                                      })()}
 
                                       {/* Assigned To Dropdown - At bottom of card */}
                                       <div className="pt-2 border-t border-slate-700/30" onClick={(e) => e.stopPropagation()}>
@@ -1479,9 +1498,10 @@ export function NewcomersKanban({ initialData }: NewcomersKanbanProps) {
                                           className="w-full text-xs bg-slate-800/50 border border-slate-700/50 rounded-md px-2 py-1.5 text-white focus:outline-none focus:ring-1 focus:ring-slate-500 focus:border-slate-500"
                                           onClick={(e) => e.stopPropagation()}
                                         >
-                                          {PASTORS_AND_LEADERS.map((pastor) => (
-                                            <option key={pastor.id} value={pastor.id}>
-                                              {pastor.name}
+                                          <option value="">Unassigned</option>
+                                          {staffMembers.map((staff) => (
+                                            <option key={staff.id} value={staff.id}>
+                                              {staff.full_name || staff.email || "Unknown"}
                                             </option>
                                           ))}
                                         </select>
@@ -1738,17 +1758,21 @@ export function NewcomersKanban({ initialData }: NewcomersKanbanProps) {
                         onChange={(e) => handleAssignmentChange(selectedNewcomer.id, e.target.value)}
                         className="w-full bg-slate-800/50 border border-slate-700/50 rounded-md px-3 py-2 text-white text-sm focus:outline-none focus:ring-2 focus:ring-slate-500 focus:border-slate-500"
                       >
-                        {PASTORS_AND_LEADERS.map((pastor) => (
-                          <option key={pastor.id} value={pastor.id}>
-                            {pastor.name}
+                        <option value="">Unassigned</option>
+                        {staffMembers.map((staff) => (
+                          <option key={staff.id} value={staff.id}>
+                            {staff.full_name || staff.email || "Unknown"}
                           </option>
                         ))}
                       </select>
-                      {selectedNewcomer.assigned_to && (
-                        <p className="text-xs text-slate-400 mt-2">
-                          Assigned to: {PASTORS_AND_LEADERS.find((p) => p.id === selectedNewcomer.assigned_to)?.name || "Unknown"}
-                        </p>
-                      )}
+                      {selectedNewcomer.assigned_to && (() => {
+                        const assignedStaff = staffMembers.find((s) => s.id === selectedNewcomer.assigned_to);
+                        return assignedStaff ? (
+                          <p className="text-xs text-slate-400 mt-2">
+                            Assigned to: {assignedStaff.full_name || assignedStaff.email || "Unknown"}
+                          </p>
+                        ) : null;
+                      })()}
                       {selectedNewcomer.assigned_at && (
                         <p className="text-xs text-slate-400 mt-1">
                           Assigned on: {new Date(selectedNewcomer.assigned_at).toLocaleDateString()}

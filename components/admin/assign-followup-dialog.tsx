@@ -46,7 +46,7 @@ export function AssignFollowupDialog({
         const { data, error } = await supabase
           .from("profiles")
           .select("id, full_name, email, role")
-          .eq("role", "member")
+          .in("role", ["admin", "pastor", "elder", "deacon", "leader", "member"])
           .order("full_name", { ascending: true });
 
         if (error) {

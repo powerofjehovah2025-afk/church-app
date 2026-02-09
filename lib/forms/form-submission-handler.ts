@@ -56,6 +56,16 @@ export async function submitFormData(
         case "direct":
           // Direct mapping to database column
           if (field.db_column) {
+            // Handle boolean transformations (Yes/No -> true/false)
+            const transformConfig = field.transformation_config as Record<string, unknown> | null;
+            if (transformConfig?.boolean_mapping && typeof fieldValue === "string") {
+              const booleanMapping = transformConfig.boolean_mapping as Record<string, boolean>;
+              if (booleanMapping[fieldValue] !== undefined) {
+                dbRecord[field.db_column as keyof NewcomerInsert] = booleanMapping[fieldValue] as never;
+                break;
+              }
+            }
+            
             if (field.field_type === "array" || Array.isArray(fieldValue)) {
               dbRecord[field.db_column as keyof NewcomerInsert] = fieldValue as string[];
             } else {
@@ -66,9 +76,10 @@ export async function submitFormData(
 
         case "combine":
           // Combine multiple fields
-          const combineConfig = (field.transformation_config as { fields?: string[]; separator?: string }) || {};
+          const combineConfig = (field.transformation_config as { fields?: string[]; separator?: string; target?: string }) || {};
           const fieldsToCombine = combineConfig.fields || [];
           const separator = combineConfig.separator || " ";
+          const targetColumn = combineConfig.target || field.db_column;
 
           if (fieldsToCombine.includes(field.field_key)) {
             const combinedValues = fieldsToCombine
@@ -79,8 +90,8 @@ export async function submitFormData(
               .filter((v) => v)
               .join(separator);
 
-            if (field.db_column && combinedValues) {
-              dbRecord[field.db_column as keyof NewcomerInsert] = combinedValues as never;
+            if (targetColumn && combinedValues) {
+              dbRecord[targetColumn as keyof NewcomerInsert] = combinedValues as never;
             }
           }
           break;

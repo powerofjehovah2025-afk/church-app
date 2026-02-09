@@ -104,9 +104,9 @@ export async function POST(request: Request) {
       );
     }
 
-    if (!["welcome", "membership", "newcomer"].includes(form_type)) {
+    if (!["welcome", "membership"].includes(form_type)) {
       return NextResponse.json(
-        { error: "Invalid form type. Must be 'welcome', 'membership', or 'newcomer'" },
+        { error: "Invalid form type. Must be 'welcome' or 'membership'" },
         { status: 400 }
       );
     }

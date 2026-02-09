@@ -16,7 +16,7 @@ import { Save, Loader2 } from "lucide-react";
 import type { FormStaticContent } from "@/types/database.types";
 
 interface StaticContentEditorProps {
-  formType: "welcome" | "membership" | "newcomer";
+  formType: "welcome" | "membership";
   staticContent: FormStaticContent[];
   onUpdate: () => void;
 }

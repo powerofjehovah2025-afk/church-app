@@ -18,7 +18,7 @@ import { BusinessRulesEditor } from "./business-rules-editor";
 import type { FormSubmissionRule } from "@/types/database.types";
 
 interface FormEditorProps {
-  formType: "welcome" | "membership" | "newcomer";
+  formType: "welcome" | "membership";
   onBack: () => void;
 }
 

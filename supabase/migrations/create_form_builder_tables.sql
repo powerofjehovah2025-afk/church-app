@@ -5,7 +5,7 @@
 -- Create form_configs table
 CREATE TABLE IF NOT EXISTS public.form_configs (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  form_type TEXT NOT NULL UNIQUE CHECK (form_type IN ('welcome', 'membership', 'newcomer')),
+  form_type TEXT NOT NULL UNIQUE CHECK (form_type IN ('welcome', 'membership')),
   title TEXT NOT NULL,
   description TEXT,
   is_active BOOLEAN NOT NULL DEFAULT true,

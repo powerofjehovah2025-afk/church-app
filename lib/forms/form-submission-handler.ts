@@ -13,7 +13,7 @@ export interface SubmissionResult {
  * Generic form submission handler that processes form data based on field mappings and business rules
  */
 export async function submitFormData(
-  formType: "welcome" | "membership" | "newcomer",
+  formType: "welcome" | "membership",
   formData: Record<string, unknown>
 ): Promise<SubmissionResult> {
   try {

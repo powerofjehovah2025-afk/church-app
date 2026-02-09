@@ -51,7 +51,7 @@ export function FormsManager() {
   if (selectedFormType) {
     return (
       <FormEditor
-        formType={selectedFormType as "welcome" | "membership" | "newcomer"}
+        formType={selectedFormType as "welcome" | "membership"}
         onBack={handleBack}
       />
     );
@@ -60,7 +60,6 @@ export function FormsManager() {
   const formTypeLabels: Record<string, string> = {
     welcome: "Welcome Form",
     membership: "Membership Form",
-    newcomer: "Newcomer Form",
   };
 
   return (
@@ -92,7 +91,7 @@ export function FormsManager() {
         </div>
       ) : (
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {["welcome", "membership", "newcomer"].map((formType) => {
+          {["welcome", "membership"].map((formType) => {
             const config = formConfigs.find((fc) => fc.form_type === formType);
             return (
               <Card key={formType} className="hover:shadow-lg transition-shadow">

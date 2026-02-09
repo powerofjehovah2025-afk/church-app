@@ -11,7 +11,7 @@ export interface FormConfigWithFields {
  * Load form configuration from database
  */
 export async function loadFormConfig(
-  formType: "welcome" | "membership" | "newcomer"
+  formType: "welcome" | "membership"
 ): Promise<FormConfigWithFields | null> {
   try {
     const supabase = createClient();

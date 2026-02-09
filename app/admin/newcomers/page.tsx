@@ -52,12 +52,12 @@ function LoadingFallback() {
 export default function AdminNewcomersPage() {
   return (
     <div className="min-h-screen bg-[#0f172a] text-foreground">
-      <div className="mx-auto max-w-7xl p-6 pb-24">
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold tracking-tight text-white bg-gradient-to-r from-white to-slate-300 bg-clip-text text-transparent">
+      <div className="mx-auto max-w-[1920px] p-4 pb-4">
+        <div className="mb-3">
+          <h1 className="text-2xl font-bold tracking-tight text-white bg-gradient-to-r from-white to-slate-300 bg-clip-text text-transparent">
             Ministry Growth Center
           </h1>
-          <p className="text-slate-400 mt-2 text-lg">
+          <p className="text-slate-400 mt-1 text-sm">
             Track souls, manage engagement, and celebrate growth
           </p>
         </div>

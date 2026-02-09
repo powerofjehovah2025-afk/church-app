@@ -1089,134 +1089,134 @@ export function NewcomersKanban({ initialData }: NewcomersKanbanProps) {
   }, [newcomers, selectedNewcomer]);
 
   return (
-    <div className="space-y-6">
-      {/* Real-time Connection Status Indicator */}
-      <div className="flex items-center justify-between gap-4">
+    <div className="space-y-3">
+      {/* Real-time Connection Status Indicator - Compact */}
+      <div className="flex items-center justify-between gap-2">
         {!isRealtimeConnected && (
-          <div className="bg-amber-500/10 border border-amber-500/30 rounded-lg px-4 py-2 text-sm text-amber-400 flex-1">
+          <div className="bg-amber-500/10 border border-amber-500/30 rounded-lg px-3 py-1.5 text-xs text-amber-400 flex-1">
             <div className="flex items-center gap-2">
-              <AlertCircle className="h-4 w-4 flex-shrink-0" />
-              <span className="text-xs">
-                Real-time updates disabled. Dashboard still works - refresh to see new entries. Enable in Supabase: Database → Replication → Enable for &quot;newcomers&quot; table.
+              <AlertCircle className="h-3 w-3 flex-shrink-0" />
+              <span className="text-[10px]">
+                Real-time updates disabled. Refresh to see new entries.
               </span>
             </div>
           </div>
         )}
-        <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium backdrop-blur-md border flex-shrink-0 ${
+        <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-medium backdrop-blur-md border flex-shrink-0 ${
           isRealtimeConnected 
             ? 'bg-green-500/10 border-green-500/30 text-green-400' 
             : 'bg-red-500/10 border-red-500/30 text-red-400'
         }`}>
           {isRealtimeConnected ? (
             <>
-              <Wifi className="h-3.5 w-3.5" />
+              <Wifi className="h-3 w-3" />
               <span>Live</span>
             </>
           ) : (
             <>
-              <WifiOff className="h-3.5 w-3.5" />
+              <WifiOff className="h-3 w-3" />
               <span>Offline</span>
             </>
           )}
         </div>
       </div>
 
-      {/* Summary Stats Cards - 2025 Deep Command Glassmorphism */}
-      <div className="grid gap-4 md:grid-cols-3">
-        <Card className="bg-slate-900/40 backdrop-blur-md border-slate-700/50 shadow-2xl relative overflow-hidden">
-          <CardContent className="p-6">
+      {/* Summary Stats Cards - Compact Single Row */}
+      <div className="flex gap-3">
+        <Card className="bg-slate-900/40 backdrop-blur-md border-slate-700/50 shadow-2xl relative overflow-hidden flex-1">
+          <CardContent className="p-3">
             <div className="flex items-center justify-between">
               <div className="flex-1">
-                <p className="text-sm font-medium text-slate-300">
+                <p className="text-xs font-medium text-slate-300">
                   Total Souls
                 </p>
-                <div className="flex items-baseline gap-3 mt-2">
-                  <p className="text-3xl font-bold text-white">
+                <div className="flex items-baseline gap-2 mt-1">
+                  <p className="text-2xl font-bold text-white">
                     {stats.totalSouls}
                   </p>
-                  {/* Growth Sparkline */}
-                  <div className="flex items-end gap-0.5 h-8">
+                  {/* Growth Sparkline - Smaller */}
+                  <div className="flex items-end gap-0.5 h-6">
                     {[2, 4, 3, 5, 4, 6, 5].map((height, idx) => (
                       <motion.div
                         key={idx}
-                        className="w-1 bg-blue-400/60 rounded-t"
+                        className="w-0.5 bg-blue-400/60 rounded-t"
                         initial={{ height: 0 }}
-                        animate={{ height: `${height * 4}px` }}
+                        animate={{ height: `${height * 3}px` }}
                         transition={{ delay: idx * 0.1, type: "spring", stiffness: 200 }}
                       />
                     ))}
                   </div>
                 </div>
               </div>
-              <div className="h-12 w-12 rounded-full bg-blue-500/20 backdrop-blur-sm flex items-center justify-center border border-blue-500/30">
-                <Users className="h-6 w-6 text-blue-400" />
+              <div className="h-8 w-8 rounded-full bg-blue-500/20 backdrop-blur-sm flex items-center justify-center border border-blue-500/30">
+                <Users className="h-4 w-4 text-blue-400" />
               </div>
             </div>
           </CardContent>
         </Card>
 
-        <Card className="bg-slate-900/40 backdrop-blur-md border-[#ef4444]/30 shadow-2xl relative overflow-hidden ring-1 ring-[#ef4444]/20 shadow-[0_0_20px_rgba(239,68,68,0.15)]">
-          <CardContent className="p-6">
+        <Card className="bg-slate-900/40 backdrop-blur-md border-[#ef4444]/30 shadow-2xl relative overflow-hidden ring-1 ring-[#ef4444]/20 shadow-[0_0_20px_rgba(239,68,68,0.15)] flex-1">
+          <CardContent className="p-3">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-slate-300">
+                <p className="text-xs font-medium text-slate-300">
                   Pending Follow-up
                 </p>
-                <p className="text-3xl font-bold text-white mt-2">
+                <p className="text-2xl font-bold text-white mt-1">
                   {stats.pendingFollowUp}
                 </p>
               </div>
-              <div className="h-12 w-12 rounded-full bg-[#ef4444]/20 backdrop-blur-sm flex items-center justify-center border border-[#ef4444]/30">
-                <AlertCircle className="h-6 w-6 text-[#ef4444]" />
+              <div className="h-8 w-8 rounded-full bg-[#ef4444]/20 backdrop-blur-sm flex items-center justify-center border border-[#ef4444]/30">
+                <AlertCircle className="h-4 w-4 text-[#ef4444]" />
               </div>
             </div>
           </CardContent>
         </Card>
 
-        <Card className="bg-slate-900/40 backdrop-blur-md border-[#22c55e]/30 shadow-2xl relative overflow-hidden ring-1 ring-[#22c55e]/20 shadow-[0_0_20px_rgba(34,197,94,0.15)]">
-          <CardContent className="p-6">
+        <Card className="bg-slate-900/40 backdrop-blur-md border-[#22c55e]/30 shadow-2xl relative overflow-hidden ring-1 ring-[#22c55e]/20 shadow-[0_0_20px_rgba(34,197,94,0.15)] flex-1">
+          <CardContent className="p-3">
             <div className="flex items-center justify-between">
               <div className="flex-1">
-                <p className="text-sm font-medium text-slate-300">Retention Rate</p>
-                <div className="flex items-baseline gap-3 mt-2">
-                  <p className="text-3xl font-bold text-white">
+                <p className="text-xs font-medium text-slate-300">Retention Rate</p>
+                <div className="flex items-baseline gap-2 mt-1">
+                  <p className="text-2xl font-bold text-white">
                     {stats.retentionRate}%
                   </p>
-                  {/* Growth Sparkline */}
-                  <div className="flex items-end gap-0.5 h-8">
+                  {/* Growth Sparkline - Smaller */}
+                  <div className="flex items-end gap-0.5 h-6">
                     {[3, 5, 4, 6, 5, 7, 6].map((height, idx) => (
                       <motion.div
                         key={idx}
-                        className="w-1 bg-green-400/60 rounded-t"
+                        className="w-0.5 bg-green-400/60 rounded-t"
                         initial={{ height: 0 }}
-                        animate={{ height: `${height * 4}px` }}
+                        animate={{ height: `${height * 3}px` }}
                         transition={{ delay: idx * 0.1, type: "spring", stiffness: 200 }}
                       />
                     ))}
                   </div>
                 </div>
               </div>
-              <div className="h-12 w-12 rounded-full bg-[#22c55e]/20 backdrop-blur-sm flex items-center justify-center border border-[#22c55e]/30">
-                <TrendingUp className="h-6 w-6 text-[#22c55e]" />
+              <div className="h-8 w-8 rounded-full bg-[#22c55e]/20 backdrop-blur-sm flex items-center justify-center border border-[#22c55e]/30">
+                <TrendingUp className="h-4 w-4 text-[#22c55e]" />
               </div>
             </div>
           </CardContent>
         </Card>
       </div>
 
-      {/* Search Bar and Undo Button */}
-      <div className="flex items-center gap-4">
+      {/* Search Bar and Undo Button - Compact */}
+      <div className="flex items-center gap-2">
         <div className="relative flex-1 max-w-md">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400" />
+          <Search className="absolute left-2.5 top-1/2 transform -translate-y-1/2 h-3.5 w-3.5 text-slate-400" />
           <Input
-            placeholder="Search by name, interest area, career, sector, or profession..."
+            placeholder="Search by name, interest area, career..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10 bg-slate-800/30 backdrop-blur-md border-slate-700/50 text-white placeholder:text-slate-500"
+            className="pl-9 h-9 text-sm bg-slate-800/30 backdrop-blur-md border-slate-700/50 text-white placeholder:text-slate-500"
           />
         </div>
         
-        {/* Undo Button */}
+        {/* Undo Button - Compact */}
         <AnimatePresence>
           {lastDragOperation && (
             <motion.div
@@ -1229,12 +1229,12 @@ export function NewcomersKanban({ initialData }: NewcomersKanbanProps) {
                 onClick={handleUndo}
                 variant="outline"
                 size="sm"
-                className="bg-amber-500/10 border-amber-500/30 text-amber-400 hover:bg-amber-500/20 hover:border-amber-500/50 backdrop-blur-sm"
+                className="h-9 bg-amber-500/10 border-amber-500/30 text-amber-400 hover:bg-amber-500/20 hover:border-amber-500/50 backdrop-blur-sm text-xs px-2"
                 title={`Undo: Move ${lastDragOperation.newcomerName} back to previous column`}
               >
-                <Undo2 className="h-4 w-4 mr-2" />
+                <Undo2 className="h-3.5 w-3.5 mr-1.5" />
                 <span className="hidden sm:inline">Undo: </span>
-                <span className="max-w-[120px] truncate">
+                <span className="max-w-[100px] truncate">
                   {lastDragOperation.newcomerName}
                 </span>
               </Button>
@@ -1249,14 +1249,14 @@ export function NewcomersKanban({ initialData }: NewcomersKanbanProps) {
           onDragEnd={handleDragEnd}
           onDragStart={() => {}}
         >
-        <div className="overflow-x-auto pb-4 -mx-2 px-2">
-          <div className="flex gap-4 min-w-max">
+        <div className="overflow-x-auto pb-2 -mx-2 px-2">
+          <div className="flex gap-3 min-w-max">
             {COLUMNS.map((column) => (
               <div
                 key={column.id}
-                className={`flex-shrink-0 w-80 ${column.color} rounded-xl border backdrop-blur-md bg-slate-900/40 p-4 shadow-2xl ${column.glow || ""}`}
+                className={`flex-shrink-0 w-72 ${column.color} rounded-lg border backdrop-blur-md bg-slate-900/40 p-3 shadow-2xl ${column.glow || ""} flex flex-col`}
               >
-                <h2 className="font-semibold text-white mb-4 text-lg">
+                <h2 className="font-semibold text-white mb-2 text-base">
                   {column.title}
                 </h2>
                 <Droppable droppableId={column.id}>
@@ -1264,7 +1264,7 @@ export function NewcomersKanban({ initialData }: NewcomersKanbanProps) {
                     <div
                       ref={provided.innerRef}
                       {...provided.droppableProps}
-                      className={`min-h-[200px] space-y-3 transition-all duration-200 ${
+                      className={`flex-1 min-h-[200px] max-h-[calc(100vh-280px)] overflow-y-auto space-y-2 transition-all duration-200 pr-1 ${
                         snapshot.isDraggingOver
                           ? "bg-slate-700/30 rounded-lg p-2 backdrop-blur-sm"
                           : ""
@@ -1324,8 +1324,8 @@ export function NewcomersKanban({ initialData }: NewcomersKanbanProps) {
                                   }`}
                                   onClick={() => handleCardClick(newcomer)}
                                 >
-                                  <CardContent className="p-4">
-                                    <div className="space-y-2">
+                                  <CardContent className="p-3">
+                                    <div className="space-y-1.5">
                                       {/* Assignment Status Badges */}
                                       <div className="flex flex-wrap gap-1 mb-1">
                                         {newcomer.assigned_to && (
@@ -1342,7 +1342,7 @@ export function NewcomersKanban({ initialData }: NewcomersKanbanProps) {
 
                                       {/* Name and Transport Icon - Top Section */}
                                       <div className="flex items-start justify-between gap-2">
-                                        <h3 className="font-semibold text-white text-sm flex-1 leading-tight">
+                                        <h3 className="font-semibold text-white text-xs flex-1 leading-tight">
                                           {newcomer.full_name}
                                         </h3>
                                         {/* Transport Icon - Top Right, Smaller and Muted */}
@@ -1580,11 +1580,11 @@ export function NewcomersKanban({ initialData }: NewcomersKanbanProps) {
                       {/* Quick Add Placeholder for Empty Columns */}
                       {filteredGroupedNewcomers[column.id].length === 0 && (
                         <div
-                          className="bg-slate-800/20 backdrop-blur-sm border-2 border-dashed border-slate-700/30 rounded-lg p-6 text-center cursor-pointer hover:border-slate-600/50 transition-colors"
+                          className="bg-slate-800/20 backdrop-blur-sm border-2 border-dashed border-slate-700/30 rounded-lg p-4 text-center cursor-pointer hover:border-slate-600/50 transition-colors"
                         >
-                          <Plus className="h-6 w-6 text-slate-500 mx-auto mb-2" />
-                          <p className="text-sm text-slate-400">Quick Add</p>
-                          <p className="text-xs text-slate-500 mt-1">Drag a card here</p>
+                          <Plus className="h-5 w-5 text-slate-500 mx-auto mb-1" />
+                          <p className="text-xs text-slate-400">Quick Add</p>
+                          <p className="text-[10px] text-slate-500 mt-0.5">Drag a card here</p>
                         </div>
                       )}
                       {provided.placeholder}

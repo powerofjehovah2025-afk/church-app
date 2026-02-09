@@ -5,16 +5,45 @@ import { createClient } from "@/lib/supabase/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Shield, Search, CheckCircle2, AlertCircle, Loader2 } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Shield, Search, CheckCircle2, AlertCircle, Loader2, Settings } from "lucide-react";
 import type { Profile } from "@/types/database.types";
+import Link from "next/link";
+
+interface Role {
+  id: string;
+  name: string;
+  description: string | null;
+  hierarchy_level: number;
+}
 
 export function UserManagement() {
   const [users, setUsers] = useState<Profile[]>([]);
   const [filteredUsers, setFilteredUsers] = useState<Profile[]>([]);
+  const [roles, setRoles] = useState<Role[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [upgradingUserId, setUpgradingUserId] = useState<string | null>(null);
+  const [changingRoleUserId, setChangingRoleUserId] = useState<string | null>(null);
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
+
+  const fetchRoles = useCallback(async () => {
+    try {
+      const response = await fetch("/api/admin/roles");
+      if (response.ok) {
+        const data = await response.json();
+        setRoles(data.roles || []);
+      }
+    } catch (error) {
+      console.error("Error fetching roles:", error);
+    }
+  }, []);
 
   const fetchUsers = useCallback(async () => {
     setIsLoading(true);
@@ -44,8 +73,9 @@ export function UserManagement() {
   }, []);
 
   useEffect(() => {
+    fetchRoles();
     fetchUsers();
-  }, [fetchUsers]);
+  }, [fetchRoles, fetchUsers]);
 
   // Filter users based on search query
   useEffect(() => {
@@ -64,32 +94,28 @@ export function UserManagement() {
     setFilteredUsers(filtered);
   }, [searchQuery, users]);
 
-  const handleUpgrade = async (userId: string, userEmail: string | null) => {
-    if (!confirm(`Are you sure you want to upgrade ${userEmail || "this user"} to admin?`)) {
-      return;
-    }
-
-    setUpgradingUserId(userId);
+  const handleRoleChange = async (userId: string, newRole: string, userName: string | null) => {
+    setChangingRoleUserId(userId);
     setMessage(null);
 
     try {
-      const response = await fetch("/api/admin/upgrade-user", {
-        method: "POST",
+      const response = await fetch(`/api/admin/users/${userId}/role`, {
+        method: "PUT",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ userId }),
+        body: JSON.stringify({ role: newRole }),
       });
 
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || "Failed to upgrade user");
+        throw new Error(data.error || "Failed to update user role");
       }
 
       setMessage({
         type: "success",
-        text: `Successfully upgraded ${userEmail || "user"} to admin!`,
+        text: `Successfully updated ${userName || "user"}'s role to ${newRole}!`,
       });
 
       // Refresh users list
@@ -100,11 +126,24 @@ export function UserManagement() {
     } catch (error) {
       setMessage({
         type: "error",
-        text: error instanceof Error ? error.message : "Failed to upgrade user",
+        text: error instanceof Error ? error.message : "Failed to update user role",
       });
     } finally {
-      setUpgradingUserId(null);
+      setChangingRoleUserId(null);
     }
+  };
+
+  const getRoleBadgeColor = (role: string | null) => {
+    const roleColors: Record<string, string> = {
+      admin: "bg-blue-500/20 text-blue-300 border-blue-500/50",
+      pastor: "bg-purple-500/20 text-purple-300 border-purple-500/50",
+      elder: "bg-indigo-500/20 text-indigo-300 border-indigo-500/50",
+      deacon: "bg-teal-500/20 text-teal-300 border-teal-500/50",
+      leader: "bg-green-500/20 text-green-300 border-green-500/50",
+      member: "bg-slate-700/50 text-slate-300 border-slate-600/50",
+      volunteer: "bg-orange-500/20 text-orange-300 border-orange-500/50",
+    };
+    return roleColors[role || "member"] || roleColors.member;
   };
 
   if (isLoading) {
@@ -166,10 +205,20 @@ export function UserManagement() {
       {/* Users List */}
       <Card className="bg-slate-900/40 backdrop-blur-md border-slate-700/50 shadow-xl">
         <CardHeader>
-          <CardTitle className="text-white">User Management</CardTitle>
-          <CardDescription className="text-slate-400">
-            Manage user roles and permissions. Total users: {filteredUsers.length}
-          </CardDescription>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle className="text-white">User Management</CardTitle>
+              <CardDescription className="text-slate-400">
+                Manage user roles and permissions. Total users: {filteredUsers.length}
+              </CardDescription>
+            </div>
+            <Link href="/admin/roles">
+              <Button variant="outline" size="sm" className="bg-slate-800/50 border-slate-700/50">
+                <Settings className="h-4 w-4 mr-2" />
+                Manage Roles
+              </Button>
+            </Link>
+          </div>
         </CardHeader>
         <CardContent>
           {filteredUsers.length === 0 ? (
@@ -184,16 +233,12 @@ export function UserManagement() {
                   className="flex items-center justify-between p-4 rounded-lg bg-slate-800/50 border border-slate-700/50"
                 >
                   <div className="flex-1">
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-3 flex-wrap">
                       <p className="text-white font-medium">
                         {user.full_name || "No name"}
                       </p>
                       <span
-                        className={`px-2 py-1 rounded text-xs font-medium ${
-                          user.role === "admin"
-                            ? "bg-blue-500/20 text-blue-300 border border-blue-500/50"
-                            : "bg-slate-700/50 text-slate-300 border border-slate-600/50"
-                        }`}
+                        className={`px-2 py-1 rounded text-xs font-medium border ${getRoleBadgeColor(user.role)}`}
                       >
                         {user.role || "member"}
                       </span>
@@ -201,31 +246,24 @@ export function UserManagement() {
                     <p className="text-sm text-slate-400 mt-1">{user.email}</p>
                   </div>
                   <div className="flex items-center gap-3">
-                    {user.role !== "admin" && (
-                      <Button
-                        onClick={() => handleUpgrade(user.id, user.email)}
-                        disabled={upgradingUserId === user.id}
-                        size="sm"
-                        className="bg-blue-600 hover:bg-blue-700 text-white"
-                      >
-                        {upgradingUserId === user.id ? (
-                          <>
-                            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                            Upgrading...
-                          </>
-                        ) : (
-                          <>
-                            <Shield className="h-4 w-4 mr-2" />
-                            Upgrade to Admin
-                          </>
-                        )}
-                      </Button>
-                    )}
-                    {user.role === "admin" && (
-                      <div className="flex items-center gap-2 text-blue-400">
-                        <Shield className="h-4 w-4" />
-                        <span className="text-sm">Admin</span>
-                      </div>
+                    <Select
+                      value={user.role || "member"}
+                      onValueChange={(newRole) => handleRoleChange(user.id, newRole, user.full_name)}
+                      disabled={changingRoleUserId === user.id}
+                    >
+                      <SelectTrigger className="w-[140px] bg-slate-800/50 border-slate-700/50 text-white">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {roles.map((role) => (
+                          <SelectItem key={role.id} value={role.name}>
+                            {role.name.charAt(0).toUpperCase() + role.name.slice(1)}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    {changingRoleUserId === user.id && (
+                      <Loader2 className="h-4 w-4 animate-spin text-blue-400" />
                     )}
                   </div>
                 </div>

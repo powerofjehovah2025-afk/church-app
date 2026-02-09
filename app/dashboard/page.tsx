@@ -7,6 +7,7 @@ import Link from "next/link";
 import { MyFollowups } from "@/components/dashboard/my-followups";
 import { ProfileError } from "@/components/dashboard/profile-error";
 import { DevRoleSwitcher } from "@/components/dev-role-switcher";
+import { MemberDashboard } from "@/components/member/member-dashboard";
 
 async function getUserProfile() {
   const supabase = await createClient();
@@ -97,6 +98,11 @@ export default async function DashboardPage() {
         {/* My Follow-ups Section */}
         <div className="mb-6">
           <MyFollowups />
+        </div>
+
+        {/* Member Dashboard - Tasks, Messages, Duties */}
+        <div className="mb-6">
+          <MemberDashboard />
         </div>
 
         {/* Dashboard Cards */}

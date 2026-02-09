@@ -579,6 +579,226 @@ export type Database = {
           },
         ]
       }
+      roles: {
+        Row: {
+          id: string
+          name: string
+          description: string | null
+          permissions: Json
+          hierarchy_level: number
+          is_active: boolean
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          name: string
+          description?: string | null
+          permissions?: Json
+          hierarchy_level?: number
+          is_active?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          name?: string
+          description?: string | null
+          permissions?: Json
+          hierarchy_level?: number
+          is_active?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      role_permissions: {
+        Row: {
+          id: string
+          role_id: string
+          permission_key: string
+          granted: boolean
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          role_id: string
+          permission_key: string
+          granted?: boolean
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          role_id?: string
+          permission_key?: string
+          granted?: boolean
+          created_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "role_permissions_role_id_fkey"
+            columns: ["role_id"]
+            isOneToOne: false
+            referencedRelation: "roles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tasks: {
+        Row: {
+          id: string
+          title: string
+          description: string | null
+          assigned_to: string
+          assigned_by: string
+          status: string
+          priority: string
+          due_date: string | null
+          completed_at: string | null
+          notes: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          title: string
+          description?: string | null
+          assigned_to: string
+          assigned_by: string
+          status?: string
+          priority?: string
+          due_date?: string | null
+          completed_at?: string | null
+          notes?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          title?: string
+          description?: string | null
+          assigned_to?: string
+          assigned_by?: string
+          status?: string
+          priority?: string
+          due_date?: string | null
+          completed_at?: string | null
+          notes?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tasks_assigned_to_fkey"
+            columns: ["assigned_to"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tasks_assigned_by_fkey"
+            columns: ["assigned_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      messages: {
+        Row: {
+          id: string
+          sender_id: string
+          recipient_id: string
+          subject: string
+          body: string
+          is_read: boolean
+          read_at: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          sender_id: string
+          recipient_id: string
+          subject: string
+          body: string
+          is_read?: boolean
+          read_at?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          sender_id?: string
+          recipient_id?: string
+          subject?: string
+          body?: string
+          is_read?: boolean
+          read_at?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "messages_sender_id_fkey"
+            columns: ["sender_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "messages_recipient_id_fkey"
+            columns: ["recipient_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      notifications: {
+        Row: {
+          id: string
+          user_id: string
+          type: string
+          title: string
+          message: string
+          link: string | null
+          is_read: boolean
+          read_at: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          type: string
+          title: string
+          message: string
+          link?: string | null
+          is_read?: boolean
+          read_at?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          type?: string
+          title?: string
+          message?: string
+          link?: string | null
+          is_read?: boolean
+          read_at?: string | null
+          created_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notifications_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -758,3 +978,23 @@ export type FormStaticContentUpdate = Database["public"]["Tables"]["form_static_
 export type FormSubmissionRule = Database["public"]["Tables"]["form_submission_rules"]["Row"]
 export type FormSubmissionRuleInsert = Database["public"]["Tables"]["form_submission_rules"]["Insert"]
 export type FormSubmissionRuleUpdate = Database["public"]["Tables"]["form_submission_rules"]["Update"]
+
+export type Role = Database["public"]["Tables"]["roles"]["Row"]
+export type RoleInsert = Database["public"]["Tables"]["roles"]["Insert"]
+export type RoleUpdate = Database["public"]["Tables"]["roles"]["Update"]
+
+export type RolePermission = Database["public"]["Tables"]["role_permissions"]["Row"]
+export type RolePermissionInsert = Database["public"]["Tables"]["role_permissions"]["Insert"]
+export type RolePermissionUpdate = Database["public"]["Tables"]["role_permissions"]["Update"]
+
+export type Task = Database["public"]["Tables"]["tasks"]["Row"]
+export type TaskInsert = Database["public"]["Tables"]["tasks"]["Insert"]
+export type TaskUpdate = Database["public"]["Tables"]["tasks"]["Update"]
+
+export type Message = Database["public"]["Tables"]["messages"]["Row"]
+export type MessageInsert = Database["public"]["Tables"]["messages"]["Insert"]
+export type MessageUpdate = Database["public"]["Tables"]["messages"]["Update"]
+
+export type Notification = Database["public"]["Tables"]["notifications"]["Row"]
+export type NotificationInsert = Database["public"]["Tables"]["notifications"]["Insert"]
+export type NotificationUpdate = Database["public"]["Tables"]["notifications"]["Update"]

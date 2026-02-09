@@ -13,7 +13,8 @@ import {
   Calendar,
   ChevronLeft,
   ChevronRight,
-  FileText
+  FileText,
+  Shield
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
@@ -62,9 +63,24 @@ export default function AdminLayout({
       icon: Calendar,
     },
     {
+      name: "Task Assignment",
+      href: "/admin/tasks",
+      icon: CheckSquare,
+    },
+    {
+      name: "Messaging",
+      href: "/admin/messages",
+      icon: Mail,
+    },
+    {
       name: "User Management",
       href: "/admin/users",
       icon: Users,
+    },
+    {
+      name: "Roles Management",
+      href: "/admin/roles",
+      icon: Shield,
     },
     {
       name: "Invitation Codes",

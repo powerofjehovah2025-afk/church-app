@@ -158,6 +158,7 @@ export function FieldEditorDialog({
         setFormData((prev) => ({ ...prev, field_key: generatedKey }));
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [formData.label, isAdvancedMode, field]);
 
   // Smart database column suggestion in Simple mode
@@ -549,7 +550,7 @@ export function FieldEditorDialog({
               <div className="flex-1">
                 <p className="text-blue-800 dark:text-blue-200 font-medium mb-1">Simple Mode</p>
                 <p className="text-blue-700 dark:text-blue-300 text-xs">
-                  You're in Simple mode. Field ID and database mapping are auto-configured. 
+                  You&apos;re in Simple mode. Field ID and database mapping are auto-configured. 
                   Switch to <strong>Advanced</strong> for full control.
                 </p>
               </div>

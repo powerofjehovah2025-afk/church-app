@@ -46,12 +46,18 @@ export function FormEditor({ formType, onBack }: FormEditorProps) {
 
   const fetchFormData = async () => {
     setIsLoading(true);
+    setMessage(null); // Clear any previous messages
     try {
       const response = await fetch(`/api/admin/forms/${formType}`);
       const data = await response.json();
 
       if (!response.ok) {
         throw new Error(data.error || "Failed to load form");
+      }
+
+      // Ensure we have a valid form config
+      if (!data.formConfig || !data.formConfig.id) {
+        throw new Error("Form configuration not found. Please create the form first.");
       }
 
       setFormConfig(data.formConfig);
@@ -74,10 +80,16 @@ export function FormEditor({ formType, onBack }: FormEditorProps) {
       }
     } catch (error) {
       console.error("Error fetching form data:", error);
+      const errorMessage = error instanceof Error ? error.message : "Failed to load form";
       setMessage({
         type: "error",
-        text: error instanceof Error ? error.message : "Failed to load form",
+        text: errorMessage,
       });
+      // Clear form data on error
+      setFormConfig(null);
+      setFormFields([]);
+      setStaticContent([]);
+      setAllVersions([]);
     } finally {
       setIsLoading(false);
     }

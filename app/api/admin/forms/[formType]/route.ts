@@ -66,10 +66,11 @@ export async function GET(
     }
 
     // Get the published version (or first one if none published)
-    const publishedConfig = formConfigs.find((fc) => fc.status === "published") || formConfigs[0];
-    const formConfig = publishedConfig;
+    // Handle case where status might be null or undefined
+    const publishedConfig = formConfigs.find((fc) => fc.status === "published");
+    const formConfig = publishedConfig || formConfigs[0] || null;
 
-    if (!formConfig) {
+    if (!formConfig || !formConfig.id) {
       return NextResponse.json(
         { error: "Form config not found" },
         { status: 404 }

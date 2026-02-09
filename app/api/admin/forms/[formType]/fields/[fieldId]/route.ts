@@ -40,12 +40,23 @@ export async function DELETE(
 
     const admin = createAdminClient();
     
-    // Verify the field belongs to the form
-    const { data: formConfig } = await admin
+    // Get all versions of this form type, ordered by version desc
+    const { data: formConfigs } = await admin
       .from("form_configs")
-      .select("id")
+      .select("id, status")
       .eq("form_type", formType)
-      .single();
+      .order("version", { ascending: false });
+
+    if (!formConfigs || formConfigs.length === 0) {
+      return NextResponse.json(
+        { error: "Form config not found" },
+        { status: 404 }
+      );
+    }
+
+    // Get the published version (or first one if none published)
+    const publishedConfig = formConfigs.find((fc) => fc.status === "published") || formConfigs[0];
+    const formConfig = publishedConfig;
 
     if (!formConfig) {
       return NextResponse.json(
@@ -54,15 +65,26 @@ export async function DELETE(
       );
     }
 
+    // Get the field and verify it belongs to any version of this form type
     const { data: field } = await admin
       .from("form_fields")
       .select("id, form_config_id")
       .eq("id", fieldId)
       .single();
 
-    if (!field || field.form_config_id !== formConfig.id) {
+    if (!field) {
       return NextResponse.json(
-        { error: "Field not found or does not belong to this form" },
+        { error: "Field not found" },
+        { status: 404 }
+      );
+    }
+
+    // Verify the field belongs to one of the form configs for this form type
+    const fieldBelongsToForm = formConfigs.some((fc) => fc.id === field.form_config_id);
+    
+    if (!fieldBelongsToForm) {
+      return NextResponse.json(
+        { error: "Field does not belong to this form" },
         { status: 404 }
       );
     }

@@ -11,7 +11,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Loader2, CheckSquare, Mail, Calendar, AlertCircle } from "lucide-react";
+import { Loader2, CheckSquare, Mail, Calendar } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 
 interface Task {

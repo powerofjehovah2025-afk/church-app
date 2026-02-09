@@ -12,7 +12,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Shield, Search, CheckCircle2, AlertCircle, Loader2, Settings } from "lucide-react";
+import { Search, CheckCircle2, AlertCircle, Loader2, Settings } from "lucide-react";
 import type { Profile } from "@/types/database.types";
 import Link from "next/link";
 
@@ -29,7 +29,6 @@ export function UserManagement() {
   const [roles, setRoles] = useState<Role[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
-  const [upgradingUserId, setUpgradingUserId] = useState<string | null>(null);
   const [changingRoleUserId, setChangingRoleUserId] = useState<string | null>(null);
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
 

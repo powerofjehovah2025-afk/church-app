@@ -131,25 +131,58 @@ export function FieldEditorDialog({
 
   useEffect(() => {
     if (field) {
-      setFormData({
-        field_key: field.field_key,
-        field_type: field.field_type,
-        label: field.label,
-        placeholder: field.placeholder || "",
-        description: field.description || "",
-        is_required: field.is_required,
-        default_value: field.default_value || "",
-        display_order: field.display_order,
-        section: field.section || "",
-        options: (field.options as Array<{ label: string; value: string }>) || [],
-        db_column: field.db_column || "",
-        transformation_type: (field.transformation_type as "direct" | "combine" | "notes" | "array" | "custom") || "direct",
-        transformation_config: (field.transformation_config as Record<string, unknown>) || {},
-        is_notes_field: field.is_notes_field || false,
-        notes_format: field.notes_format || "",
-      });
-      setBulkOptionsText("");
-      setErrors({});
+      try {
+        // Safely parse transformation_config if it's a string or needs parsing
+        let transformationConfig: Record<string, unknown> = {};
+        if (field.transformation_config) {
+          if (typeof field.transformation_config === 'string') {
+            try {
+              transformationConfig = JSON.parse(field.transformation_config);
+            } catch {
+              transformationConfig = {};
+            }
+          } else if (typeof field.transformation_config === 'object') {
+            transformationConfig = field.transformation_config as Record<string, unknown>;
+          }
+        }
+
+        // Safely parse options if it's a string
+        let options: Array<{ label: string; value: string }> = [];
+        if (field.options) {
+          if (typeof field.options === 'string') {
+            try {
+              options = JSON.parse(field.options);
+            } catch {
+              options = [];
+            }
+          } else if (Array.isArray(field.options)) {
+            options = field.options as Array<{ label: string; value: string }>;
+          }
+        }
+
+        setFormData({
+          field_key: field.field_key || "",
+          field_type: field.field_type || "text",
+          label: field.label || "",
+          placeholder: field.placeholder || "",
+          description: field.description || "",
+          is_required: field.is_required || false,
+          default_value: field.default_value || "",
+          display_order: field.display_order || 0,
+          section: field.section || "",
+          options: options,
+          db_column: field.db_column || "",
+          transformation_type: (field.transformation_type as "direct" | "combine" | "notes" | "array" | "custom") || "direct",
+          transformation_config: transformationConfig,
+          is_notes_field: field.is_notes_field || false,
+          notes_format: field.notes_format || "",
+        });
+        setBulkOptionsText("");
+        setErrors({});
+      } catch (error) {
+        console.error("Error loading field data:", error);
+        setErrors({ general: "Failed to load field data. Please try again." });
+      }
     } else {
       setFormData({
         field_key: "",

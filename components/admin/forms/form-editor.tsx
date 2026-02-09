@@ -105,6 +105,15 @@ export function FormEditor({ formType, onBack }: FormEditorProps) {
   };
 
   const handleEditField = (field: FormField) => {
+    // Validate field before opening dialog
+    if (!field || !field.id || !field.field_key || !field.field_type || !field.label) {
+      console.error("Invalid field object passed to handleEditField:", field);
+      setMessage({
+        type: "error",
+        text: "Cannot edit field: Invalid field data. Please refresh and try again.",
+      });
+      return;
+    }
     setEditingField(field);
     setIsFieldDialogOpen(true);
   };

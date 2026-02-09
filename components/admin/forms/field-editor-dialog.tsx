@@ -130,25 +130,25 @@ export function FieldEditorDialog({
   const [bulkOptionsText, setBulkOptionsText] = useState("");
 
   useEffect(() => {
-    if (field) {
+    if (field && typeof field === 'object') {
       try {
         // Safely parse transformation_config if it's a string or needs parsing
         let transformationConfig: Record<string, unknown> = {};
-        if (field.transformation_config) {
+        if (field.transformation_config !== null && field.transformation_config !== undefined) {
           if (typeof field.transformation_config === 'string') {
             try {
               transformationConfig = JSON.parse(field.transformation_config);
             } catch {
               transformationConfig = {};
             }
-          } else if (typeof field.transformation_config === 'object') {
+          } else if (typeof field.transformation_config === 'object' && field.transformation_config !== null) {
             transformationConfig = field.transformation_config as Record<string, unknown>;
           }
         }
 
         // Safely parse options if it's a string
         let options: Array<{ label: string; value: string }> = [];
-        if (field.options) {
+        if (field.options !== null && field.options !== undefined) {
           if (typeof field.options === 'string') {
             try {
               options = JSON.parse(field.options);
@@ -161,21 +161,23 @@ export function FieldEditorDialog({
         }
 
         setFormData({
-          field_key: field.field_key || "",
-          field_type: field.field_type || "text",
-          label: field.label || "",
-          placeholder: field.placeholder || "",
-          description: field.description || "",
-          is_required: field.is_required || false,
-          default_value: field.default_value || "",
-          display_order: field.display_order || 0,
-          section: field.section || "",
+          field_key: (field.field_key && typeof field.field_key === 'string') ? field.field_key : "",
+          field_type: (field.field_type && typeof field.field_type === 'string') ? field.field_type : "text",
+          label: (field.label && typeof field.label === 'string') ? field.label : "",
+          placeholder: (field.placeholder && typeof field.placeholder === 'string') ? field.placeholder : "",
+          description: (field.description && typeof field.description === 'string') ? field.description : "",
+          is_required: typeof field.is_required === 'boolean' ? field.is_required : false,
+          default_value: (field.default_value && typeof field.default_value === 'string') ? field.default_value : "",
+          display_order: typeof field.display_order === 'number' ? field.display_order : 0,
+          section: (field.section && typeof field.section === 'string') ? field.section : "",
           options: options,
-          db_column: field.db_column || "",
-          transformation_type: (field.transformation_type as "direct" | "combine" | "notes" | "array" | "custom") || "direct",
+          db_column: (field.db_column && typeof field.db_column === 'string') ? field.db_column : "",
+          transformation_type: (field.transformation_type && typeof field.transformation_type === 'string') 
+            ? (field.transformation_type as "direct" | "combine" | "notes" | "array" | "custom") 
+            : "direct",
           transformation_config: transformationConfig,
-          is_notes_field: field.is_notes_field || false,
-          notes_format: field.notes_format || "",
+          is_notes_field: typeof field.is_notes_field === 'boolean' ? field.is_notes_field : false,
+          notes_format: (field.notes_format && typeof field.notes_format === 'string') ? field.notes_format : "",
         });
         setBulkOptionsText("");
         setErrors({});

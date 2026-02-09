@@ -41,7 +41,6 @@ export function FormEditor({ formType, onBack }: FormEditorProps) {
   const formTypeLabels: Record<string, string> = {
     welcome: "Welcome Form",
     membership: "Membership Form",
-    newcomer: "Newcomer Form",
   };
 
   const fetchFormData = async () => {

@@ -183,6 +183,18 @@ export function FieldEditorDialog({
     // Process existing field data
     if (typeof field === 'object' && field !== null) {
       try {
+        // Validate that field has required properties
+        if (!field.id || !field.field_key || !field.field_type || !field.label) {
+          console.error("Field object missing required properties:", {
+            id: field.id,
+            field_key: field.field_key,
+            field_type: field.field_type,
+            label: field.label,
+          });
+          setErrors({ general: "Field data is incomplete. Please refresh and try again." });
+          return;
+        }
+
         // Safely parse transformation_config if it's a string or needs parsing
         let transformationConfig: Record<string, unknown> = {};
         if (field.transformation_config !== null && field.transformation_config !== undefined) {
@@ -234,8 +246,34 @@ export function FieldEditorDialog({
         setErrors({});
       } catch (error) {
         console.error("Error loading field data:", error);
-        setErrors({ general: "Failed to load field data. Please try again." });
+        console.error("Field object that caused error:", field);
+        const errorMessage = error instanceof Error ? error.message : "Unknown error";
+        setErrors({ 
+          general: `Failed to load field data: ${errorMessage}. Please refresh and try again.` 
+        });
+        // Reset form data to prevent rendering with invalid state
+        setFormData({
+          field_key: "",
+          field_type: "text",
+          label: "",
+          placeholder: "",
+          description: "",
+          is_required: false,
+          default_value: "",
+          display_order: 0,
+          section: "",
+          options: [],
+          db_column: "",
+          transformation_type: "direct",
+          transformation_config: {},
+          is_notes_field: false,
+          notes_format: "",
+        });
       }
+    } else {
+      // Field is not an object - this shouldn't happen, but handle gracefully
+      console.error("Field is not a valid object:", field);
+      setErrors({ general: "Invalid field data. Please refresh and try again." });
     }
   }, [field, open]); // Only run when field or open state changes
 

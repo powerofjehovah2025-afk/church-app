@@ -21,7 +21,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Copy, Sparkles, AlertCircle, Database } from "lucide-react";
+import { Copy, Sparkles, AlertCircle, Database, User, Settings, Info } from "lucide-react";
 import type { FormField } from "@/types/database.types";
 import { NEWCOMERS_TABLE_COLUMNS } from "@/lib/forms/database-columns";
 
@@ -130,6 +130,72 @@ export function FieldEditorDialog({
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [bulkOptionsText, setBulkOptionsText] = useState("");
   const [isInitialized, setIsInitialized] = useState(false);
+  const [isAdvancedMode, setIsAdvancedMode] = useState(false);
+
+  // Load mode preference from localStorage
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const savedMode = localStorage.getItem("fieldEditorMode");
+      if (savedMode === "advanced") {
+        setIsAdvancedMode(true);
+      }
+    }
+  }, []);
+
+  // Save mode preference to localStorage
+  const handleModeToggle = (advanced: boolean) => {
+    setIsAdvancedMode(advanced);
+    if (typeof window !== "undefined") {
+      localStorage.setItem("fieldEditorMode", advanced ? "advanced" : "simple");
+    }
+  };
+
+  // Auto-generate field key from label in Simple mode
+  useEffect(() => {
+    if (!isAdvancedMode && !field && formData.label) {
+      const generatedKey = labelToFieldKey(formData.label);
+      if (generatedKey && generatedKey !== formData.field_key) {
+        setFormData((prev) => ({ ...prev, field_key: generatedKey }));
+      }
+    }
+  }, [formData.label, isAdvancedMode, field]);
+
+  // Smart database column suggestion in Simple mode
+  const getSuggestedDbColumn = (): string => {
+    if (!formData.field_key) return "";
+    
+    const key = formData.field_key.toLowerCase();
+    // Try exact match first
+    const exactMatch = NEWCOMERS_TABLE_COLUMNS.find(
+      (col) => col.name.toLowerCase() === key
+    );
+    if (exactMatch) return exactMatch.name;
+
+    // Try partial matches based on field type
+    if (formData.field_type === "email") {
+      return "email";
+    }
+    if (formData.field_type === "tel") {
+      return "phone";
+    }
+    if (key.includes("name") || key.includes("full_name")) {
+      return "full_name";
+    }
+    if (key.includes("surname") || key.includes("last_name")) {
+      return "surname";
+    }
+    if (key.includes("address")) {
+      return "address";
+    }
+    if (key.includes("gender")) {
+      return "gender";
+    }
+    if (key.includes("marital")) {
+      return "marital_status";
+    }
+
+    return "";
+  };
 
   useEffect(() => {
     // Only process field data when dialog is open and field exists
@@ -365,12 +431,19 @@ export function FieldEditorDialog({
       return;
     }
 
+    // In Simple mode, auto-set database column if suggested
+    const finalFormData = { ...formData };
+    if (!isAdvancedMode && suggestedDbColumn && !finalFormData.db_column) {
+      finalFormData.db_column = suggestedDbColumn;
+      finalFormData.transformation_type = "direct";
+    }
+
     onSave({
-      ...formData,
-      description: formData.description || null,
-      default_value: formData.default_value || null,
-      section: formData.section || null,
-      transformation_config: formData.transformation_config as Record<string, unknown> as unknown,
+      ...finalFormData,
+      description: finalFormData.description || null,
+      default_value: finalFormData.default_value || null,
+      section: finalFormData.section || null,
+      transformation_config: finalFormData.transformation_config as Record<string, unknown> as unknown,
     } as Partial<FormField>);
   };
 
@@ -395,6 +468,7 @@ export function FieldEditorDialog({
   };
 
   const needsOptions = ["select", "checkbox", "radio"].includes(formData?.field_type || "text");
+  const suggestedDbColumn = getSuggestedDbColumn();
 
   // Safety check - ensure formData is always defined
   if (!formData) {
@@ -426,15 +500,60 @@ export function FieldEditorDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>{field ? "Edit Field" : "Add Field"}</DialogTitle>
-          <DialogDescription>
-            Configure the field properties and validation rules
-          </DialogDescription>
+          <div className="flex items-center justify-between">
+            <div>
+              <DialogTitle>{field ? "Edit Field" : "Add Field"}</DialogTitle>
+              <DialogDescription>
+                {isAdvancedMode 
+                  ? "Configure all field properties and database mappings"
+                  : "Configure basic field properties (switch to Advanced for more options)"}
+              </DialogDescription>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1 bg-muted rounded-lg p-1">
+                <Button
+                  type="button"
+                  variant={!isAdvancedMode ? "default" : "ghost"}
+                  size="sm"
+                  onClick={() => handleModeToggle(false)}
+                  className="h-7 px-3 text-xs"
+                >
+                  <User className="h-3 w-3 mr-1" />
+                  Simple
+                </Button>
+                <Button
+                  type="button"
+                  variant={isAdvancedMode ? "default" : "ghost"}
+                  size="sm"
+                  onClick={() => handleModeToggle(true)}
+                  className="h-7 px-3 text-xs"
+                >
+                  <Settings className="h-3 w-3 mr-1" />
+                  Advanced
+                </Button>
+              </div>
+            </div>
+          </div>
         </DialogHeader>
         
         {errors.general && (
           <div className="p-3 bg-destructive/10 border border-destructive/20 rounded-md text-destructive text-sm">
             {errors.general}
+          </div>
+        )}
+
+        {!isAdvancedMode && (
+          <div className="p-3 bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800 rounded-md text-sm">
+            <div className="flex items-start gap-2">
+              <Info className="h-4 w-4 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0" />
+              <div className="flex-1">
+                <p className="text-blue-800 dark:text-blue-200 font-medium mb-1">Simple Mode</p>
+                <p className="text-blue-700 dark:text-blue-300 text-xs">
+                  You're in Simple mode. Field ID and database mapping are auto-configured. 
+                  Switch to <strong>Advanced</strong> for full control.
+                </p>
+              </div>
+            </div>
           </div>
         )}
 
@@ -487,41 +606,58 @@ export function FieldEditorDialog({
             )}
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="field_key">Field Key *</Label>
-            <div className="flex gap-2">
-              <Input
-                id="field_key"
-                value={formData.field_key}
-                onChange={(e) => setFormData({ ...formData, field_key: e.target.value })}
-                placeholder="e.g., first_name, email"
-                disabled={!!field} // Can't change key for existing fields
-                className={errors.field_key ? "border-destructive" : ""}
-              />
-              {!field && formData.label && (
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setFormData({ ...formData, field_key: labelToFieldKey(formData.label) })}
-                  title="Regenerate from label"
-                >
-                  <Copy className="h-4 w-4" />
-                </Button>
+          {/* Field Key - Only show in Advanced mode */}
+          {isAdvancedMode && (
+            <div className="space-y-2">
+              <Label htmlFor="field_key">Field Key *</Label>
+              <div className="flex gap-2">
+                <Input
+                  id="field_key"
+                  value={formData.field_key}
+                  onChange={(e) => setFormData({ ...formData, field_key: e.target.value })}
+                  placeholder="e.g., first_name, email"
+                  disabled={!!field} // Can't change key for existing fields
+                  className={errors.field_key ? "border-destructive" : ""}
+                />
+                {!field && formData.label && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setFormData({ ...formData, field_key: labelToFieldKey(formData.label) })}
+                    title="Regenerate from label"
+                  >
+                    <Copy className="h-4 w-4" />
+                  </Button>
+                )}
+              </div>
+              {errors.field_key && (
+                <p className="text-xs text-destructive flex items-center gap-1">
+                  <AlertCircle className="h-3 w-3" />
+                  {errors.field_key}
+                </p>
               )}
-            </div>
-            {errors.field_key && (
-              <p className="text-xs text-destructive flex items-center gap-1">
-                <AlertCircle className="h-3 w-3" />
-                {errors.field_key}
+              <p className="text-xs text-muted-foreground">
+                Unique identifier (snake_case). {field ? "Cannot be changed after creation." : "Auto-generated from label."}
               </p>
-            )}
-            <p className="text-xs text-muted-foreground">
-              Unique identifier (snake_case). {field ? "Cannot be changed after creation." : "Auto-generated from label."}
-            </p>
-          </div>
+            </div>
+          )}
 
-          <div className="grid grid-cols-2 gap-4">
+          {/* Field Key Preview - Show in Simple mode */}
+          {!isAdvancedMode && formData.field_key && (
+            <div className="p-2 bg-muted/50 rounded-md border border-muted">
+              <p className="text-xs text-muted-foreground">
+                <strong>Field ID:</strong> <code className="bg-background px-1.5 py-0.5 rounded text-foreground">{formData.field_key}</code>
+                {suggestedDbColumn && (
+                  <span className="ml-3">
+                    <strong>Will save to:</strong> <code className="bg-background px-1.5 py-0.5 rounded text-foreground">{suggestedDbColumn}</code>
+                  </span>
+                )}
+              </p>
+            </div>
+          )}
+
+          <div className={isAdvancedMode ? "grid grid-cols-2 gap-4" : "space-y-2"}>
             <div className="space-y-2">
               <Label htmlFor="field_type">Field Type *</Label>
               <Select
@@ -538,24 +674,26 @@ export function FieldEditorDialog({
                   <SelectItem value="textarea">Textarea</SelectItem>
                   <SelectItem value="number">Number</SelectItem>
                   <SelectItem value="date">Date</SelectItem>
-                  <SelectItem value="select">Select</SelectItem>
+                  <SelectItem value="select">Dropdown</SelectItem>
                   <SelectItem value="checkbox">Checkbox</SelectItem>
                   <SelectItem value="radio">Radio</SelectItem>
                 </SelectContent>
               </Select>
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="display_order">Display Order</Label>
-              <Input
-                id="display_order"
-                type="number"
-                value={formData.display_order}
-                onChange={(e) =>
-                  setFormData({ ...formData, display_order: Number(e.target.value) })
-                }
-              />
-            </div>
+            {isAdvancedMode && (
+              <div className="space-y-2">
+                <Label htmlFor="display_order">Display Order</Label>
+                <Input
+                  id="display_order"
+                  type="number"
+                  value={formData.display_order}
+                  onChange={(e) =>
+                    setFormData({ ...formData, display_order: Number(e.target.value) })
+                  }
+                />
+              </div>
+            )}
           </div>
 
 
@@ -569,19 +707,22 @@ export function FieldEditorDialog({
             />
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="description">Description</Label>
-            <Textarea
-              id="description"
-              value={formData.description || ""}
-              onChange={(e) => setFormData({ ...formData, description: e.target.value || null })}
-              placeholder="Help text shown below the field"
-              rows={2}
-            />
-          </div>
+          {/* Description - Only in Advanced mode */}
+          {isAdvancedMode && (
+            <div className="space-y-2">
+              <Label htmlFor="description">Description / Help Text</Label>
+              <Textarea
+                id="description"
+                value={formData.description || ""}
+                onChange={(e) => setFormData({ ...formData, description: e.target.value || null })}
+                placeholder="Help text shown below the field"
+                rows={2}
+              />
+            </div>
+          )}
 
           <div className="space-y-2">
-            <Label htmlFor="section">Section</Label>
+            <Label htmlFor="section">Section / Group Name</Label>
             <Input
               id="section"
               value={formData.section}
@@ -593,15 +734,18 @@ export function FieldEditorDialog({
             </p>
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="default_value">Default Value</Label>
-            <Input
-              id="default_value"
-              value={formData.default_value || ""}
-              onChange={(e) => setFormData({ ...formData, default_value: e.target.value || null })}
-              placeholder="Default value for this field"
-            />
-          </div>
+          {/* Default Value - Only in Advanced mode */}
+          {isAdvancedMode && (
+            <div className="space-y-2">
+              <Label htmlFor="default_value">Default Value</Label>
+              <Input
+                id="default_value"
+                value={formData.default_value || ""}
+                onChange={(e) => setFormData({ ...formData, default_value: e.target.value || null })}
+                placeholder="Default value for this field"
+              />
+            </div>
+          )}
 
           <div className="flex items-center space-x-2">
             <Checkbox
@@ -616,12 +760,13 @@ export function FieldEditorDialog({
             </Label>
           </div>
 
-          {/* Database Mapping Section */}
-          <div className="space-y-4 pt-4 border-t">
-            <div className="flex items-center gap-2">
-              <Database className="h-4 w-4 text-muted-foreground" />
-              <Label className="text-base font-semibold">Database Mapping</Label>
-            </div>
+          {/* Database Mapping Section - Only in Advanced mode */}
+          {isAdvancedMode && (
+            <div className="space-y-4 pt-4 border-t">
+              <div className="flex items-center gap-2">
+                <Database className="h-4 w-4 text-muted-foreground" />
+                <Label className="text-base font-semibold">Database Mapping</Label>
+              </div>
 
             <div className="space-y-2">
               <Label htmlFor="db_column">Database Column</Label>
@@ -716,7 +861,8 @@ export function FieldEditorDialog({
                 </p>
               </div>
             )}
-          </div>
+            </div>
+          )}
 
           {needsOptions && (
             <div className="space-y-2">
@@ -733,29 +879,31 @@ export function FieldEditorDialog({
                 </p>
               )}
               
-              {/* Bulk Import */}
-              <div className="space-y-2 p-3 bg-muted/30 rounded-lg border">
-                <Label className="text-sm">Bulk Import Options</Label>
-                <Textarea
-                  value={bulkOptionsText}
-                  onChange={(e) => setBulkOptionsText(e.target.value)}
-                  placeholder="Enter one option per line. Use 'Label:Value' format or just 'Label' (value will be auto-generated)"
-                  rows={3}
-                  className="text-sm"
-                />
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={handleBulkImportOptions}
-                  disabled={!bulkOptionsText.trim()}
-                >
-                  Import Options
-                </Button>
-                <p className="text-xs text-muted-foreground">
-                  Example: Male:male{'\n'}Female:female{'\n'}Other
-                </p>
-              </div>
+              {/* Bulk Import - Only in Advanced mode */}
+              {isAdvancedMode && (
+                <div className="space-y-2 p-3 bg-muted/30 rounded-lg border">
+                  <Label className="text-sm">Bulk Import Options</Label>
+                  <Textarea
+                    value={bulkOptionsText}
+                    onChange={(e) => setBulkOptionsText(e.target.value)}
+                    placeholder="Enter one option per line. Use 'Label:Value' format or just 'Label' (value will be auto-generated)"
+                    rows={3}
+                    className="text-sm"
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={handleBulkImportOptions}
+                    disabled={!bulkOptionsText.trim()}
+                  >
+                    Import Options
+                  </Button>
+                  <p className="text-xs text-muted-foreground">
+                    Example: Male:male{'\n'}Female:female{'\n'}Other
+                  </p>
+                </div>
+              )}
 
               <div className="space-y-2">
                 {formData.options.map((option, index) => (

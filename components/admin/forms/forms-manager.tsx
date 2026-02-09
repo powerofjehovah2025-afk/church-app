@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { FileText, Edit, CheckCircle2, XCircle, Loader2 } from "lucide-react";
 import type { FormConfig } from "@/types/database.types";
 import { FormEditor } from "./form-editor";
+import { FormErrorBoundary } from "./error-boundary";
 
 export function FormsManager() {
   const [formConfigs, setFormConfigs] = useState<FormConfig[]>([]);
@@ -50,10 +51,12 @@ export function FormsManager() {
 
   if (selectedFormType) {
     return (
-      <FormEditor
-        formType={selectedFormType as "welcome" | "membership"}
-        onBack={handleBack}
-      />
+      <FormErrorBoundary>
+        <FormEditor
+          formType={selectedFormType as "welcome" | "membership"}
+          onBack={handleBack}
+        />
+      </FormErrorBoundary>
     );
   }
 

@@ -626,14 +626,14 @@ export function FieldEditorDialog({
             <div className="space-y-2">
               <Label htmlFor="db_column">Database Column</Label>
               <Select
-                value={formData.db_column || ""}
-                onValueChange={(value) => setFormData({ ...formData, db_column: value })}
+                value={formData.db_column || "__none__"}
+                onValueChange={(value) => setFormData({ ...formData, db_column: value === "__none__" ? "" : value })}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Select database column (optional)" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">None (not saved to database)</SelectItem>
+                  <SelectItem value="__none__">None (not saved to database)</SelectItem>
                   {NEWCOMERS_TABLE_COLUMNS.map((col) => (
                     <SelectItem key={col.name} value={col.name}>
                       {col.name} ({col.type})

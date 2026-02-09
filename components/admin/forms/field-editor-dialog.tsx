@@ -109,6 +109,7 @@ export function FieldEditorDialog({
   field,
   onSave,
 }: FieldEditorDialogProps) {
+  // Initialize with safe defaults
   const [formData, setFormData] = useState({
     field_key: "",
     field_type: "text",
@@ -130,7 +131,57 @@ export function FieldEditorDialog({
   const [bulkOptionsText, setBulkOptionsText] = useState("");
 
   useEffect(() => {
-    if (field && typeof field === 'object') {
+    // Only process field data when dialog is open and field exists
+    if (!open) {
+      // Reset form data when dialog closes
+      if (!field) {
+        setFormData({
+          field_key: "",
+          field_type: "text",
+          label: "",
+          placeholder: "",
+          description: "",
+          is_required: false,
+          default_value: "",
+          display_order: 0,
+          section: "",
+          options: [],
+          db_column: "",
+          transformation_type: "direct",
+          transformation_config: {},
+          is_notes_field: false,
+          notes_format: "",
+        });
+      }
+      return;
+    }
+
+    // If dialog is open but no field, it's a new field - reset to defaults
+    if (!field) {
+      setFormData({
+        field_key: "",
+        field_type: "text",
+        label: "",
+        placeholder: "",
+        description: "",
+        is_required: false,
+        default_value: "",
+        display_order: 0,
+        section: "",
+        options: [],
+        db_column: "",
+        transformation_type: "direct",
+        transformation_config: {},
+        is_notes_field: false,
+        notes_format: "",
+      });
+      setBulkOptionsText("");
+      setErrors({});
+      return;
+    }
+
+    // Process existing field data
+    if (typeof field === 'object' && field !== null) {
       try {
         // Safely parse transformation_config if it's a string or needs parsing
         let transformationConfig: Record<string, unknown> = {};
@@ -185,28 +236,8 @@ export function FieldEditorDialog({
         console.error("Error loading field data:", error);
         setErrors({ general: "Failed to load field data. Please try again." });
       }
-    } else {
-      setFormData({
-        field_key: "",
-        field_type: "text",
-        label: "",
-        placeholder: "",
-        description: "",
-        is_required: false,
-        default_value: "",
-        display_order: 0,
-        section: "",
-        options: [],
-        db_column: "",
-        transformation_type: "direct",
-        transformation_config: {},
-        is_notes_field: false,
-        notes_format: "",
-      });
-      setBulkOptionsText("");
-      setErrors({});
     }
-  }, [field, open]);
+  }, [field, open]); // Only run when field or open state changes
 
   // Auto-generate field key from label when label changes (only for new fields)
   useEffect(() => {
@@ -322,7 +353,17 @@ export function FieldEditorDialog({
     });
   };
 
-  const needsOptions = ["select", "checkbox", "radio"].includes(formData.field_type);
+  const needsOptions = ["select", "checkbox", "radio"].includes(formData?.field_type || "text");
+
+  // Safety check - ensure formData is always defined
+  if (!formData) {
+    return null;
+  }
+
+  // Safety check - don't render if there's a critical error and dialog is closed
+  if (errors.general && !open) {
+    return null;
+  }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -333,6 +374,12 @@ export function FieldEditorDialog({
             Configure the field properties and validation rules
           </DialogDescription>
         </DialogHeader>
+        
+        {errors.general && (
+          <div className="p-3 bg-destructive/10 border border-destructive/20 rounded-md text-destructive text-sm">
+            {errors.general}
+          </div>
+        )}
 
         <div className="space-y-4 py-4">
           {!field && (

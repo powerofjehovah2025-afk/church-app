@@ -129,6 +129,7 @@ export function FieldEditorDialog({
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [bulkOptionsText, setBulkOptionsText] = useState("");
+  const [isInitialized, setIsInitialized] = useState(false);
 
   useEffect(() => {
     // Only process field data when dialog is open and field exists
@@ -177,6 +178,7 @@ export function FieldEditorDialog({
       });
       setBulkOptionsText("");
       setErrors({});
+      setIsInitialized(true);
       return;
     }
 
@@ -244,6 +246,7 @@ export function FieldEditorDialog({
         });
         setBulkOptionsText("");
         setErrors({});
+        setIsInitialized(true);
       } catch (error) {
         console.error("Error loading field data:", error);
         console.error("Field object that caused error:", field);
@@ -401,6 +404,22 @@ export function FieldEditorDialog({
   // Safety check - don't render if there's a critical error and dialog is closed
   if (errors.general && !open) {
     return null;
+  }
+
+  // Don't render dialog content until initialized (prevents hydration errors)
+  if (open && field && !isInitialized) {
+    return (
+      <Dialog open={open} onOpenChange={onOpenChange}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Loading...</DialogTitle>
+          </DialogHeader>
+          <div className="p-4 text-center text-muted-foreground">
+            Loading field data...
+          </div>
+        </DialogContent>
+      </Dialog>
+    );
   }
 
   return (

@@ -25,6 +25,7 @@ export async function GET(request: NextRequest) {
         phone,
         assigned_to,
         assigned_at,
+        created_at,
         followup_status,
         staff:profiles!newcomers_assigned_to_fkey(id, full_name, email)
       `)
@@ -80,7 +81,7 @@ export async function GET(request: NextRequest) {
 
       const hoursSinceAssignment = newcomer.assigned_at
         ? (Date.now() - new Date(newcomer.assigned_at).getTime()) / (1000 * 60 * 60)
-        : (Date.now() - new Date(newcomer.created_at || Date.now()).getTime()) / (1000 * 60 * 60);
+        : (Date.now() - new Date((newcomer as { created_at?: string }).created_at || Date.now()).getTime()) / (1000 * 60 * 60);
 
       const daysOverdue = Math.floor(hoursSinceAssignment / 24);
 

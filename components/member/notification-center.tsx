@@ -11,7 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Loader2, Bell, Trash2, Check, Filter } from "lucide-react";
+import { Loader2, Bell, Trash2, Check } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import type { Notification } from "@/types/database.types";
 
@@ -19,10 +19,11 @@ export function NotificationCenter() {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [filter, setFilter] = useState<string>("all");
-  const [total, setTotal] = useState(0);
+  const [, setTotal] = useState(0);
 
   useEffect(() => {
     fetchNotifications();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filter]);
 
   const fetchNotifications = async () => {

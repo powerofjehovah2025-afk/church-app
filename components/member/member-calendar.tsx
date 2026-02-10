@@ -23,6 +23,7 @@ export function MemberCalendar() {
 
   useEffect(() => {
     fetchCalendarEvents();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentDate]);
 
   const fetchCalendarEvents = async () => {

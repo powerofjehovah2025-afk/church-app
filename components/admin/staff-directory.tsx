@@ -5,7 +5,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Loader2, Users, Mail, CheckCircle2, AlertCircle, User } from "lucide-react";
-import { createClient } from "@/lib/supabase/client";
 
 interface StaffMember {
   staff_id: string;

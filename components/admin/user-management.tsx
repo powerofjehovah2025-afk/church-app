@@ -245,7 +245,7 @@ export function UserManagement() {
         const error = await response.json();
         setMessage({ type: "error", text: error.error || "Failed to update availability" });
       }
-    } catch (error) {
+    } catch {
       setMessage({ type: "error", text: "Failed to update availability" });
     } finally {
       setIsSavingSkills(false);

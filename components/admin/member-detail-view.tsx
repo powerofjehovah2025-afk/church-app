@@ -12,9 +12,9 @@ import type { Profile, Task, Message } from "@/types/database.types";
 interface MemberDetailData {
   profile: Profile;
   tasks: Task[];
-  duties: any[];
+  duties: Array<{ id: string; status: string; service: { id: string; date: string; name: string; time: string | null } | null; duty_type: { id: string; name: string } | null }>;
   messages: Message[];
-  newcomers: any[];
+  newcomers: Array<{ id: string; full_name: string; email: string | null; phone: string | null; status: string | null; followup_status: string | null }>;
 }
 
 export function MemberDetailView({
@@ -228,7 +228,7 @@ export function MemberDetailView({
                 </div>
               ) : (
                 <div className="space-y-3">
-                  {data.duties.map((duty: any) => (
+                  {data.duties.map((duty: { id: string; status: string; service: { id: string; date: string; name: string; time: string | null } | null; duty_type: { id: string; name: string } | null }) => (
                     <div
                       key={duty.id}
                       className="p-4 rounded-lg bg-slate-800/50 border border-slate-700/50"
@@ -296,7 +296,7 @@ export function MemberDetailView({
                 </div>
               ) : (
                 <div className="space-y-3">
-                  {data.messages.map((message: any) => {
+                  {data.messages.map((message: Message) => {
                     const isSender = message.sender?.id === memberId;
                     return (
                       <div
@@ -338,7 +338,7 @@ export function MemberDetailView({
                     <p className="text-slate-400 text-sm">No follow-ups assigned</p>
                   ) : (
                     <div className="space-y-2">
-                      {data.newcomers.map((newcomer: any) => (
+                      {data.newcomers.map((newcomer: { id: string; full_name: string; email: string | null; phone: string | null; status: string | null; followup_status: string | null }) => (
                         <div
                           key={newcomer.id}
                           className="p-3 rounded bg-slate-800/50 border border-slate-700/50"

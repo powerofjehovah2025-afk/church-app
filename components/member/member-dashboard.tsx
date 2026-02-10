@@ -101,7 +101,7 @@ export function MemberDashboard() {
   const [editingNewcomerId, setEditingNewcomerId] = useState<string | null>(null);
   const [overdueCount, setOverdueCount] = useState(0);
   const [announcements, setAnnouncements] = useState<Announcement[]>([]);
-  const [userRole, setUserRole] = useState<string | null>(null);
+  const [, setUserRole] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("tasks");
   const [unreadNotificationCount, setUnreadNotificationCount] = useState(0);
@@ -409,7 +409,7 @@ export function MemberDashboard() {
                   {overdueCount} overdue follow-up{overdueCount !== 1 ? 's' : ''} need attention
                 </p>
                 <p className="text-red-400/70 text-sm mt-1">
-                  These newcomers were assigned more than 48 hours ago and haven't been contacted yet.
+                  These newcomers were assigned more than 48 hours ago and haven&apos;t been contacted yet.
                 </p>
               </div>
             </div>

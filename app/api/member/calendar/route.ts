@@ -73,7 +73,12 @@ export async function GET(request: NextRequest) {
     }> = [];
 
     // Add duties
-    (duties || []).forEach((duty: any) => {
+    (duties || []).forEach((duty: {
+      id: string;
+      status: string;
+      service: { id: string; date: string; name: string; time: string | null } | null;
+      duty_type: { id: string; name: string } | null;
+    }) => {
       if (duty.service?.date) {
         events.push({
           id: duty.id,

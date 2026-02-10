@@ -41,6 +41,7 @@ export function AnnouncementsManager() {
 
   useEffect(() => {
     fetchAnnouncements();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [targetAudience]);
 
   const fetchAnnouncements = async () => {
@@ -245,7 +246,7 @@ export function AnnouncementsManager() {
                     <p className="text-slate-300 whitespace-pre-wrap mb-3">{announcement.content}</p>
                     <div className="flex items-center gap-4 text-xs text-slate-500">
                       <span>
-                        By: {(announcement as any).creator?.full_name || (announcement as any).creator?.email || "Unknown"}
+                        By: {(announcement as { creator?: { full_name?: string; email?: string } }).creator?.full_name || (announcement as { creator?: { full_name?: string; email?: string } }).creator?.email || "Unknown"}
                       </span>
                       <span>
                         {new Date(announcement.created_at).toLocaleDateString()}

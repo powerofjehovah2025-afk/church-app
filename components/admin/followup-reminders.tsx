@@ -11,7 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Loader2, AlertCircle, Users, RefreshCw } from "lucide-react";
+import { Loader2, AlertCircle, RefreshCw } from "lucide-react";
 
 interface Reminder {
   id: string;
@@ -43,6 +43,7 @@ export function FollowupReminders() {
 
   useEffect(() => {
     fetchReminders();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filterType]);
 
   const fetchReminders = async () => {
@@ -68,15 +69,15 @@ export function FollowupReminders() {
     }
   };
 
-  const handleReassign = async (reminderId: string, newStaffId: string) => {
-    try {
-      // This would require an API endpoint to reassign
-      // For now, just show a message
-      alert("Reassignment feature coming soon");
-    } catch (error) {
-      console.error("Error reassigning:", error);
-    }
-  };
+  // const handleReassign = async (reminderId: string, newStaffId: string) => {
+  //   try {
+  //     // This would require an API endpoint to reassign
+  //     // For now, just show a message
+  //     alert("Reassignment feature coming soon");
+  //   } catch (error) {
+  //     console.error("Error reassigning:", error);
+  //   }
+  // };
 
   if (isLoading) {
     return (

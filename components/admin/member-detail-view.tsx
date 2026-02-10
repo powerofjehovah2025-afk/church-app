@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Loader2, ArrowLeft, User, CheckSquare, Calendar, Mail, Users, Activity } from "lucide-react";
+import { Loader2, ArrowLeft, User, CheckSquare, Calendar, Mail, Activity } from "lucide-react";
 import type { Profile, Task, Message } from "@/types/database.types";
 
 interface MemberDetailData {

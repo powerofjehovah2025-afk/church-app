@@ -21,7 +21,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Loader2, Download, Filter, TrendingUp, Users, Clock, CheckCircle2, AlertCircle } from "lucide-react";
+import { Loader2, Download, Filter, TrendingUp, Users, Clock, AlertCircle } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 
 interface FollowupStats {

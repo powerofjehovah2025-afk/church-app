@@ -12,7 +12,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Search, CheckCircle2, AlertCircle, Loader2, Settings, User, X } from "lucide-react";
+import { Search, CheckCircle2, AlertCircle, Loader2, Settings, User } from "lucide-react";
 import type { Profile } from "@/types/database.types";
 import Link from "next/link";
 import {
@@ -211,7 +211,7 @@ export function UserManagement() {
         const error = await response.json();
         setMessage({ type: "error", text: error.error || "Failed to update skills" });
       }
-    } catch (error) {
+    } catch {
       setMessage({ type: "error", text: "Failed to update skills" });
     } finally {
       setIsSavingSkills(false);

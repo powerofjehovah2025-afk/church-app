@@ -10,9 +10,16 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Loader2, CheckSquare, Mail, Calendar, User } from "lucide-react";
+import { Loader2, CheckSquare, Mail, Calendar, User, Phone, MessageCircle, Edit, Save, X, AlertCircle, Megaphone, Pin, Bell } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
+import type { Announcement } from "@/types/database.types";
+import { MemberCalendar } from "./member-calendar";
+import { ProfileEditor } from "./profile-editor";
 
 interface Task {
   id: string;
@@ -64,7 +71,25 @@ interface AssignedNewcomer {
   email: string | null;
   phone: string | null;
   status: string | null;
+  followup_status: string | null;
+  followup_notes: string | null;
+  last_followup_at: string | null;
+  followup_count: number | null;
+  next_followup_date: string | null;
   created_at: string;
+}
+
+interface FollowupHistory {
+  id: string;
+  status: string;
+  notes: string | null;
+  contact_method: string | null;
+  created_at: string;
+  staff?: {
+    id: string;
+    full_name: string | null;
+    email: string | null;
+  };
 }
 
 export function MemberDashboard() {
@@ -72,8 +97,14 @@ export function MemberDashboard() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [duties, setDuties] = useState<ServiceAssignment[]>([]);
   const [assignedNewcomers, setAssignedNewcomers] = useState<AssignedNewcomer[]>([]);
+  const [followupHistory, setFollowupHistory] = useState<Record<string, FollowupHistory[]>>({});
+  const [editingNewcomerId, setEditingNewcomerId] = useState<string | null>(null);
+  const [overdueCount, setOverdueCount] = useState(0);
+  const [announcements, setAnnouncements] = useState<Announcement[]>([]);
+  const [userRole, setUserRole] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("tasks");
+  const [unreadNotificationCount, setUnreadNotificationCount] = useState(0);
 
   const fetchTasks = useCallback(async () => {
     try {
@@ -148,7 +179,7 @@ export function MemberDashboard() {
 
       const { data, error } = await supabase
         .from("newcomers")
-        .select("id, full_name, email, phone, status, created_at")
+        .select("id, full_name, email, phone, status, followup_status, followup_notes, last_followup_at, followup_count, next_followup_date, assigned_at, created_at")
         .eq("assigned_to", user.id)
         .order("created_at", { ascending: false })
         .limit(10);
@@ -158,20 +189,117 @@ export function MemberDashboard() {
         return;
       }
 
-      setAssignedNewcomers((data as AssignedNewcomer[]) || []);
+      const newcomers = (data as AssignedNewcomer[]) || [];
+      setAssignedNewcomers(newcomers);
+
+      // Fetch follow-up history for each newcomer
+      const historyPromises = newcomers.map(async (newcomer) => {
+        const response = await fetch(`/api/admin/newcomers/${newcomer.id}/followup`);
+        if (response.ok) {
+          const historyData = await response.json();
+          return { newcomerId: newcomer.id, history: historyData.history || [] };
+        }
+        return { newcomerId: newcomer.id, history: [] };
+      });
+
+      const historyResults = await Promise.all(historyPromises);
+      const historyMap: Record<string, FollowupHistory[]> = {};
+      historyResults.forEach(({ newcomerId, history }) => {
+        historyMap[newcomerId] = history;
+      });
+      setFollowupHistory(historyMap);
+
+      // Calculate overdue count (assigned more than 48 hours ago and not contacted)
+      const now = new Date();
+      const overdue = newcomers.filter((n) => {
+        if (!n.assigned_to || n.followup_status === "contacted" || n.followup_status === "completed") {
+          return false;
+        }
+        const assignedAt = n.assigned_at ? new Date(n.assigned_at) : new Date(n.created_at);
+        const hoursSinceAssignment = (now.getTime() - assignedAt.getTime()) / (1000 * 60 * 60);
+        return hoursSinceAssignment > 48;
+      });
+      setOverdueCount(overdue.length);
+
+      // Fetch pending reminders for this user
+      try {
+        const remindersResponse = await fetch(`/api/admin/followups/reminders?staff_id=${user.id}&is_sent=false`);
+        if (remindersResponse.ok) {
+          const remindersData = await remindersResponse.json();
+          const pendingReminders = remindersData.reminders || [];
+          // Add reminder count to overdue count if there are reminders
+          if (pendingReminders.length > 0) {
+            setOverdueCount((prev) => prev + pendingReminders.length);
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching reminders:", error);
+      }
     } catch (error) {
       console.error("Error fetching assigned newcomers:", error);
+    }
+  }, []);
+
+  const fetchAnnouncements = useCallback(async () => {
+    try {
+      const supabase = createClient();
+      const { data: { user } } = await supabase.auth.getUser();
+
+      if (!user) return;
+
+      // Get user's role
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("role")
+        .eq("id", user.id)
+        .single();
+
+      const role = profile?.role || "member";
+      setUserRole(role);
+
+      // Fetch announcements for user's role or "all"
+      const params = new URLSearchParams();
+      params.append("include_expired", "false");
+
+      const response = await fetch(`/api/admin/announcements?${params.toString()}`);
+      if (response.ok) {
+        const data = await response.json();
+        // Filter by target audience (all or user's role)
+        const filtered = (data.announcements || []).filter(
+          (ann: Announcement) => ann.target_audience === "all" || ann.target_audience === role
+        );
+        setAnnouncements(filtered);
+      }
+    } catch (error) {
+      console.error("Error fetching announcements:", error);
+    }
+  }, []);
+
+  const fetchNotifications = useCallback(async () => {
+    try {
+      const supabase = createClient();
+      const { data: { user } } = await supabase.auth.getUser();
+
+      if (!user) return;
+
+      const response = await fetch(`/api/admin/notifications?user_id=${user.id}&is_read=false&limit=1`);
+      if (response.ok) {
+        const data = await response.json();
+        setUnreadNotificationCount(data.total || 0);
+      }
+    } catch (error) {
+      console.error("Error fetching notifications:", error);
     }
   }, []);
 
   useEffect(() => {
     const loadData = async () => {
       setIsLoading(true);
-      await Promise.all([fetchTasks(), fetchMessages(), fetchDuties(), fetchAssignedNewcomers()]);
+      await Promise.all([fetchTasks(), fetchMessages(), fetchDuties(), fetchAssignedNewcomers(), fetchAnnouncements(), fetchNotifications()]);
       setIsLoading(false);
     };
     loadData();
-  }, [fetchTasks, fetchMessages, fetchDuties, fetchAssignedNewcomers]);
+  }, [fetchTasks, fetchMessages, fetchDuties, fetchAssignedNewcomers, fetchAnnouncements, fetchNotifications]);
 
   const handleTaskStatusUpdate = async (taskId: string, newStatus: string) => {
     try {
@@ -231,6 +359,28 @@ export function MemberDashboard() {
     return colors[status] || colors.pending;
   };
 
+  const getFollowupStatusColor = (status: string) => {
+    const colors: Record<string, string> = {
+      not_started: "bg-slate-500/20 text-slate-300 border-slate-500/50",
+      in_progress: "bg-blue-500/20 text-blue-300 border-blue-500/50",
+      contacted: "bg-green-500/20 text-green-300 border-green-500/50",
+      completed: "bg-green-500/20 text-green-300 border-green-500/50",
+      no_response: "bg-red-500/20 text-red-300 border-red-500/50",
+    };
+    return colors[status] || colors.not_started;
+  };
+
+  const getFollowupStatusLabel = (status: string) => {
+    const labels: Record<string, string> = {
+      not_started: "Not Started",
+      in_progress: "In Progress",
+      contacted: "Contacted",
+      completed: "Completed",
+      no_response: "No Response",
+    };
+    return labels[status] || status;
+  };
+
   if (isLoading) {
     return (
       <Card className="bg-slate-900/40 backdrop-blur-md border-slate-700/50 shadow-xl">
@@ -248,6 +398,67 @@ export function MemberDashboard() {
 
   return (
     <div className="space-y-6">
+      {/* Overdue Follow-ups Alert */}
+      {hasOverdueFollowups && (
+        <Card className="bg-red-500/10 border-red-500/30 shadow-xl">
+          <CardContent className="pt-6">
+            <div className="flex items-center gap-3">
+              <AlertCircle className="h-5 w-5 text-red-400" />
+              <div>
+                <p className="text-red-300 font-medium">
+                  {overdueCount} overdue follow-up{overdueCount !== 1 ? 's' : ''} need attention
+                </p>
+                <p className="text-red-400/70 text-sm mt-1">
+                  These newcomers were assigned more than 48 hours ago and haven't been contacted yet.
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Announcements Section */}
+      {announcements.length > 0 && (
+        <Card className="bg-slate-900/40 backdrop-blur-md border-slate-700/50 shadow-xl">
+          <CardHeader>
+            <CardTitle className="text-white flex items-center gap-2">
+              <Megaphone className="h-5 w-5" />
+              Announcements
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              {announcements.map((announcement) => (
+                <div
+                  key={announcement.id}
+                  className={`p-4 rounded-lg border ${
+                    announcement.is_pinned
+                      ? "bg-yellow-500/10 border-yellow-500/30"
+                      : "bg-slate-800/50 border-slate-700/50"
+                  }`}
+                >
+                  <div className="flex items-start gap-2 mb-2">
+                    {announcement.is_pinned && (
+                      <Pin className="h-4 w-4 text-yellow-400 fill-yellow-400 flex-shrink-0 mt-0.5" />
+                    )}
+                    <h3 className="text-white font-semibold">{announcement.title}</h3>
+                  </div>
+                  <p className="text-slate-300 text-sm whitespace-pre-wrap mb-2">
+                    {announcement.content}
+                  </p>
+                  <p className="text-xs text-slate-500">
+                    {new Date(announcement.created_at).toLocaleDateString()}
+                    {announcement.expires_at && (
+                      <> • Expires: {new Date(announcement.expires_at).toLocaleDateString()}</>
+                    )}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Summary Cards */}
       <div className="grid gap-4 md:grid-cols-4">
         <Card className="bg-slate-900/40 backdrop-blur-md border-slate-700/50 shadow-xl">
@@ -290,6 +501,30 @@ export function MemberDashboard() {
             <p className="text-xs text-slate-400">Assigned newcomers</p>
           </CardContent>
         </Card>
+        <Card className="bg-slate-900/40 backdrop-blur-md border-slate-700/50 shadow-xl">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium text-slate-300">Notifications</CardTitle>
+            <Bell className="h-4 w-4 text-blue-400" />
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="text-2xl font-bold text-white">{unreadNotificationCount}</div>
+                <p className="text-xs text-slate-400">Unread notifications</p>
+              </div>
+              {unreadNotificationCount > 0 && (
+                <Button
+                  variant="link"
+                  size="sm"
+                  onClick={() => window.location.href = "/dashboard/notifications"}
+                  className="text-blue-400 p-0 h-auto"
+                >
+                  View →
+                </Button>
+              )}
+            </div>
+          </CardContent>
+        </Card>
       </div>
 
       {/* Tabs */}
@@ -302,7 +537,7 @@ export function MemberDashboard() {
         </CardHeader>
         <CardContent>
           <Tabs value={activeTab} onValueChange={setActiveTab}>
-            <TabsList className="grid w-full grid-cols-4 bg-slate-800/50">
+            <TabsList className="grid w-full grid-cols-6 bg-slate-800/50">
               <TabsTrigger value="tasks" className="data-[state=active]:bg-blue-600">
                 Tasks ({tasks.length})
               </TabsTrigger>
@@ -317,8 +552,16 @@ export function MemberDashboard() {
               <TabsTrigger value="duties" className="data-[state=active]:bg-blue-600">
                 Duties ({duties.length})
               </TabsTrigger>
+              <TabsTrigger value="calendar" className="data-[state=active]:bg-blue-600">
+                <Calendar className="h-4 w-4 mr-2" />
+                Calendar
+              </TabsTrigger>
               <TabsTrigger value="followups" className="data-[state=active]:bg-blue-600">
                 Follow-ups ({assignedNewcomers.length})
+              </TabsTrigger>
+              <TabsTrigger value="profile" className="data-[state=active]:bg-blue-600">
+                <User className="h-4 w-4 mr-2" />
+                Profile
               </TabsTrigger>
             </TabsList>
 
@@ -470,6 +713,14 @@ export function MemberDashboard() {
               )}
             </TabsContent>
 
+            <TabsContent value="calendar" className="mt-4">
+              <MemberCalendar />
+            </TabsContent>
+
+            <TabsContent value="profile" className="mt-4">
+              <ProfileEditor />
+            </TabsContent>
+
             <TabsContent value="followups" className="mt-4">
               {assignedNewcomers.length === 0 ? (
                 <div className="text-center py-12">
@@ -477,39 +728,335 @@ export function MemberDashboard() {
                   <p className="text-slate-400">No follow-ups assigned</p>
                 </div>
               ) : (
-                <div className="space-y-3">
-                  {assignedNewcomers.map((newcomer) => (
-                    <div
-                      key={newcomer.id}
-                      className="p-4 rounded-lg bg-slate-800/50 border border-slate-700/50"
-                    >
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1">
-                          <h3 className="text-white font-medium">{newcomer.full_name}</h3>
-                          {newcomer.email && (
-                            <p className="text-sm text-slate-400 mt-1">{newcomer.email}</p>
+                <div className="space-y-4">
+                  {assignedNewcomers.map((newcomer) => {
+                    const isEditing = editingNewcomerId === newcomer.id;
+                    const history = followupHistory[newcomer.id] || [];
+                    const followupStatus = newcomer.followup_status || "not_started";
+                    
+                    // Calculate if overdue (assigned more than 48 hours ago and not contacted/completed)
+                    const now = new Date();
+                    const assignedAt = newcomer.assigned_at ? new Date(newcomer.assigned_at) : new Date(newcomer.created_at);
+                    const hoursSinceAssignment = (now.getTime() - assignedAt.getTime()) / (1000 * 60 * 60);
+                    const isOverdue = hoursSinceAssignment > 48 && 
+                      followupStatus !== "contacted" && 
+                      followupStatus !== "completed";
+                    
+                    return (
+                      <div
+                        key={newcomer.id}
+                        className={`p-4 rounded-lg border ${
+                          isOverdue 
+                            ? "bg-red-500/10 border-red-500/30" 
+                            : "bg-slate-800/50 border-slate-700/50"
+                        }`}
+                      >
+                        <div className="space-y-4">
+                          {/* Header */}
+                          <div className="flex items-start justify-between">
+                            <div className="flex-1">
+                              <div className="flex items-center gap-2">
+                                <h3 className="text-white font-medium">{newcomer.full_name}</h3>
+                                {isOverdue && (
+                                  <Badge className="bg-red-500/20 text-red-300 border-red-500/30 text-[10px]">
+                                    Overdue
+                                  </Badge>
+                                )}
+                              </div>
+                              {newcomer.email && (
+                                <p className="text-sm text-slate-400 mt-1">{newcomer.email}</p>
+                              )}
+                              {newcomer.phone && (
+                                <p className="text-sm text-slate-400">{newcomer.phone}</p>
+                              )}
+                              <p className="text-xs text-slate-500 mt-2">
+                                Added: {new Date(newcomer.created_at).toLocaleDateString()}
+                                {newcomer.followup_count && newcomer.followup_count > 0 && (
+                                  <> • {newcomer.followup_count} follow-up{newcomer.followup_count !== 1 ? 's' : ''}</>
+                                )}
+                              </p>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <span
+                                className={`px-2 py-1 rounded text-xs font-medium border ${getStatusColor(newcomer.status || "New")}`}
+                              >
+                                {newcomer.status || "New"}
+                              </span>
+                              {!isEditing && (
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => setEditingNewcomerId(newcomer.id)}
+                                  className="border-slate-700"
+                                >
+                                  <Edit className="h-3 w-3" />
+                                </Button>
+                              )}
+                            </div>
+                          </div>
+
+                          {/* Quick Actions */}
+                          {!isEditing && (
+                            <div className="flex gap-2 flex-wrap">
+                              {newcomer.phone && (
+                                <>
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => window.location.href = `tel:${newcomer.phone?.replace(/\D/g, '')}`}
+                                    className="border-slate-700 text-xs"
+                                  >
+                                    <Phone className="h-3 w-3 mr-1" />
+                                    Call
+                                  </Button>
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => {
+                                      const firstName = newcomer.full_name.split(" ")[0] || newcomer.full_name;
+                                      const message = `Hi ${firstName}, it was a blessing having you at POJ Essex today! How can we pray for you this week?`;
+                                      const encodedMessage = encodeURIComponent(message);
+                                      const phoneNumber = newcomer.phone?.replace(/\D/g, '');
+                                      window.open(`https://wa.me/${phoneNumber}?text=${encodedMessage}`, "_blank");
+                                    }}
+                                    className="border-slate-700 text-xs"
+                                  >
+                                    <MessageCircle className="h-3 w-3 mr-1" />
+                                    WhatsApp
+                                  </Button>
+                                </>
+                              )}
+                              {newcomer.email && (
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => window.location.href = `mailto:${newcomer.email}`}
+                                  className="border-slate-700 text-xs"
+                                >
+                                  <Mail className="h-3 w-3 mr-1" />
+                                  Email
+                                </Button>
+                              )}
+                            </div>
                           )}
-                          {newcomer.phone && (
-                            <p className="text-sm text-slate-400">{newcomer.phone}</p>
+
+                          {/* Follow-up Status and Notes */}
+                          {isEditing ? (
+                            <FollowupEditor
+                              newcomer={newcomer}
+                              onSave={async (status, notes, contactMethod, nextDate) => {
+                                try {
+                                  const response = await fetch(`/api/admin/newcomers/${newcomer.id}/followup`, {
+                                    method: "PUT",
+                                    headers: { "Content-Type": "application/json" },
+                                    body: JSON.stringify({
+                                      followup_status: status,
+                                      followup_notes: notes,
+                                      contact_method: contactMethod || null,
+                                      next_followup_date: nextDate || null,
+                                    }),
+                                  });
+
+                                  if (response.ok) {
+                                    const data = await response.json();
+                                    // Update local state immediately
+                                    setAssignedNewcomers((prev) =>
+                                      prev.map((n) =>
+                                        n.id === newcomer.id
+                                          ? {
+                                              ...n,
+                                              followup_status: status,
+                                              followup_notes: notes,
+                                              last_followup_at: new Date().toISOString(),
+                                              followup_count: (n.followup_count || 0) + 1,
+                                              next_followup_date: nextDate || null,
+                                            }
+                                          : n
+                                      )
+                                    );
+                                    // Refresh history
+                                    if (data.historyEntry) {
+                                      setFollowupHistory((prev) => ({
+                                        ...prev,
+                                        [newcomer.id]: [
+                                          data.historyEntry,
+                                          ...(prev[newcomer.id] || []),
+                                        ],
+                                      }));
+                                    }
+                                    setEditingNewcomerId(null);
+                                  } else {
+                                    const errorData = await response.json();
+                                    console.error("Error updating follow-up:", errorData);
+                                    alert(errorData.error || "Failed to update follow-up");
+                                  }
+                                } catch (error) {
+                                  console.error("Error updating follow-up:", error);
+                                  alert("Failed to update follow-up. Please try again.");
+                                }
+                              }}
+                              onCancel={() => setEditingNewcomerId(null)}
+                            />
+                          ) : (
+                            <>
+                              <div className="flex items-center gap-2">
+                                <Label className="text-xs text-slate-400">Follow-up Status:</Label>
+                                <span className={`px-2 py-1 rounded text-xs font-medium border ${getFollowupStatusColor(followupStatus)}`}>
+                                  {getFollowupStatusLabel(followupStatus)}
+                                </span>
+                              </div>
+                              {newcomer.followup_notes && (
+                                <div className="bg-slate-900/50 rounded p-3 border border-slate-700/50">
+                                  <Label className="text-xs text-slate-400 mb-1 block">Notes:</Label>
+                                  <p className="text-sm text-slate-300 whitespace-pre-wrap">{newcomer.followup_notes}</p>
+                                </div>
+                              )}
+                              {newcomer.last_followup_at && (
+                                <p className="text-xs text-slate-500">
+                                  Last follow-up: {new Date(newcomer.last_followup_at).toLocaleString()}
+                                </p>
+                              )}
+                              {newcomer.next_followup_date && (
+                                <p className="text-xs text-slate-500">
+                                  Next follow-up: {new Date(newcomer.next_followup_date).toLocaleDateString()}
+                                </p>
+                              )}
+                            </>
                           )}
-                          <p className="text-xs text-slate-500 mt-2">
-                            Added: {new Date(newcomer.created_at).toLocaleDateString()}
-                          </p>
+
+                          {/* Follow-up History */}
+                          {history.length > 0 && (
+                            <div className="mt-4 pt-4 border-t border-slate-700/50">
+                              <Label className="text-xs text-slate-400 mb-2 block">Follow-up History:</Label>
+                              <div className="space-y-2">
+                                {history.slice(0, 3).map((entry) => (
+                                  <div key={entry.id} className="text-xs bg-slate-900/50 rounded p-2 border border-slate-700/30">
+                                    <div className="flex items-center justify-between mb-1">
+                                      <span className={`px-1.5 py-0.5 rounded text-[10px] font-medium border ${getFollowupStatusColor(entry.status)}`}>
+                                        {getFollowupStatusLabel(entry.status)}
+                                      </span>
+                                      <span className="text-slate-500">
+                                        {new Date(entry.created_at).toLocaleDateString()}
+                                      </span>
+                                    </div>
+                                    {entry.contact_method && (
+                                      <p className="text-slate-400 text-[10px]">Method: {entry.contact_method}</p>
+                                    )}
+                                    {entry.notes && (
+                                      <p className="text-slate-300 text-[10px] mt-1">{entry.notes}</p>
+                                    )}
+                                  </div>
+                                ))}
+                                {history.length > 3 && (
+                                  <p className="text-xs text-slate-500">+ {history.length - 3} more entries</p>
+                                )}
+                              </div>
+                            </div>
+                          )}
                         </div>
-                        <span
-                          className={`px-2 py-1 rounded text-xs font-medium border ${getStatusColor(newcomer.status || "New")}`}
-                        >
-                          {newcomer.status || "New"}
-                        </span>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               )}
             </TabsContent>
           </Tabs>
         </CardContent>
       </Card>
+    </div>
+  );
+}
+
+// Follow-up Editor Component
+function FollowupEditor({
+  newcomer,
+  onSave,
+  onCancel,
+}: {
+  newcomer: AssignedNewcomer;
+  onSave: (status: string, notes: string, contactMethod: string, nextDate: string | null) => void;
+  onCancel: () => void;
+}) {
+  const [status, setStatus] = useState(newcomer.followup_status || "not_started");
+  const [notes, setNotes] = useState(newcomer.followup_notes || "");
+  const [contactMethod, setContactMethod] = useState<string>("");
+  const [nextDate, setNextDate] = useState<string>(newcomer.next_followup_date || "");
+
+  return (
+    <div className="space-y-3 pt-3 border-t border-slate-700/50">
+      <div className="space-y-2">
+        <Label className="text-xs text-slate-300">Follow-up Status</Label>
+        <Select value={status} onValueChange={setStatus}>
+          <SelectTrigger className="bg-slate-800/50 border-slate-700/50 text-white text-xs">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="not_started">Not Started</SelectItem>
+            <SelectItem value="in_progress">In Progress</SelectItem>
+            <SelectItem value="contacted">Contacted</SelectItem>
+            <SelectItem value="completed">Completed</SelectItem>
+            <SelectItem value="no_response">No Response</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+
+      <div className="space-y-2">
+        <Label className="text-xs text-slate-300">Contact Method (Optional)</Label>
+        <Select value={contactMethod} onValueChange={setContactMethod}>
+          <SelectTrigger className="bg-slate-800/50 border-slate-700/50 text-white text-xs">
+            <SelectValue placeholder="Select method" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="">None</SelectItem>
+            <SelectItem value="phone">Phone</SelectItem>
+            <SelectItem value="whatsapp">WhatsApp</SelectItem>
+            <SelectItem value="email">Email</SelectItem>
+            <SelectItem value="visit">Visit</SelectItem>
+            <SelectItem value="other">Other</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+
+      <div className="space-y-2">
+        <Label className="text-xs text-slate-300">Notes</Label>
+        <Textarea
+          value={notes}
+          onChange={(e) => setNotes(e.target.value)}
+          className="bg-slate-800/50 border-slate-700/50 text-white text-xs"
+          rows={3}
+          placeholder="Add follow-up notes..."
+        />
+      </div>
+
+      <div className="space-y-2">
+        <Label className="text-xs text-slate-300">Next Follow-up Date (Optional)</Label>
+        <Input
+          type="date"
+          value={nextDate}
+          onChange={(e) => setNextDate(e.target.value)}
+          className="bg-slate-800/50 border-slate-700/50 text-white text-xs"
+        />
+      </div>
+
+      <div className="flex gap-2">
+        <Button
+          size="sm"
+          onClick={() => onSave(status, notes, contactMethod, nextDate || null)}
+          className="bg-blue-600 hover:bg-blue-700 text-white text-xs"
+        >
+          <Save className="h-3 w-3 mr-1" />
+          Save
+        </Button>
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={onCancel}
+          className="border-slate-700 text-xs"
+        >
+          <X className="h-3 w-3 mr-1" />
+          Cancel
+        </Button>
+      </div>
     </div>
   );
 }

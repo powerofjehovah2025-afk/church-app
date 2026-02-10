@@ -385,7 +385,7 @@ export function NewcomersKanban({ initialData }: NewcomersKanbanProps) {
         console.log("🔄 Fetching newcomers from database...");
         const { data, error } = await supabase
           .from("newcomers")
-          .select("*")
+          .select("*, followup_status, followup_notes, last_followup_at, followup_count, next_followup_date, assigned_at")
           .order("created_at", { ascending: false });
 
         if (error) {
@@ -838,6 +838,28 @@ export function NewcomersKanban({ initialData }: NewcomersKanbanProps) {
       }
     });
 
+    // Send notification
+    const assignedStaff = staffMembers.find((s) => s.id === userId);
+    if (assignedStaff && newcomerToAssign) {
+      try {
+        await fetch("/api/admin/notifications", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            user_id: userId,
+            type: "duty_reminder",
+            title: `New Follow-up Assignment: ${newcomerToAssign.full_name}`,
+            message: `You have been assigned to follow up with ${newcomerToAssign.full_name}. Please contact them within 48 hours.`,
+            link: "/dashboard",
+            is_read: false,
+          }),
+        });
+      } catch (notifyError) {
+        console.error("Error sending notification:", notifyError);
+        // Don't fail the assignment if notification fails
+      }
+    }
+
     // Update database in background
     setTimeout(() => {
       const updateData: NewcomerUpdate = {
@@ -881,7 +903,7 @@ export function NewcomersKanban({ initialData }: NewcomersKanbanProps) {
           console.error("Error assigning follow-up:", error);
         });
     }, 0);
-  }, [newcomerToAssign, selectedNewcomer, currentUserName]);
+  }, [newcomerToAssign, selectedNewcomer, currentUserName, staffMembers]);
 
   // Undo last drag operation
   const handleUndo = useCallback(async () => {
@@ -1099,10 +1121,56 @@ export function NewcomersKanban({ initialData }: NewcomersKanbanProps) {
         },
         ...prev.slice(0, 9),
       ]);
+
+      // Send notification if assignment is made (not unassignment)
+      if (assignedTo && assignedStaff) {
+        const newcomer = newcomers.find((n) => n.id === newcomerId);
+        if (newcomer) {
+          try {
+            await fetch("/api/admin/notifications", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                user_id: assignedTo,
+                type: "duty_reminder",
+                title: `New Follow-up Assignment: ${newcomerName}`,
+                message: `You have been assigned to follow up with ${newcomerName}. Please contact them within 48 hours.`,
+                link: "/dashboard",
+                is_read: false,
+              }),
+            });
+          } catch (notifyError) {
+            console.error("Error sending notification:", notifyError);
+            // Don't fail the assignment if notification fails
+          }
+        }
+      }
     } catch (error) {
       console.error("Error updating assignment:", error);
     }
   }, [newcomers, selectedNewcomer, staffMembers]);
+
+  const getFollowupStatusBadgeColor = (status: string) => {
+    const colors: Record<string, string> = {
+      not_started: "bg-slate-500/20 text-slate-300 border-slate-500/30",
+      in_progress: "bg-blue-500/20 text-blue-300 border-blue-500/30",
+      contacted: "bg-green-500/20 text-green-300 border-green-500/30",
+      completed: "bg-green-500/20 text-green-300 border-green-500/30",
+      no_response: "bg-red-500/20 text-red-300 border-red-500/30",
+    };
+    return colors[status] || colors.not_started;
+  };
+
+  const getFollowupStatusLabel = (status: string) => {
+    const labels: Record<string, string> = {
+      not_started: "Not Started",
+      in_progress: "In Progress",
+      contacted: "Contacted",
+      completed: "Completed",
+      no_response: "No Response",
+    };
+    return labels[status] || status;
+  };
 
   return (
     <div className="space-y-3">
@@ -1337,6 +1405,12 @@ export function NewcomersKanban({ initialData }: NewcomersKanbanProps) {
                                     isOld24h && !isOld48h && !isOld72h
                                       ? "animate-pulse border-l-4 border-l-yellow-500"
                                       : ""
+                                  } ${
+                                    (newcomer as Newcomer & { followup_status?: string }).followup_status === "no_response"
+                                      ? "border-l-4 border-l-red-500"
+                                      : (newcomer as Newcomer & { followup_status?: string }).followup_status === "completed"
+                                      ? "border-l-4 border-l-green-500"
+                                      : ""
                                   }`}
                                   onClick={() => handleCardClick(newcomer)}
                                 >
@@ -1352,6 +1426,11 @@ export function NewcomersKanban({ initialData }: NewcomersKanbanProps) {
                                         {newcomer.contacted && (
                                           <Badge className="bg-green-500/20 text-green-300 border-green-500/30 text-[10px] px-1.5 py-0.5">
                                             Contacted ✓
+                                          </Badge>
+                                        )}
+                                        {(newcomer as Newcomer & { followup_status?: string }).followup_status && (
+                                          <Badge className={`text-[10px] px-1.5 py-0.5 border ${getFollowupStatusBadgeColor((newcomer as Newcomer & { followup_status?: string }).followup_status || "not_started")}`}>
+                                            {getFollowupStatusLabel((newcomer as Newcomer & { followup_status?: string }).followup_status || "not_started")}
                                           </Badge>
                                         )}
                                       </div>
@@ -1488,6 +1567,22 @@ export function NewcomersKanban({ initialData }: NewcomersKanbanProps) {
                                           </div>
                                         ) : null;
                                       })()}
+
+                                      {/* Follow-up Status Display */}
+                                      {(newcomer as Newcomer & { followup_status?: string; last_followup_at?: string }).followup_status && (
+                                        <div className="pt-1">
+                                          <div className="flex items-center gap-1">
+                                            <span className={`text-[10px] px-1.5 py-0.5 rounded border ${getFollowupStatusBadgeColor((newcomer as Newcomer & { followup_status?: string }).followup_status || "not_started")}`}>
+                                              {getFollowupStatusLabel((newcomer as Newcomer & { followup_status?: string }).followup_status || "not_started")}
+                                            </span>
+                                            {(newcomer as Newcomer & { last_followup_at?: string }).last_followup_at && (
+                                              <span className="text-[10px] text-slate-500">
+                                                {new Date((newcomer as Newcomer & { last_followup_at?: string }).last_followup_at!).toLocaleDateString()}
+                                              </span>
+                                            )}
+                                          </div>
+                                        </div>
+                                      )}
 
                                       {/* Assigned To Dropdown - At bottom of card */}
                                       <div className="pt-2 border-t border-slate-700/30" onClick={(e) => e.stopPropagation()}>

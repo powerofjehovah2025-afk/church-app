@@ -16,7 +16,9 @@ import {
   FileText,
   Shield,
   CheckSquare,
-  Mail
+  Mail,
+  AlertCircle,
+  BarChart3
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
@@ -93,6 +95,26 @@ export default function AdminLayout({
       name: "Form Builder",
       href: "/admin/forms",
       icon: FileText,
+    },
+    {
+      name: "Follow-up Reminders",
+      href: "/admin/reminders",
+      icon: AlertCircle,
+    },
+    {
+      name: "Follow-up Reports",
+      href: "/admin/reports/followups",
+      icon: BarChart3,
+    },
+    {
+      name: "Announcements",
+      href: "/admin/announcements",
+      icon: Mail,
+    },
+    {
+      name: "Staff Directory",
+      href: "/admin/staff",
+      icon: Users,
     },
   ];
 

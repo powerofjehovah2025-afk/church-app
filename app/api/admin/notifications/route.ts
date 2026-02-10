@@ -8,6 +8,10 @@ export async function GET(request: NextRequest) {
     const userId = searchParams.get("user_id");
     const isRead = searchParams.get("is_read");
     const type = searchParams.get("type");
+    const startDate = searchParams.get("start_date");
+    const endDate = searchParams.get("end_date");
+    const limit = searchParams.get("limit");
+    const offset = searchParams.get("offset");
 
     if (!userId) {
       return NextResponse.json(
@@ -18,7 +22,7 @@ export async function GET(request: NextRequest) {
 
     let query = admin
       .from("notifications")
-      .select("*")
+      .select("*", { count: "exact" })
       .eq("user_id", userId);
 
     if (isRead !== null) {
@@ -29,9 +33,28 @@ export async function GET(request: NextRequest) {
       query = query.eq("type", type);
     }
 
+    if (startDate) {
+      query = query.gte("created_at", startDate);
+    }
+
+    if (endDate) {
+      query = query.lte("created_at", endDate);
+    }
+
     query = query.order("created_at", { ascending: false });
 
-    const { data: notifications, error } = await query;
+    if (limit) {
+      query = query.limit(parseInt(limit, 10));
+    }
+
+    if (offset) {
+      query = query.range(
+        parseInt(offset, 10),
+        parseInt(offset, 10) + (limit ? parseInt(limit, 10) - 1 : 49)
+      );
+    }
+
+    const { data: notifications, error, count } = await query;
 
     if (error) {
       console.error("Error fetching notifications:", error);
@@ -41,7 +64,10 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    return NextResponse.json({ notifications: notifications || [] });
+    return NextResponse.json({
+      notifications: notifications || [],
+      total: count || 0,
+    });
   } catch (error) {
     console.error("Error in GET /api/admin/notifications:", error);
     return NextResponse.json(

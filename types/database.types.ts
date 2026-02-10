@@ -61,6 +61,11 @@ export type Database = {
           department_interest: string[] | null
           email: string | null
           follow_up_status: string | null
+          followup_status: string | null
+          followup_notes: string | null
+          last_followup_at: string | null
+          followup_count: number | null
+          next_followup_date: string | null
           full_name: string
           gdpr_consent: boolean | null
           gender: string | null
@@ -192,6 +197,8 @@ export type Database = {
           id: string
           phone: string | null
           role: string | null
+          skills: string[] | null
+          availability: Record<string, unknown> | null
         }
         Insert: {
           created_at?: string
@@ -200,6 +207,8 @@ export type Database = {
           id: string
           phone?: string | null
           role?: string | null
+          skills?: string[] | null
+          availability?: Record<string, unknown> | null
         }
         Update: {
           created_at?: string
@@ -208,6 +217,8 @@ export type Database = {
           id?: string
           phone?: string | null
           role?: string | null
+          skills?: string[] | null
+          availability?: Record<string, unknown> | null
         }
         Relationships: []
       }
@@ -799,6 +810,143 @@ export type Database = {
           },
         ]
       }
+      followup_reminders: {
+        Row: {
+          id: string
+          newcomer_id: string
+          staff_id: string
+          reminder_type: string
+          reminder_date: string
+          is_sent: boolean
+          sent_at: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          newcomer_id: string
+          staff_id: string
+          reminder_type: string
+          reminder_date: string
+          is_sent?: boolean
+          sent_at?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          newcomer_id?: string
+          staff_id?: string
+          reminder_type?: string
+          reminder_date?: string
+          is_sent?: boolean
+          sent_at?: string | null
+          created_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "followup_reminders_newcomer_id_fkey"
+            columns: ["newcomer_id"]
+            isOneToOne: false
+            referencedRelation: "newcomers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "followup_reminders_staff_id_fkey"
+            columns: ["staff_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      announcements: {
+        Row: {
+          id: string
+          title: string
+          content: string
+          created_by: string
+          target_audience: string
+          is_pinned: boolean
+          expires_at: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          title: string
+          content: string
+          created_by: string
+          target_audience?: string
+          is_pinned?: boolean
+          expires_at?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          title?: string
+          content?: string
+          created_by?: string
+          target_audience?: string
+          is_pinned?: boolean
+          expires_at?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "announcements_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      followup_history: {
+        Row: {
+          id: string
+          newcomer_id: string
+          staff_id: string
+          status: string
+          notes: string | null
+          contact_method: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          newcomer_id: string
+          staff_id: string
+          status: string
+          notes?: string | null
+          contact_method?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          newcomer_id?: string
+          staff_id?: string
+          status?: string
+          notes?: string | null
+          contact_method?: string | null
+          created_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "followup_history_newcomer_id_fkey"
+            columns: ["newcomer_id"]
+            isOneToOne: false
+            referencedRelation: "newcomers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "followup_history_staff_id_fkey"
+            columns: ["staff_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -998,3 +1146,15 @@ export type MessageUpdate = Database["public"]["Tables"]["messages"]["Update"]
 export type Notification = Database["public"]["Tables"]["notifications"]["Row"]
 export type NotificationInsert = Database["public"]["Tables"]["notifications"]["Insert"]
 export type NotificationUpdate = Database["public"]["Tables"]["notifications"]["Update"]
+
+export type FollowupHistory = Database["public"]["Tables"]["followup_history"]["Row"]
+export type FollowupHistoryInsert = Database["public"]["Tables"]["followup_history"]["Insert"]
+export type FollowupHistoryUpdate = Database["public"]["Tables"]["followup_history"]["Update"]
+
+export type FollowupReminder = Database["public"]["Tables"]["followup_reminders"]["Row"]
+export type FollowupReminderInsert = Database["public"]["Tables"]["followup_reminders"]["Insert"]
+export type FollowupReminderUpdate = Database["public"]["Tables"]["followup_reminders"]["Update"]
+
+export type Announcement = Database["public"]["Tables"]["announcements"]["Row"]
+export type AnnouncementInsert = Database["public"]["Tables"]["announcements"]["Insert"]
+export type AnnouncementUpdate = Database["public"]["Tables"]["announcements"]["Update"]

@@ -1069,6 +1069,365 @@ export type Database = {
           },
         ]
       }
+      documents: {
+        Row: {
+          id: string
+          title: string
+          description: string | null
+          file_name: string
+          file_path: string
+          file_size: number | null
+          mime_type: string | null
+          uploaded_by: string
+          is_public: boolean
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          title: string
+          description?: string | null
+          file_name: string
+          file_path: string
+          file_size?: number | null
+          mime_type?: string | null
+          uploaded_by: string
+          is_public?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          title?: string
+          description?: string | null
+          file_name?: string
+          file_path?: string
+          file_size?: number | null
+          mime_type?: string | null
+          uploaded_by?: string
+          is_public?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "documents_uploaded_by_fkey"
+            columns: ["uploaded_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      document_shares: {
+        Row: {
+          id: string
+          document_id: string
+          shared_with_type: string
+          shared_with_id: string | null
+          can_view: boolean
+          can_download: boolean
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          document_id: string
+          shared_with_type: string
+          shared_with_id?: string | null
+          can_view?: boolean
+          can_download?: boolean
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          document_id?: string
+          shared_with_type?: string
+          shared_with_id?: string | null
+          can_view?: boolean
+          can_download?: boolean
+          created_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "document_shares_document_id_fkey"
+            columns: ["document_id"]
+            isOneToOne: false
+            referencedRelation: "documents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      feedback: {
+        Row: {
+          id: string
+          submitted_by: string
+          feedback_type: string
+          related_id: string | null
+          title: string
+          content: string
+          rating: number | null
+          is_anonymous: boolean
+          status: string
+          admin_notes: string | null
+          reviewed_by: string | null
+          reviewed_at: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          submitted_by: string
+          feedback_type: string
+          related_id?: string | null
+          title: string
+          content: string
+          rating?: number | null
+          is_anonymous?: boolean
+          status?: string
+          admin_notes?: string | null
+          reviewed_by?: string | null
+          reviewed_at?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          submitted_by?: string
+          feedback_type?: string
+          related_id?: string | null
+          title?: string
+          content?: string
+          rating?: number | null
+          is_anonymous?: boolean
+          status?: string
+          admin_notes?: string | null
+          reviewed_by?: string | null
+          reviewed_at?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "feedback_submitted_by_fkey"
+            columns: ["submitted_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "feedback_reviewed_by_fkey"
+            columns: ["reviewed_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ministry_teams: {
+        Row: {
+          id: string
+          name: string
+          description: string | null
+          leader_id: string | null
+          is_active: boolean
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          name: string
+          description?: string | null
+          leader_id?: string | null
+          is_active?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          name?: string
+          description?: string | null
+          leader_id?: string | null
+          is_active?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ministry_teams_leader_id_fkey"
+            columns: ["leader_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      team_members: {
+        Row: {
+          id: string
+          team_id: string
+          member_id: string
+          role: string
+          joined_at: string
+        }
+        Insert: {
+          id?: string
+          team_id: string
+          member_id: string
+          role?: string
+          joined_at?: string
+        }
+        Update: {
+          id?: string
+          team_id?: string
+          member_id?: string
+          role?: string
+          joined_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "team_members_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "ministry_teams"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "team_members_member_id_fkey"
+            columns: ["member_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      attendance: {
+        Row: {
+          id: string
+          service_id: string
+          member_id: string
+          status: string
+          checked_in_at: string | null
+          notes: string | null
+          recorded_by: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          service_id: string
+          member_id: string
+          status?: string
+          checked_in_at?: string | null
+          notes?: string | null
+          recorded_by?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          service_id?: string
+          member_id?: string
+          status?: string
+          checked_in_at?: string | null
+          notes?: string | null
+          recorded_by?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "attendance_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "services"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "attendance_member_id_fkey"
+            columns: ["member_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "attendance_recorded_by_fkey"
+            columns: ["recorded_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      contributions: {
+        Row: {
+          id: string
+          member_id: string
+          contribution_type: string
+          amount: number
+          currency: string
+          payment_method: string | null
+          service_id: string | null
+          description: string | null
+          is_anonymous: boolean
+          recorded_by: string | null
+          contribution_date: string
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          member_id: string
+          contribution_type: string
+          amount: number
+          currency?: string
+          payment_method?: string | null
+          service_id?: string | null
+          description?: string | null
+          is_anonymous?: boolean
+          recorded_by?: string | null
+          contribution_date?: string
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          member_id?: string
+          contribution_type?: string
+          amount?: number
+          currency?: string
+          payment_method?: string | null
+          service_id?: string | null
+          description?: string | null
+          is_anonymous?: boolean
+          recorded_by?: string | null
+          contribution_date?: string
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contributions_member_id_fkey"
+            columns: ["member_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "contributions_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "services"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "contributions_recorded_by_fkey"
+            columns: ["recorded_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -1244,6 +1603,34 @@ export type ServiceTemplateDutyTypeUpdate = Database["public"]["Tables"]["servic
 export type ServiceRecurringPattern = Database["public"]["Tables"]["service_recurring_patterns"]["Row"]
 export type ServiceRecurringPatternInsert = Database["public"]["Tables"]["service_recurring_patterns"]["Insert"]
 export type ServiceRecurringPatternUpdate = Database["public"]["Tables"]["service_recurring_patterns"]["Update"]
+
+export type Document = Database["public"]["Tables"]["documents"]["Row"]
+export type DocumentInsert = Database["public"]["Tables"]["documents"]["Insert"]
+export type DocumentUpdate = Database["public"]["Tables"]["documents"]["Update"]
+
+export type DocumentShare = Database["public"]["Tables"]["document_shares"]["Row"]
+export type DocumentShareInsert = Database["public"]["Tables"]["document_shares"]["Insert"]
+export type DocumentShareUpdate = Database["public"]["Tables"]["document_shares"]["Update"]
+
+export type Feedback = Database["public"]["Tables"]["feedback"]["Row"]
+export type FeedbackInsert = Database["public"]["Tables"]["feedback"]["Insert"]
+export type FeedbackUpdate = Database["public"]["Tables"]["feedback"]["Update"]
+
+export type MinistryTeam = Database["public"]["Tables"]["ministry_teams"]["Row"]
+export type MinistryTeamInsert = Database["public"]["Tables"]["ministry_teams"]["Insert"]
+export type MinistryTeamUpdate = Database["public"]["Tables"]["ministry_teams"]["Update"]
+
+export type TeamMember = Database["public"]["Tables"]["team_members"]["Row"]
+export type TeamMemberInsert = Database["public"]["Tables"]["team_members"]["Insert"]
+export type TeamMemberUpdate = Database["public"]["Tables"]["team_members"]["Update"]
+
+export type Attendance = Database["public"]["Tables"]["attendance"]["Row"]
+export type AttendanceInsert = Database["public"]["Tables"]["attendance"]["Insert"]
+export type AttendanceUpdate = Database["public"]["Tables"]["attendance"]["Update"]
+
+export type Contribution = Database["public"]["Tables"]["contributions"]["Row"]
+export type ContributionInsert = Database["public"]["Tables"]["contributions"]["Insert"]
+export type ContributionUpdate = Database["public"]["Tables"]["contributions"]["Update"]
 
 export type FormConfig = Database["public"]["Tables"]["form_configs"]["Row"]
 export type FormConfigInsert = Database["public"]["Tables"]["form_configs"]["Insert"]

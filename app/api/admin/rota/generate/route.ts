@@ -52,7 +52,7 @@ export async function POST(request: NextRequest) {
       pattern_id,
       start_date,
       end_date,
-      generate_assignments,
+      // generate_assignments, // Reserved for future use
     } = body;
 
     if (!template_id || typeof template_id !== "string") {

@@ -1,5 +1,5 @@
 import { createAdminClient } from "@/lib/supabase/admin";
-import type { ServiceInsert, ServiceTemplateDutyType } from "@/types/database.types";
+import type { ServiceInsert } from "@/types/database.types";
 
 /**
  * Calculate the next service dates based on a recurring pattern
@@ -22,7 +22,6 @@ export function calculateNextServiceDates(
   endDate: Date
 ): string[] {
   const dates: string[] = [];
-  const current = new Date(startDate);
   const end = new Date(endDate);
 
   // If pattern has an end_date, don't generate beyond it
@@ -34,7 +33,7 @@ export function calculateNextServiceDates(
   }
 
   // Start from the later of: pattern start_date, provided startDate, or last_generated_date
-  let start = new Date(Math.max(
+  const start = new Date(Math.max(
     new Date(pattern.start_date).getTime(),
     startDate.getTime(),
     pattern.last_generated_date ? new Date(pattern.last_generated_date).getTime() : 0
@@ -48,7 +47,7 @@ export function calculateNextServiceDates(
 
     // Find the next occurrence of the day of week
     const targetDay = pattern.day_of_week;
-    let current = new Date(start);
+    const current = new Date(start);
     
     // Move to the next occurrence of the target day
     while (current.getDay() !== targetDay) {
@@ -73,7 +72,7 @@ export function calculateNextServiceDates(
     }
 
     const targetDay = pattern.day_of_week;
-    let current = new Date(start);
+    const current = new Date(start);
     
     while (current.getDay() !== targetDay) {
       current.setDate(current.getDate() + 1);
@@ -97,13 +96,12 @@ export function calculateNextServiceDates(
 
     const targetDay = pattern.day_of_week;
     const targetWeek = pattern.week_of_month; // 1-5 (1st, 2nd, 3rd, 4th, 5th occurrence)
-    let current = new Date(start);
+    const current = new Date(start);
     current.setDate(1); // Start from first day of month
 
     while (current <= end) {
       // Find the target day in this month
-      let occurrence = 0;
-      let date = new Date(current.getFullYear(), current.getMonth(), 1);
+      const date = new Date(current.getFullYear(), current.getMonth(), 1);
       
       // Find the first occurrence of the target day
       while (date.getDay() !== targetDay) {
@@ -131,7 +129,7 @@ export function calculateNextServiceDates(
 
     const targetDay = pattern.day_of_week;
     const interval = pattern.interval_weeks;
-    let current = new Date(start);
+    const current = new Date(start);
     
     while (current.getDay() !== targetDay) {
       current.setDate(current.getDate() + 1);

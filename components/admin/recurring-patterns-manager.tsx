@@ -24,6 +24,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Plus, Edit, Trash2, Loader2, CheckCircle2, AlertCircle, Play, Calendar } from "lucide-react";
 import type { ServiceRecurringPattern, ServiceTemplate } from "@/types/database.types";
+import { ServiceGenerationDialog } from "@/components/admin/service-generation-dialog";
 
 interface PatternWithTemplate extends ServiceRecurringPattern {
   template?: ServiceTemplate;
@@ -55,6 +56,8 @@ export function RecurringPatternsManager() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
   const [isGenerating, setIsGenerating] = useState<string | null>(null);
+  const [generationDialogOpen, setGenerationDialogOpen] = useState(false);
+  const [selectedPatternForGeneration, setSelectedPatternForGeneration] = useState<PatternWithTemplate | null>(null);
 
   // Form state
   const [templateId, setTemplateId] = useState("");
@@ -245,21 +248,34 @@ export function RecurringPatternsManager() {
   };
 
   const handleGenerate = async (patternId: string) => {
-    setIsGenerating(patternId);
+    const pattern = patterns.find((p) => p.id === patternId);
+    if (!pattern) {
+      setMessage({
+        type: "error",
+        text: "Pattern not found",
+      });
+      return;
+    }
+
+    setSelectedPatternForGeneration(pattern);
+    setGenerationDialogOpen(true);
+  };
+
+  const handleConfirmGeneration = async (selectedDates: string[]) => {
+    if (!selectedPatternForGeneration) return;
+
+    setIsGenerating(selectedPatternForGeneration.id);
     setMessage(null);
 
     try {
-      const pattern = patterns.find((p) => p.id === patternId);
-      if (!pattern) {
-        throw new Error("Pattern not found");
-      }
-
+      // Generate services for selected dates
       const response = await fetch("/api/admin/rota/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          template_id: pattern.template_id,
-          pattern_id: patternId,
+          template_id: selectedPatternForGeneration.template_id,
+          pattern_id: selectedPatternForGeneration.id,
+          dates: selectedDates, // Pass specific dates
         }),
       });
 
@@ -282,6 +298,7 @@ export function RecurringPatternsManager() {
         type: "error",
         text: error instanceof Error ? error.message : "Failed to generate services",
       });
+      throw error; // Re-throw so dialog can handle it
     } finally {
       setIsGenerating(null);
     }
@@ -631,6 +648,22 @@ export function RecurringPatternsManager() {
           )}
         </CardContent>
       </Card>
+
+      {/* Generation Preview Dialog */}
+      {selectedPatternForGeneration && selectedPatternForGeneration.template && (
+        <ServiceGenerationDialog
+          open={generationDialogOpen}
+          onOpenChange={(open) => {
+            setGenerationDialogOpen(open);
+            if (!open) {
+              setSelectedPatternForGeneration(null);
+            }
+          }}
+          template={selectedPatternForGeneration.template}
+          pattern={selectedPatternForGeneration}
+          onConfirm={handleConfirmGeneration}
+        />
+      )}
     </div>
   );
 }

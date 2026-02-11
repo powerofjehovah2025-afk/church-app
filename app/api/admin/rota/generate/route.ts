@@ -52,6 +52,7 @@ export async function POST(request: NextRequest) {
       pattern_id,
       start_date,
       end_date,
+      dates, // Optional: specific dates to generate (overrides pattern calculation)
       // generate_assignments, // Reserved for future use
     } = body;
 
@@ -64,31 +65,45 @@ export async function POST(request: NextRequest) {
 
     const admin = createAdminClient();
 
-    // Determine date range
-    const today = new Date();
-    const start = start_date ? new Date(start_date) : today;
-    const end = end_date
-      ? new Date(end_date)
-      : new Date(today.getTime() + 90 * 24 * 60 * 60 * 1000); // Default: 3 months
-
-    if (isNaN(start.getTime()) || isNaN(end.getTime())) {
-      return NextResponse.json(
-        { error: "Invalid date format. Use YYYY-MM-DD" },
-        { status: 400 }
-      );
-    }
-
-    if (start > end) {
-      return NextResponse.json(
-        { error: "Start date must be before end date" },
-        { status: 400 }
-      );
-    }
-
     let datesToGenerate: string[] = [];
 
+    // If specific dates are provided, use those
+    if (dates && Array.isArray(dates) && dates.length > 0) {
+      // Validate dates format
+      const invalidDates = dates.filter((d) => {
+        const date = new Date(d);
+        return isNaN(date.getTime()) || !d.match(/^\d{4}-\d{2}-\d{2}$/);
+      });
+      if (invalidDates.length > 0) {
+        return NextResponse.json(
+          { error: "Invalid date format. Use YYYY-MM-DD" },
+          { status: 400 }
+        );
+      }
+      datesToGenerate = dates;
+    }
     // If pattern_id is provided, use pattern to calculate dates
-    if (pattern_id) {
+    else if (pattern_id) {
+      // Determine date range for pattern calculation
+      const today = new Date();
+      const start = start_date ? new Date(start_date) : today;
+      const end = end_date
+        ? new Date(end_date)
+        : new Date(today.getTime() + 90 * 24 * 60 * 60 * 1000); // Default: 3 months
+
+      if (isNaN(start.getTime()) || isNaN(end.getTime())) {
+        return NextResponse.json(
+          { error: "Invalid date format. Use YYYY-MM-DD" },
+          { status: 400 }
+        );
+      }
+
+      if (start > end) {
+        return NextResponse.json(
+          { error: "Start date must be before end date" },
+          { status: 400 }
+        );
+      }
       const { data: pattern, error: patternError } = await admin
         .from("service_recurring_patterns")
         .select("*")
@@ -134,16 +149,35 @@ export async function POST(request: NextRequest) {
           .eq("id", pattern_id);
       }
     } else {
-      // Generate for specific date range (manual generation)
-      // For now, we'll generate for each day in the range
-      // In a real scenario, you might want to specify exact dates
-      const dates: string[] = [];
+      // Manual generation without pattern - require date range
+      const today = new Date();
+      const start = start_date ? new Date(start_date) : today;
+      const end = end_date
+        ? new Date(end_date)
+        : new Date(today.getTime() + 90 * 24 * 60 * 60 * 1000); // Default: 3 months
+
+      if (isNaN(start.getTime()) || isNaN(end.getTime())) {
+        return NextResponse.json(
+          { error: "Invalid date format. Use YYYY-MM-DD" },
+          { status: 400 }
+        );
+      }
+
+      if (start > end) {
+        return NextResponse.json(
+          { error: "Start date must be before end date" },
+          { status: 400 }
+        );
+      }
+
+      // Generate for each day in the range (fallback - not recommended)
+      const dateList: string[] = [];
       const current = new Date(start);
       while (current <= end) {
-        dates.push(current.toISOString().split("T")[0]);
+        dateList.push(current.toISOString().split("T")[0]);
         current.setDate(current.getDate() + 1);
       }
-      datesToGenerate = dates;
+      datesToGenerate = dateList;
     }
 
     if (datesToGenerate.length === 0) {

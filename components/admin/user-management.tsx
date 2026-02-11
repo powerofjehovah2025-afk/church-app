@@ -378,11 +378,13 @@ export function UserManagement() {
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        {roles.map((role) => (
-                          <SelectItem key={role.id} value={role.name}>
-                            {role.name.charAt(0).toUpperCase() + role.name.slice(1)}
-                          </SelectItem>
-                        ))}
+                        {roles
+                          .filter((role) => role.name === "admin" || role.name === "member")
+                          .map((role) => (
+                            <SelectItem key={role.id} value={role.name}>
+                              {role.name.charAt(0).toUpperCase() + role.name.slice(1)}
+                            </SelectItem>
+                          ))}
                       </SelectContent>
                     </Select>
                     {changingRoleUserId === user.id && (

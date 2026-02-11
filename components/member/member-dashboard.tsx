@@ -15,11 +15,13 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Loader2, CheckSquare, Mail, Calendar, User, Phone, MessageCircle, Edit, Save, X, AlertCircle, Megaphone, Pin, Bell } from "lucide-react";
+import { Loader2, CheckSquare, Mail, Calendar, User, Phone, MessageCircle, Edit, Save, X, AlertCircle, Megaphone, Pin, Bell, Heart } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import type { Announcement } from "@/types/database.types";
 import { MemberCalendar } from "./member-calendar";
 import { ProfileEditor } from "./profile-editor";
+import { PrayerRequests } from "./prayer-requests";
+import { EventsList } from "./events-list";
 
 interface Task {
   id: string;
@@ -537,7 +539,7 @@ export function MemberDashboard() {
         </CardHeader>
         <CardContent>
           <Tabs value={activeTab} onValueChange={setActiveTab}>
-            <TabsList className="grid w-full grid-cols-6 bg-slate-800/50">
+            <TabsList className="grid w-full grid-cols-8 bg-slate-800/50">
               <TabsTrigger value="tasks" className="data-[state=active]:bg-blue-600">
                 Tasks ({tasks.length})
               </TabsTrigger>
@@ -719,6 +721,14 @@ export function MemberDashboard() {
 
             <TabsContent value="profile" className="mt-4">
               <ProfileEditor />
+            </TabsContent>
+
+            <TabsContent value="prayer" className="mt-4">
+              <PrayerRequests />
+            </TabsContent>
+
+            <TabsContent value="events" className="mt-4">
+              <EventsList />
             </TabsContent>
 
             <TabsContent value="followups" className="mt-4">

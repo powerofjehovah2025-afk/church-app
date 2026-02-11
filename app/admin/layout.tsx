@@ -18,7 +18,8 @@ import {
   CheckSquare,
   Mail,
   AlertCircle,
-  BarChart3
+  BarChart3,
+  Heart
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
@@ -110,6 +111,16 @@ export default function AdminLayout({
       name: "Announcements",
       href: "/admin/announcements",
       icon: Mail,
+    },
+    {
+      name: "Prayer Requests",
+      href: "/admin/prayer-requests",
+      icon: Heart,
+    },
+    {
+      name: "Events",
+      href: "/admin/events",
+      icon: Calendar,
     },
     {
       name: "Staff Directory",

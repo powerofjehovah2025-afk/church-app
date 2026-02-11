@@ -45,10 +45,7 @@ export function StaffDirectory() {
   const getRoleColor = (role: string | null) => {
     const colors: Record<string, string> = {
       admin: "bg-purple-500/20 text-purple-300 border-purple-500/50",
-      pastor: "bg-blue-500/20 text-blue-300 border-blue-500/50",
-      elder: "bg-green-500/20 text-green-300 border-green-500/50",
-      deacon: "bg-yellow-500/20 text-yellow-300 border-yellow-500/50",
-      leader: "bg-orange-500/20 text-orange-300 border-orange-500/50",
+      member: "bg-slate-500/20 text-slate-300 border-slate-500/50",
     };
     return colors[role || ""] || "bg-slate-500/20 text-slate-300 border-slate-500/50";
   };

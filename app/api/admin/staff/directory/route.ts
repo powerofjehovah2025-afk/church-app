@@ -9,7 +9,7 @@ export async function GET() {
     const { data: staffMembers, error: staffError } = await admin
       .from("profiles")
       .select("id, full_name, email, role")
-      .in("role", ["admin", "pastor", "elder", "deacon", "leader"]);
+      .in("role", ["admin"]);
 
     if (staffError) {
       console.error("Error fetching staff members:", staffError);

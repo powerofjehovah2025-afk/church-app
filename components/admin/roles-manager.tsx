@@ -253,7 +253,7 @@ export function RolesManager() {
                         id="name"
                         value={name}
                         onChange={(e) => setName(e.target.value)}
-                        placeholder="e.g., Pastor, Elder, Leader"
+                        placeholder="e.g., Admin, Member"
                         className="bg-slate-800 border-slate-700 text-white"
                         required
                         disabled={!!editingId} // Can't change name of existing role

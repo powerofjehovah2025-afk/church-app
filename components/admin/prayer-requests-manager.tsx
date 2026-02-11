@@ -88,7 +88,7 @@ export function PrayerRequestsManager() {
       const { data } = await supabase
         .from("profiles")
         .select("id, full_name, email")
-        .in("role", ["admin", "pastor", "elder", "deacon", "leader"])
+        .in("role", ["admin", "member"])
         .order("full_name");
 
       if (data) {

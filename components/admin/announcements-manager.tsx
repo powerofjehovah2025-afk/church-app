@@ -160,10 +160,6 @@ export function AnnouncementsManager() {
     const colors: Record<string, string> = {
       all: "bg-blue-500/20 text-blue-300 border-blue-500/50",
       admin: "bg-purple-500/20 text-purple-300 border-purple-500/50",
-      pastor: "bg-indigo-500/20 text-indigo-300 border-indigo-500/50",
-      elder: "bg-teal-500/20 text-teal-300 border-teal-500/50",
-      deacon: "bg-green-500/20 text-green-300 border-green-500/50",
-      leader: "bg-orange-500/20 text-orange-300 border-orange-500/50",
       member: "bg-slate-500/20 text-slate-300 border-slate-500/50",
     };
     return colors[audience] || colors.all;
@@ -197,10 +193,6 @@ export function AnnouncementsManager() {
                 <SelectContent>
                   <SelectItem value="all">All</SelectItem>
                   <SelectItem value="admin">Admin</SelectItem>
-                  <SelectItem value="pastor">Pastor</SelectItem>
-                  <SelectItem value="elder">Elder</SelectItem>
-                  <SelectItem value="deacon">Deacon</SelectItem>
-                  <SelectItem value="leader">Leader</SelectItem>
                   <SelectItem value="member">Member</SelectItem>
                 </SelectContent>
               </Select>

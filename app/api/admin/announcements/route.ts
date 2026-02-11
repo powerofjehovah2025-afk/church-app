@@ -69,14 +69,14 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Verify user has permission (admin, pastor, elder, deacon, leader)
+    // Verify user has permission (admin only)
     const { data: profile } = await admin
       .from("profiles")
       .select("role")
       .eq("id", user.id)
       .single();
 
-    if (!profile || !["admin", "pastor", "elder", "deacon", "leader"].includes(profile.role || "")) {
+    if (!profile || profile.role !== "admin") {
       return NextResponse.json(
         { error: "Insufficient permissions" },
         { status: 403 }

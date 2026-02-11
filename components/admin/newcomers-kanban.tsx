@@ -235,7 +235,7 @@ export function NewcomersKanban({ initialData }: NewcomersKanbanProps) {
         const { data, error } = await supabase
           .from("profiles")
           .select("id, full_name, email, role")
-          .in("role", ["admin", "pastor", "elder", "deacon", "leader", "member"])
+          .in("role", ["admin", "member"])
           .order("full_name", { ascending: true });
 
         if (error) {

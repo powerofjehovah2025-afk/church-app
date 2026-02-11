@@ -148,12 +148,7 @@ export function UserManagement() {
   const getRoleBadgeColor = (role: string | null) => {
     const roleColors: Record<string, string> = {
       admin: "bg-blue-500/20 text-blue-300 border-blue-500/50",
-      pastor: "bg-purple-500/20 text-purple-300 border-purple-500/50",
-      elder: "bg-indigo-500/20 text-indigo-300 border-indigo-500/50",
-      deacon: "bg-teal-500/20 text-teal-300 border-teal-500/50",
-      leader: "bg-green-500/20 text-green-300 border-green-500/50",
       member: "bg-slate-700/50 text-slate-300 border-slate-600/50",
-      volunteer: "bg-orange-500/20 text-orange-300 border-orange-500/50",
     };
     return roleColors[role || "member"] || roleColors.member;
   };

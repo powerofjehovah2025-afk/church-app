@@ -397,6 +397,7 @@ export function MemberDashboard() {
   const pendingTasksCount = tasks.filter((t) => t.status === "pending").length;
   const upcomingDutiesCount = duties.filter((d) => d.status === "confirmed").length;
   const assignedNewcomersCount = assignedNewcomers.length;
+  const hasOverdueFollowups = overdueCount > 0;
 
   return (
     <div className="space-y-6">

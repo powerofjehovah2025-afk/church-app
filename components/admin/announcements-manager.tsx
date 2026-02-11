@@ -21,7 +21,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Loader2, Plus, Pin, Trash2, Edit, X } from "lucide-react";
+import { Loader2, Plus, Pin, Trash2, Edit } from "lucide-react";
 import type { Announcement } from "@/types/database.types";
 
 export function AnnouncementsManager() {

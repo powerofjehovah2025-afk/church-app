@@ -392,6 +392,128 @@ export type Database = {
           },
         ]
       }
+      service_templates: {
+        Row: {
+          id: string
+          name: string
+          description: string | null
+          default_time: string | null
+          is_active: boolean
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          name: string
+          description?: string | null
+          default_time?: string | null
+          is_active?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          name?: string
+          description?: string | null
+          default_time?: string | null
+          is_active?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      service_template_duty_types: {
+        Row: {
+          id: string
+          template_id: string
+          duty_type_id: string
+          is_required: boolean
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          template_id: string
+          duty_type_id: string
+          is_required?: boolean
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          template_id?: string
+          duty_type_id?: string
+          is_required?: boolean
+          created_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "service_template_duty_types_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "service_templates"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "service_template_duty_types_duty_type_id_fkey"
+            columns: ["duty_type_id"]
+            isOneToOne: false
+            referencedRelation: "duty_types"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      service_recurring_patterns: {
+        Row: {
+          id: string
+          template_id: string
+          pattern_type: string
+          day_of_week: number | null
+          week_of_month: number | null
+          interval_weeks: number | null
+          start_date: string
+          end_date: string | null
+          is_active: boolean
+          last_generated_date: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          template_id: string
+          pattern_type: string
+          day_of_week?: number | null
+          week_of_month?: number | null
+          interval_weeks?: number | null
+          start_date: string
+          end_date?: string | null
+          is_active?: boolean
+          last_generated_date?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          template_id?: string
+          pattern_type?: string
+          day_of_week?: number | null
+          week_of_month?: number | null
+          interval_weeks?: number | null
+          start_date?: string
+          end_date?: string | null
+          is_active?: boolean
+          last_generated_date?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "service_recurring_patterns_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "service_templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       form_configs: {
         Row: {
           id: string
@@ -1110,6 +1232,18 @@ export type DutyTypeUpdate = Database["public"]["Tables"]["duty_types"]["Update"
 export type ServiceAssignment = Database["public"]["Tables"]["service_assignments"]["Row"]
 export type ServiceAssignmentInsert = Database["public"]["Tables"]["service_assignments"]["Insert"]
 export type ServiceAssignmentUpdate = Database["public"]["Tables"]["service_assignments"]["Update"]
+
+export type ServiceTemplate = Database["public"]["Tables"]["service_templates"]["Row"]
+export type ServiceTemplateInsert = Database["public"]["Tables"]["service_templates"]["Insert"]
+export type ServiceTemplateUpdate = Database["public"]["Tables"]["service_templates"]["Update"]
+
+export type ServiceTemplateDutyType = Database["public"]["Tables"]["service_template_duty_types"]["Row"]
+export type ServiceTemplateDutyTypeInsert = Database["public"]["Tables"]["service_template_duty_types"]["Insert"]
+export type ServiceTemplateDutyTypeUpdate = Database["public"]["Tables"]["service_template_duty_types"]["Update"]
+
+export type ServiceRecurringPattern = Database["public"]["Tables"]["service_recurring_patterns"]["Row"]
+export type ServiceRecurringPatternInsert = Database["public"]["Tables"]["service_recurring_patterns"]["Insert"]
+export type ServiceRecurringPatternUpdate = Database["public"]["Tables"]["service_recurring_patterns"]["Update"]
 
 export type FormConfig = Database["public"]["Tables"]["form_configs"]["Row"]
 export type FormConfigInsert = Database["public"]["Tables"]["form_configs"]["Insert"]

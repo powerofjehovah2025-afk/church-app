@@ -22,7 +22,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Loader2, Plus, Heart, Clock, CheckCircle, X } from "lucide-react";
+import { Loader2, Plus, Heart, Clock, CheckCircle } from "lucide-react";
 
 interface PrayerRequest {
   id: string;

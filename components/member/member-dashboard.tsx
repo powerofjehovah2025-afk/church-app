@@ -15,7 +15,7 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Loader2, CheckSquare, Mail, Calendar, User, Phone, MessageCircle, Edit, Save, X, AlertCircle, Megaphone, Pin, Bell, Heart } from "lucide-react";
+import { Loader2, CheckSquare, Mail, Calendar, User, Phone, MessageCircle, Edit, Save, X, AlertCircle, Megaphone, Pin, Bell } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import type { Announcement } from "@/types/database.types";
 import { MemberCalendar } from "./member-calendar";

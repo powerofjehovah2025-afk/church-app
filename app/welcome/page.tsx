@@ -15,6 +15,7 @@ export default function WelcomePage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
   const [showWhatsAppButton, setShowWhatsAppButton] = useState(false);
+  const [showMembershipLink, setShowMembershipLink] = useState(false);
 
   useEffect(() => {
     const loadForm = async () => {
@@ -43,10 +44,12 @@ export default function WelcomePage() {
       }
 
       setShowWhatsAppButton((formData.whatsapp_group as string) === "Yes");
+      setShowMembershipLink((formData.joining_us as string) === "Yes");
       setSuccess(true);
       setTimeout(() => {
         setSuccess(false);
         setShowWhatsAppButton(false);
+        setShowMembershipLink(false);
       }, 10000);
     } catch (error: unknown) {
       setError(
@@ -96,6 +99,16 @@ export default function WelcomePage() {
               className="mt-2 inline-block bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
             >
               Join WhatsApp Group
+            </a>
+          )}
+          {showMembershipLink && (
+            <a
+              href="https://www.rccgpojessex.org/challenge-page/cff73421-d7ef-4bda-8878-5586e5c761d8"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-2 ml-0 inline-block bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+            >
+              Start Membership Journey
             </a>
           )}
         </div>

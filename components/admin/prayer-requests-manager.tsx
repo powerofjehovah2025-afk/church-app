@@ -20,7 +20,7 @@ import {
 } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Loader2, Heart, Users, MessageSquare, Filter } from "lucide-react";
+import { Loader2, Heart, Users, MessageSquare } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 
 interface PrayerRequest {
@@ -61,11 +61,6 @@ export function PrayerRequestsManager() {
   const [updateText, setUpdateText] = useState("");
   const [updateStatus, setUpdateStatus] = useState<string>("");
 
-  useEffect(() => {
-    fetchRequests();
-    fetchTeamMembers();
-  }, [statusFilter, priorityFilter]);
-
   const fetchRequests = async () => {
     setIsLoading(true);
     try {
@@ -103,6 +98,12 @@ export function PrayerRequestsManager() {
       console.error("Error fetching team members:", error);
     }
   };
+
+  useEffect(() => {
+    fetchRequests();
+    fetchTeamMembers();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [statusFilter, priorityFilter]);
 
   const handleAssign = async () => {
     if (!selectedRequest) return;

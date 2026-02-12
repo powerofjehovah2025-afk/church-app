@@ -22,6 +22,9 @@ import { MemberCalendar } from "./member-calendar";
 import { ProfileEditor } from "./profile-editor";
 import { PrayerRequests } from "./prayer-requests";
 import { EventsList } from "./events-list";
+import { FeedbackForm } from "./feedback-form";
+import { AttendanceView } from "./attendance-view";
+import { ContributionsView } from "./contributions-view";
 
 interface Task {
   id: string;
@@ -540,7 +543,7 @@ export function MemberDashboard() {
         </CardHeader>
         <CardContent>
           <Tabs value={activeTab} onValueChange={setActiveTab}>
-            <TabsList className="grid w-full grid-cols-8 bg-slate-800/50">
+            <TabsList className="grid w-full grid-cols-11 bg-slate-800/50">
               <TabsTrigger value="tasks" className="data-[state=active]:bg-blue-600">
                 Tasks ({tasks.length})
               </TabsTrigger>
@@ -561,6 +564,15 @@ export function MemberDashboard() {
               </TabsTrigger>
               <TabsTrigger value="followups" className="data-[state=active]:bg-blue-600">
                 Follow-ups ({assignedNewcomers.length})
+              </TabsTrigger>
+              <TabsTrigger value="feedback" className="data-[state=active]:bg-blue-600">
+                Feedback
+              </TabsTrigger>
+              <TabsTrigger value="attendance" className="data-[state=active]:bg-blue-600">
+                Attendance
+              </TabsTrigger>
+              <TabsTrigger value="contributions" className="data-[state=active]:bg-blue-600">
+                Contributions
               </TabsTrigger>
               <TabsTrigger value="profile" className="data-[state=active]:bg-blue-600">
                 <User className="h-4 w-4 mr-2" />
@@ -718,6 +730,18 @@ export function MemberDashboard() {
 
             <TabsContent value="calendar" className="mt-4">
               <MemberCalendar />
+            </TabsContent>
+
+            <TabsContent value="feedback" className="mt-4">
+              <FeedbackForm />
+            </TabsContent>
+
+            <TabsContent value="attendance" className="mt-4">
+              <AttendanceView />
+            </TabsContent>
+
+            <TabsContent value="contributions" className="mt-4">
+              <ContributionsView />
             </TabsContent>
 
             <TabsContent value="profile" className="mt-4">

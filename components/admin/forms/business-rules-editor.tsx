@@ -28,7 +28,6 @@ interface BusinessRulesEditorProps {
 export function BusinessRulesEditor({
   formFields,
   rules,
-  onRulesChange: _onRulesChange, // currently unused, server is source of truth
   onSave,
   onDelete,
 }: BusinessRulesEditorProps) {

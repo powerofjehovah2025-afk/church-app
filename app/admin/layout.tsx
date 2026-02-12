@@ -19,7 +19,12 @@ import {
   Mail,
   AlertCircle,
   BarChart3,
-  Heart
+  Heart,
+  MessageSquare,
+  Users as UsersIcon,
+  UserCheck,
+  DollarSign,
+  Calendar as CalendarIcon
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
@@ -120,7 +125,27 @@ export default function AdminLayout({
     {
       name: "Events",
       href: "/admin/events",
-      icon: Calendar,
+      icon: CalendarIcon,
+    },
+    {
+      name: "Feedback",
+      href: "/admin/feedback",
+      icon: MessageSquare,
+    },
+    {
+      name: "Ministry Teams",
+      href: "/admin/ministry-teams",
+      icon: UsersIcon,
+    },
+    {
+      name: "Attendance",
+      href: "/admin/attendance",
+      icon: UserCheck,
+    },
+    {
+      name: "Contributions",
+      href: "/admin/contributions",
+      icon: DollarSign,
     },
     {
       name: "Staff Directory",

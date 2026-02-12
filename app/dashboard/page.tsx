@@ -8,6 +8,7 @@ import { MyFollowups } from "@/components/dashboard/my-followups";
 import { ProfileError } from "@/components/dashboard/profile-error";
 import { DevRoleSwitcher } from "@/components/dev-role-switcher";
 import { MemberDashboard } from "@/components/member/member-dashboard";
+import { RCCGLogo } from "@/components/rccg-logo";
 
 async function getUserProfile() {
   const supabase = await createClient();
@@ -76,6 +77,9 @@ export default async function DashboardPage() {
         {/* Header */}
         <div className="mb-8 flex items-center justify-between">
           <div>
+            <div className="mb-3">
+              <RCCGLogo size={40} showText={false} />
+            </div>
             <h1 className="text-4xl font-bold tracking-tight text-foreground bg-gradient-to-r from-foreground to-muted-foreground bg-clip-text text-transparent">
               Welcome, {(profile as { full_name?: string | null } | null)?.full_name || user.email?.split("@")[0] || "Member"}!
             </h1>

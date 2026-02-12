@@ -1,7 +1,10 @@
 "use client";
 
 import * as React from "react";
+import Image from "next/image";
+
 import { cn } from "@/lib/utils";
+import churchLogo from "@/assets/church-logo-poje.png";
 
 interface RCCGLogoIconProps {
   size?: number;
@@ -13,21 +16,17 @@ interface RCCGLogoProps extends RCCGLogoIconProps {
 }
 
 export function RCCGLogoIcon({ size = 32, className }: RCCGLogoIconProps) {
-  const dimension = `${size}px`;
+  const dimension = size;
 
   return (
-    <div
-      className={cn(
-        "inline-flex items-center justify-center rounded-full bg-gradient-to-br from-blue-500 via-emerald-400 to-teal-500 border border-white/30 shadow-md",
-        className,
-      )}
-      style={{ width: dimension, height: dimension }}
-      aria-hidden="true"
-    >
-      <span className="text-[0.6rem] font-bold tracking-tight text-white">
-        RCCG
-      </span>
-    </div>
+    <Image
+      src={churchLogo}
+      alt="RCCG Power of Jehovah logo"
+      width={dimension}
+      height={dimension}
+      className={cn("object-contain", className)}
+      priority
+    />
   );
 }
 

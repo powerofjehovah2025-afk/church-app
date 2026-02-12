@@ -26,7 +26,6 @@ A modern, full-stack church management system built with Next.js and Supabase. S
   - Assign team members to follow up with newcomers
   - View and manage all newcomer data
   - Role-based access (admin/member)
-  - **User Management** (`/admin/users`) - Upgrade users to admin role
 
 - **📊 Team Member Dashboard**
   - Personal dashboard for team members (`/dashboard`)
@@ -207,8 +206,6 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
 ## 📚 Documentation
 
 - **PRD.md** - Product Requirements Document
-- **VERCEL_DEPLOYMENT.md** - Vercel deployment and production setup guide
-- **AUTH_SETUP_GUIDE.md** - Authentication setup (Password recovery, Google OAuth)
 - **SUPABASE_REALTIME_SETUP.md** - Real-time subscriptions setup
 - **SUPABASE_SITE_URL_SETUP.md** - Site URL and redirect configuration
 
@@ -232,5 +229,3 @@ This project is private and proprietary.
 ---
 
 Built with ❤️ for church management
-
-> **Note**: Automatic deployments are enabled - every push to `main` branch triggers a new Vercel deployment.

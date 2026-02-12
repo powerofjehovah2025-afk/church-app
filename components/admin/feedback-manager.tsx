@@ -181,14 +181,14 @@ export function FeedbackManager() {
 
       <Card className="border-slate-800 bg-slate-900/50">
         <CardHeader>
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
             <div>
               <CardTitle className="text-white">Feedback Management</CardTitle>
               <CardDescription className="text-slate-400">
                 Review and manage member feedback
               </CardDescription>
             </div>
-            <div className="flex items-center gap-3">
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
               <Select value={filterType} onValueChange={setFilterType}>
                 <SelectTrigger className="w-40 bg-slate-800/50 border-slate-700/50 text-white">
                   <SelectValue />

@@ -202,14 +202,14 @@ export function AttendanceManager() {
 
       <Card className="border-slate-800 bg-slate-900/50">
         <CardHeader>
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
             <div>
               <CardTitle className="text-white">Attendance Tracking</CardTitle>
               <CardDescription className="text-slate-400">
                 Record and view member attendance at services
               </CardDescription>
             </div>
-            <div className="flex items-center gap-3">
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-end">
               <Select value={selectedServiceId} onValueChange={setSelectedServiceId}>
                 <SelectTrigger className="w-48 bg-slate-800/50 border-slate-700/50 text-white">
                   <SelectValue placeholder="Filter by service" />

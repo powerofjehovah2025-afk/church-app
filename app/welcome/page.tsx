@@ -87,7 +87,8 @@ export default function WelcomePage() {
   }
 
   return (
-    <>
+    <div className="min-h-screen bg-gradient-to-b from-background to-muted/20 py-8 px-4 sm:px-6 lg:px-8 flex items-start sm:items-center justify-center">
+      <div className="w-full max-w-3xl">
       {success && (
         <div className="fixed top-4 right-4 bg-green-50 text-green-800 border border-green-200 rounded-lg p-4 shadow-lg z-50">
           <p className="font-medium">Form submitted successfully!</p>
@@ -118,13 +119,16 @@ export default function WelcomePage() {
           <p className="font-medium">{error}</p>
         </div>
       )}
-      <DynamicForm
-        formConfig={formConfig}
-        formFields={formFields}
-        staticContent={staticContent}
-        onSubmit={handleSubmit}
-        isLoading={isSubmitting}
-      />
-    </>
+      <div className="bg-background/80 backdrop-blur-sm rounded-xl shadow-lg border border-border px-4 sm:px-6 py-6 sm:py-8">
+        <DynamicForm
+          formConfig={formConfig}
+          formFields={formFields}
+          staticContent={staticContent}
+          onSubmit={handleSubmit}
+          isLoading={isSubmitting}
+        />
+      </div>
+      </div>
+    </div>
   );
 }

@@ -223,7 +223,7 @@ export function ContributionsManager() {
 
       <Card className="border-slate-800 bg-slate-900/50">
         <CardHeader>
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
             <div>
               <CardTitle className="text-white">Contributions</CardTitle>
               <CardDescription className="text-slate-400">

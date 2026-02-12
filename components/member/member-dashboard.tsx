@@ -403,7 +403,7 @@ export function MemberDashboard() {
   const hasOverdueFollowups = overdueCount > 0;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 max-w-6xl mx-auto px-3 sm:px-4 md:px-6 pb-6">
       {/* Overdue Follow-ups Alert */}
       {hasOverdueFollowups && (
         <Card className="bg-red-500/10 border-red-500/30 shadow-xl">
@@ -466,7 +466,7 @@ export function MemberDashboard() {
       )}
 
       {/* Summary Cards */}
-      <div className="grid gap-4 md:grid-cols-4">
+      <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 xl:grid-cols-4">
         <Card className="bg-slate-900/40 backdrop-blur-md border-slate-700/50 shadow-xl">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-slate-300">Tasks</CardTitle>
@@ -543,11 +543,17 @@ export function MemberDashboard() {
         </CardHeader>
         <CardContent>
           <Tabs value={activeTab} onValueChange={setActiveTab}>
-            <TabsList className="grid w-full grid-cols-11 bg-slate-800/50">
-              <TabsTrigger value="tasks" className="data-[state=active]:bg-blue-600">
+            <TabsList className="w-full flex flex-nowrap overflow-x-auto no-scrollbar bg-slate-800/50">
+              <TabsTrigger
+                value="tasks"
+                className="data-[state=active]:bg-blue-600 text-xs sm:text-sm px-3 py-2 whitespace-nowrap"
+              >
                 Tasks ({tasks.length})
               </TabsTrigger>
-              <TabsTrigger value="messages" className="data-[state=active]:bg-blue-600">
+              <TabsTrigger
+                value="messages"
+                className="data-[state=active]:bg-blue-600 text-xs sm:text-sm px-3 py-2 whitespace-nowrap"
+              >
                 Messages ({messages.length})
                 {unreadMessagesCount > 0 && (
                   <span className="ml-2 px-1.5 py-0.5 rounded-full bg-red-500 text-white text-xs">
@@ -555,26 +561,47 @@ export function MemberDashboard() {
                   </span>
                 )}
               </TabsTrigger>
-              <TabsTrigger value="duties" className="data-[state=active]:bg-blue-600">
+              <TabsTrigger
+                value="duties"
+                className="data-[state=active]:bg-blue-600 text-xs sm:text-sm px-3 py-2 whitespace-nowrap"
+              >
                 Duties ({duties.length})
               </TabsTrigger>
-              <TabsTrigger value="calendar" className="data-[state=active]:bg-blue-600">
+              <TabsTrigger
+                value="calendar"
+                className="data-[state=active]:bg-blue-600 text-xs sm:text-sm px-3 py-2 whitespace-nowrap"
+              >
                 <Calendar className="h-4 w-4 mr-2" />
                 Calendar
               </TabsTrigger>
-              <TabsTrigger value="followups" className="data-[state=active]:bg-blue-600">
+              <TabsTrigger
+                value="followups"
+                className="data-[state=active]:bg-blue-600 text-xs sm:text-sm px-3 py-2 whitespace-nowrap"
+              >
                 Follow-ups ({assignedNewcomers.length})
               </TabsTrigger>
-              <TabsTrigger value="feedback" className="data-[state=active]:bg-blue-600">
+              <TabsTrigger
+                value="feedback"
+                className="data-[state=active]:bg-blue-600 text-xs sm:text-sm px-3 py-2 whitespace-nowrap"
+              >
                 Feedback
               </TabsTrigger>
-              <TabsTrigger value="attendance" className="data-[state=active]:bg-blue-600">
+              <TabsTrigger
+                value="attendance"
+                className="data-[state=active]:bg-blue-600 text-xs sm:text-sm px-3 py-2 whitespace-nowrap"
+              >
                 Attendance
               </TabsTrigger>
-              <TabsTrigger value="contributions" className="data-[state=active]:bg-blue-600">
+              <TabsTrigger
+                value="contributions"
+                className="data-[state=active]:bg-blue-600 text-xs sm:text-sm px-3 py-2 whitespace-nowrap"
+              >
                 Contributions
               </TabsTrigger>
-              <TabsTrigger value="profile" className="data-[state=active]:bg-blue-600">
+              <TabsTrigger
+                value="profile"
+                className="data-[state=active]:bg-blue-600 text-xs sm:text-sm px-3 py-2 whitespace-nowrap"
+              >
                 <User className="h-4 w-4 mr-2" />
                 Profile
               </TabsTrigger>

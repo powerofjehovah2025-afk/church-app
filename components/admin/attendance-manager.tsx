@@ -11,7 +11,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
   Dialog,
@@ -22,7 +21,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
-import { Loader2, CheckCircle2, AlertCircle, Calendar, UserCheck } from "lucide-react";
+import { Loader2, CheckCircle2, AlertCircle, UserCheck } from "lucide-react";
 import type { Attendance, Service } from "@/types/database.types";
 
 interface AttendanceWithDetails extends Attendance {

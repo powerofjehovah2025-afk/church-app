@@ -11,7 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Loader2, CheckCircle2, AlertCircle, UserCheck, Calendar } from "lucide-react";
+import { Loader2, CheckCircle2, AlertCircle, UserCheck } from "lucide-react";
 import type { Attendance, Service } from "@/types/database.types";
 
 interface AttendanceWithService extends Attendance {

@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Key, Plus, Loader2, AlertCircle, CheckCircle2 } from "lucide-react";
+import { Key, Plus, Loader2, AlertCircle, CheckCircle2, Ban, RotateCcw } from "lucide-react";
 
 interface InvitationCodeRow {
   id: string;
@@ -14,6 +14,7 @@ interface InvitationCodeRow {
   created_by: string | null;
   used_at: string | null;
   used_by: string | null;
+  is_active?: boolean;
 }
 
 export function InvitationCodesManager() {
@@ -22,6 +23,7 @@ export function InvitationCodesManager() {
   const [newCode, setNewCode] = useState("");
   const [isCreating, setIsCreating] = useState(false);
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
+  const [togglingId, setTogglingId] = useState<string | null>(null);
 
   const fetchCodes = useCallback(async () => {
     try {
@@ -68,6 +70,33 @@ export function InvitationCodesManager() {
       setMessage({ type: "error", text: "Failed to create invitation code" });
     } finally {
       setIsCreating(false);
+    }
+  };
+
+  const handleSetActive = async (id: string, isActive: boolean) => {
+    setTogglingId(id);
+    setMessage(null);
+    try {
+      const res = await fetch(`/api/admin/invitation-codes/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ is_active: isActive }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setMessage({ type: "error", text: data.error || "Failed to update code" });
+        return;
+      }
+      setMessage({
+        type: "success",
+        text: isActive ? "Code reactivated" : "Code deactivated",
+      });
+      await fetchCodes();
+      setTimeout(() => setMessage(null), 3000);
+    } catch {
+      setMessage({ type: "error", text: "Failed to update invitation code" });
+    } finally {
+      setTogglingId(null);
     }
   };
 
@@ -166,7 +195,7 @@ export function InvitationCodesManager() {
         <CardHeader>
           <CardTitle className="text-white">Invitation codes</CardTitle>
           <CardDescription className="text-slate-400">
-            {codes.length} code(s). Unused codes can be entered at sign-up; used codes are marked.
+            {codes.length} code(s). Deactivated codes cannot be used for sign-up. Used codes are single-use.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -174,28 +203,76 @@ export function InvitationCodesManager() {
             <p className="text-slate-400 text-sm">No invitation codes yet. Create one above.</p>
           ) : (
             <div className="space-y-2">
-              {codes.map((row) => (
-                <div
-                  key={row.id}
-                  className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-slate-700/50 bg-slate-800/50 p-3"
-                >
-                  <div className="flex items-center gap-3">
-                    <span className="font-mono font-medium text-white">{row.code}</span>
-                    {row.used_at ? (
-                      <span className="rounded px-2 py-0.5 text-xs bg-amber-500/20 text-amber-300 border border-amber-500/30">
-                        Used {new Date(row.used_at).toLocaleDateString()}
+              {codes.map((row) => {
+                const active = row.is_active !== false;
+                const used = !!row.used_at;
+                return (
+                  <div
+                    key={row.id}
+                    className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-slate-700/50 bg-slate-800/50 p-3"
+                  >
+                    <div className="flex flex-wrap items-center gap-3">
+                      <span className="font-mono font-medium text-white">{row.code}</span>
+                      {!active && (
+                        <span className="rounded px-2 py-0.5 text-xs bg-slate-500/30 text-slate-300 border border-slate-500/50">
+                          Deactivated
+                        </span>
+                      )}
+                      {active && used && (
+                        <span className="rounded px-2 py-0.5 text-xs bg-amber-500/20 text-amber-300 border border-amber-500/30">
+                          Used {new Date(row.used_at!).toLocaleDateString()}
+                        </span>
+                      )}
+                      {active && !used && (
+                        <span className="rounded px-2 py-0.5 text-xs bg-green-500/20 text-green-300 border border-green-500/30">
+                          Available
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs text-slate-500">
+                        Created {new Date(row.created_at).toLocaleString()}
                       </span>
-                    ) : (
-                      <span className="rounded px-2 py-0.5 text-xs bg-green-500/20 text-green-300 border border-green-500/30">
-                        Available
-                      </span>
-                    )}
+                      {active && !used && (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="border-slate-600 text-slate-300 hover:bg-slate-700"
+                          disabled={togglingId === row.id}
+                          onClick={() => handleSetActive(row.id, false)}
+                        >
+                          {togglingId === row.id ? (
+                            <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                          ) : (
+                            <>
+                              <Ban className="h-3.5 w-3.5 mr-1" />
+                              Deactivate
+                            </>
+                          )}
+                        </Button>
+                      )}
+                      {!active && !used && (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="border-green-600/50 text-green-300 hover:bg-green-500/20"
+                          disabled={togglingId === row.id}
+                          onClick={() => handleSetActive(row.id, true)}
+                        >
+                          {togglingId === row.id ? (
+                            <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                          ) : (
+                            <>
+                              <RotateCcw className="h-3.5 w-3.5 mr-1" />
+                              Reactivate
+                            </>
+                          )}
+                        </Button>
+                      )}
+                    </div>
                   </div>
-                  <span className="text-xs text-slate-500">
-                    Created {new Date(row.created_at).toLocaleString()}
-                  </span>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </CardContent>

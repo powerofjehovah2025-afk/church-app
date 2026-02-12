@@ -19,6 +19,7 @@ export async function POST(request: NextRequest) {
       .from("invitation_codes")
       .select("id")
       .eq("code", code)
+      .eq("is_active", true)
       .is("used_at", null)
       .limit(1)
       .maybeSingle();

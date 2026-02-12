@@ -753,6 +753,7 @@ export type Database = {
           created_by: string | null
           used_at: string | null
           used_by: string | null
+          is_active: boolean
         }
         Insert: {
           id?: string
@@ -761,6 +762,7 @@ export type Database = {
           created_by?: string | null
           used_at?: string | null
           used_by?: string | null
+          is_active?: boolean
         }
         Update: {
           id?: string
@@ -769,6 +771,7 @@ export type Database = {
           created_by?: string | null
           used_at?: string | null
           used_by?: string | null
+          is_active?: boolean
         }
         Relationships: []
       }

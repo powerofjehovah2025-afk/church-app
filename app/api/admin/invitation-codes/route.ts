@@ -25,7 +25,7 @@ export async function GET() {
     const admin = createAdminClient();
     const { data: codes, error } = await admin
       .from("invitation_codes")
-      .select("id, code, created_at, created_by, used_at, used_by")
+      .select("id, code, created_at, created_by, used_at, used_by, is_active")
       .order("created_at", { ascending: false });
 
     if (error) {

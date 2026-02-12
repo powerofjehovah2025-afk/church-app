@@ -1,4 +1,4 @@
-﻿export type Json =
+export type Json =
   | string
   | number
   | boolean
@@ -742,6 +742,33 @@ export type Database = {
           is_active?: boolean
           created_at?: string
           updated_at?: string
+        }
+        Relationships: []
+      }
+      invitation_codes: {
+        Row: {
+          id: string
+          code: string
+          created_at: string
+          created_by: string | null
+          used_at: string | null
+          used_by: string | null
+        }
+        Insert: {
+          id?: string
+          code: string
+          created_at?: string
+          created_by?: string | null
+          used_at?: string | null
+          used_by?: string | null
+        }
+        Update: {
+          id?: string
+          code?: string
+          created_at?: string
+          created_by?: string | null
+          used_at?: string | null
+          used_by?: string | null
         }
         Relationships: []
       }

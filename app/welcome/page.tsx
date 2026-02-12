@@ -93,7 +93,7 @@ export default function WelcomePage() {
           <p className="font-medium">Form submitted successfully!</p>
           {showWhatsAppButton && (
             <a
-              href="https://chat.whatsapp.com/YOUR_GROUP_LINK"
+              href="https://whatsapp.com/channel/0029VaJBEpGJUM2fcn989a3D"
               target="_blank"
               rel="noopener noreferrer"
               className="mt-2 inline-block bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"

@@ -403,7 +403,7 @@ export function MemberDashboard() {
   const hasOverdueFollowups = overdueCount > 0;
 
   return (
-    <div className="space-y-6 max-w-6xl mx-auto px-3 sm:px-4 md:px-6 pb-6">
+    <div className="space-y-6 w-full mx-auto px-3 sm:px-4 md:px-6 pb-6">
       {/* Overdue Follow-ups Alert */}
       {hasOverdueFollowups && (
         <Card className="bg-red-500/10 border-red-500/30 shadow-xl">

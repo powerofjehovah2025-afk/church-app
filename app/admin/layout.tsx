@@ -365,7 +365,7 @@ export default function AdminLayout({
 
         {/* Page Content */}
         <main className="flex-1 overflow-auto bg-background/60">
-          <div className="w-full max-w-6xl mx-auto px-3 sm:px-4 md:px-6 py-4 md:py-6">
+          <div className="w-full mx-auto px-3 sm:px-4 md:px-6 lg:px-8 py-4 md:py-6">
             {children}
           </div>
         </main>

@@ -1206,8 +1206,8 @@ export function NewcomersKanban({ initialData }: NewcomersKanbanProps) {
       </div>
 
       {/* Summary Stats Cards - Compact Single Row */}
-      <div className="flex gap-3">
-        <Card className="bg-slate-900/40 backdrop-blur-md border-slate-700/50 shadow-2xl relative overflow-hidden flex-1">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <Card className="bg-slate-900/40 backdrop-blur-md border-slate-700/50 shadow-2xl relative overflow-hidden">
           <CardContent className="p-3">
             <div className="flex items-center justify-between">
               <div className="flex-1">
@@ -1239,7 +1239,7 @@ export function NewcomersKanban({ initialData }: NewcomersKanbanProps) {
           </CardContent>
         </Card>
 
-        <Card className="bg-slate-900/40 backdrop-blur-md border-[#ef4444]/30 shadow-2xl relative overflow-hidden ring-1 ring-[#ef4444]/20 shadow-[0_0_20px_rgba(239,68,68,0.15)] flex-1">
+        <Card className="bg-slate-900/40 backdrop-blur-md border-[#ef4444]/30 shadow-2xl relative overflow-hidden ring-1 ring-[#ef4444]/20 shadow-[0_0_20px_rgba(239,68,68,0.15)]">
           <CardContent className="p-3">
             <div className="flex items-center justify-between">
               <div>
@@ -1257,7 +1257,7 @@ export function NewcomersKanban({ initialData }: NewcomersKanbanProps) {
           </CardContent>
         </Card>
 
-        <Card className="bg-slate-900/40 backdrop-blur-md border-[#22c55e]/30 shadow-2xl relative overflow-hidden ring-1 ring-[#22c55e]/20 shadow-[0_0_20px_rgba(34,197,94,0.15)] flex-1">
+        <Card className="bg-slate-900/40 backdrop-blur-md border-[#22c55e]/30 shadow-2xl relative overflow-hidden ring-1 ring-[#22c55e]/20 shadow-[0_0_20px_rgba(34,197,94,0.15)]">
           <CardContent className="p-3">
             <div className="flex items-center justify-between">
               <div className="flex-1">
@@ -1289,7 +1289,7 @@ export function NewcomersKanban({ initialData }: NewcomersKanbanProps) {
       </div>
 
       {/* Search Bar and Undo Button - Compact */}
-      <div className="flex items-center gap-2">
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
         <div className="relative flex-1 max-w-md">
           <Search className="absolute left-2.5 top-1/2 transform -translate-y-1/2 h-3.5 w-3.5 text-slate-400" />
           <Input
@@ -1333,12 +1333,12 @@ export function NewcomersKanban({ initialData }: NewcomersKanbanProps) {
           onDragEnd={handleDragEnd}
           onDragStart={() => {}}
         >
-        <div className="overflow-x-auto pb-2 -mx-2 px-2">
-          <div className="flex gap-3 min-w-max">
+        <div className="pb-2">
+          <div className="flex flex-col lg:flex-row gap-3">
             {COLUMNS.map((column) => (
               <div
                 key={column.id}
-                className={`flex-shrink-0 w-72 ${column.color} rounded-lg border backdrop-blur-md bg-slate-900/40 p-3 shadow-2xl ${column.glow || ""} flex flex-col`}
+                className={`flex-shrink-0 w-full lg:w-72 ${column.color} rounded-lg border backdrop-blur-md bg-slate-900/40 p-3 shadow-2xl ${column.glow || ""} flex flex-col`}
               >
                 <h2 className="font-semibold text-white mb-2 text-base">
                   {column.title}

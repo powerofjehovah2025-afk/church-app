@@ -12,9 +12,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Search, CheckCircle2, AlertCircle, Loader2, Settings, User } from "lucide-react";
+import { Search, CheckCircle2, AlertCircle, Loader2, Shield, User } from "lucide-react";
 import type { Profile } from "@/types/database.types";
-import Link from "next/link";
 import {
   Dialog,
   DialogContent,
@@ -275,6 +274,43 @@ export function UserManagement() {
         </CardContent>
       </Card>
 
+      {/* Roles (read-only) */}
+      <Card className="bg-slate-900/40 backdrop-blur-md border-slate-700/50 shadow-xl">
+        <CardHeader>
+          <div className="flex items-center gap-2">
+            <Shield className="h-5 w-5 text-slate-400" />
+            <div>
+              <CardTitle className="text-white">Roles</CardTitle>
+              <CardDescription className="text-slate-400">
+                Assign a role to each user below. Admin can manage the app; member has standard access.
+              </CardDescription>
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div className="flex flex-wrap gap-3">
+            {(roles.length ? roles.filter((r) => r.name === "admin" || r.name === "member") : [
+              { name: "admin", description: "Full access to admin features", hierarchy_level: 1 },
+              { name: "member", description: "Standard member access", hierarchy_level: 10 },
+            ]).map((role) => (
+              <div
+                key={role.name}
+                className={`rounded-lg border px-4 py-3 min-w-[180px] ${
+                  role.name === "admin"
+                    ? "bg-blue-500/10 border-blue-500/30"
+                    : "bg-slate-800/50 border-slate-700/50"
+                }`}
+              >
+                <p className="font-medium text-white capitalize">{role.name}</p>
+                <p className="text-xs text-slate-400 mt-1">
+                  {role.description || (role.name === "admin" ? "Full access" : "Standard access")}
+                </p>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+
       {/* Message Alert */}
       {message && (
         <Card
@@ -308,17 +344,11 @@ export function UserManagement() {
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>
-              <CardTitle className="text-white">User Management</CardTitle>
+              <CardTitle className="text-white">Users</CardTitle>
               <CardDescription className="text-slate-400">
-                Manage user roles and permissions. Total users: {filteredUsers.length}
+                Total users: {filteredUsers.length}. Change role with the dropdown.
               </CardDescription>
             </div>
-            <Link href="/admin/roles">
-              <Button variant="outline" size="sm" className="bg-slate-800/50 border-slate-700/50">
-                <Settings className="h-4 w-4 mr-2" />
-                Manage Roles
-              </Button>
-            </Link>
           </div>
         </CardHeader>
         <CardContent>

@@ -14,7 +14,6 @@ import {
   ChevronLeft,
   ChevronRight,
   FileText,
-  Shield,
   CheckSquare,
   Mail,
   AlertCircle,
@@ -86,11 +85,6 @@ export default function AdminLayout({
       name: "User Management",
       href: "/admin/users",
       icon: Users,
-    },
-    {
-      name: "Roles Management",
-      href: "/admin/roles",
-      icon: Shield,
     },
     {
       name: "Invitation Codes",

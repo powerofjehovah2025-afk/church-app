@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { createClient } from "@/lib/supabase/client";
 import type { Newcomer, NewcomerUpdate } from "@/types/database.types";
 import {
@@ -40,6 +40,7 @@ import {
   AlertCircle,
   Trash2,
 } from "lucide-react";
+import { Pagination } from "@/components/ui/pagination";
 
 interface NewcomersTableProps {
   initialData: Newcomer[];
@@ -125,6 +126,9 @@ export function NewcomersTable({ initialData }: NewcomersTableProps) {
   const [adminNotes, setAdminNotes] = useState("");
   const [savingNotes, setSavingNotes] = useState(false);
 
+  const PAGE_SIZE = 10;
+  const [currentPage, setCurrentPage] = useState(1);
+
   // Calculate stats
   const stats = useMemo(() => {
     const total = newcomers.length;
@@ -170,6 +174,17 @@ export function NewcomersTable({ initialData }: NewcomersTableProps) {
 
     return filtered;
   }, [newcomers, searchQuery, statusFilter, interestFilter]);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, statusFilter, interestFilter]);
+
+  const totalFiltered = filteredNewcomers.length;
+  const totalPages = Math.max(1, Math.ceil(totalFiltered / PAGE_SIZE));
+  const paginatedNewcomers = useMemo(() => {
+    const start = (currentPage - 1) * PAGE_SIZE;
+    return filteredNewcomers.slice(start, start + PAGE_SIZE);
+  }, [filteredNewcomers, currentPage]);
 
   const handleStatusUpdate = async (id: string, newStatus: string) => {
     setUpdatingStatus(id);
@@ -381,14 +396,14 @@ export function NewcomersTable({ initialData }: NewcomersTableProps) {
 
       {/* Mobile card list */}
       <div className="space-y-3 md:hidden">
-        {filteredNewcomers.length === 0 ? (
+        {paginatedNewcomers.length === 0 ? (
           <div className="rounded-lg border border-slate-800 bg-slate-900 p-6 text-center text-slate-400">
             {searchQuery || statusFilter !== "all" || interestFilter !== "all"
               ? "No newcomers found matching your filters"
               : "No newcomers registered yet"}
           </div>
         ) : (
-          filteredNewcomers.map((newcomer) => (
+          paginatedNewcomers.map((newcomer) => (
             <Card
               key={newcomer.id}
               className="bg-slate-900 border-slate-800 cursor-pointer transition-colors active:bg-slate-800/50"
@@ -501,6 +516,16 @@ export function NewcomersTable({ initialData }: NewcomersTableProps) {
             </Card>
           ))
         )}
+        {totalFiltered > PAGE_SIZE && (
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={setCurrentPage}
+            totalCount={totalFiltered}
+            pageSize={PAGE_SIZE}
+            className="border-t border-slate-800 pt-4"
+          />
+        )}
       </div>
 
       {/* Table (desktop) */}
@@ -530,7 +555,7 @@ export function NewcomersTable({ initialData }: NewcomersTableProps) {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filteredNewcomers.length === 0 ? (
+              {paginatedNewcomers.length === 0 ? (
                 <TableRow className="border-slate-800">
                   <TableCell
                     colSpan={6}
@@ -542,7 +567,7 @@ export function NewcomersTable({ initialData }: NewcomersTableProps) {
                   </TableCell>
                 </TableRow>
               ) : (
-                filteredNewcomers.map((newcomer) => (
+                paginatedNewcomers.map((newcomer) => (
                   <TableRow
                     key={newcomer.id}
                     className="cursor-pointer hover:bg-slate-800/50 border-slate-800 transition-colors"
@@ -669,6 +694,16 @@ export function NewcomersTable({ initialData }: NewcomersTableProps) {
             </TableBody>
           </Table>
         </div>
+        {totalFiltered > PAGE_SIZE && (
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={setCurrentPage}
+            totalCount={totalFiltered}
+            pageSize={PAGE_SIZE}
+            className="border-t border-slate-800 pt-4"
+          />
+        )}
       </div>
 
       {/* Enhanced Details Sheet */}

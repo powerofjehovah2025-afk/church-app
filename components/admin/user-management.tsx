@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -23,6 +23,7 @@ import {
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Pagination } from "@/components/ui/pagination";
 
 interface Role {
   id: string;
@@ -43,6 +44,9 @@ export function UserManagement() {
   const [memberSkills, setMemberSkills] = useState<string>("");
   const [memberAvailability, setMemberAvailability] = useState<string>("");
   const [isSavingSkills, setIsSavingSkills] = useState(false);
+
+  const PAGE_SIZE = 10;
+  const [currentPage, setCurrentPage] = useState(1);
 
   const fetchRoles = useCallback(async () => {
     try {
@@ -104,6 +108,17 @@ export function UserManagement() {
     );
     setFilteredUsers(filtered);
   }, [searchQuery, users]);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery]);
+
+  const totalFiltered = filteredUsers.length;
+  const totalPages = Math.max(1, Math.ceil(totalFiltered / PAGE_SIZE));
+  const paginatedUsers = useMemo(() => {
+    const start = (currentPage - 1) * PAGE_SIZE;
+    return filteredUsers.slice(start, start + PAGE_SIZE);
+  }, [filteredUsers, currentPage]);
 
   const handleRoleChange = async (userId: string, newRole: string, userName: string | null) => {
     setChangingRoleUserId(userId);
@@ -346,19 +361,19 @@ export function UserManagement() {
             <div>
               <CardTitle className="text-white">Users</CardTitle>
               <CardDescription className="text-slate-400">
-                Total users: {filteredUsers.length}. Change role with the dropdown.
+                Total users: {totalFiltered}. Change role with the dropdown.
               </CardDescription>
             </div>
           </div>
         </CardHeader>
         <CardContent>
-          {filteredUsers.length === 0 ? (
+          {paginatedUsers.length === 0 ? (
             <div className="text-center py-12">
               <p className="text-slate-400">No users found</p>
             </div>
           ) : (
             <div className="space-y-3">
-              {filteredUsers.map((user) => (
+              {paginatedUsers.map((user) => (
                 <div
                   key={user.id}
                   className="flex items-center justify-between p-4 rounded-lg bg-slate-800/50 border border-slate-700/50"
@@ -419,6 +434,16 @@ export function UserManagement() {
                 </div>
               ))}
             </div>
+          )}
+          {totalFiltered > PAGE_SIZE && (
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={setCurrentPage}
+              totalCount={totalFiltered}
+              pageSize={PAGE_SIZE}
+              className="border-t border-slate-700/50 pt-4 mt-4"
+            />
           )}
         </CardContent>
       </Card>

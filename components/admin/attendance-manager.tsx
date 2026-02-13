@@ -38,6 +38,7 @@ export function AttendanceManager() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
 
+  const [filterServiceId, setFilterServiceId] = useState<string>("__all__");
   const [selectedServiceId, setSelectedServiceId] = useState<string>("");
   const [selectedMemberId, setSelectedMemberId] = useState<string>("");
   const [status, setStatus] = useState<string>("present");
@@ -47,7 +48,7 @@ export function AttendanceManager() {
     setIsLoading(true);
     try {
       const params = new URLSearchParams();
-      if (selectedServiceId) params.append("service_id", selectedServiceId);
+      if (filterServiceId && filterServiceId !== "__all__") params.append("service_id", filterServiceId);
 
       const response = await fetch(`/api/admin/attendance?${params.toString()}`);
       if (!response.ok) {
@@ -71,7 +72,7 @@ export function AttendanceManager() {
     } finally {
       setIsLoading(false);
     }
-  }, [selectedServiceId]);
+  }, [filterServiceId]);
 
   const fetchServices = useCallback(async () => {
     try {
@@ -210,12 +211,12 @@ export function AttendanceManager() {
               </CardDescription>
             </div>
             <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-end">
-              <Select value={selectedServiceId} onValueChange={setSelectedServiceId}>
+              <Select value={filterServiceId} onValueChange={setFilterServiceId}>
                 <SelectTrigger className="w-48 bg-slate-800/50 border-slate-700/50 text-white">
                   <SelectValue placeholder="Filter by service" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">All Services</SelectItem>
+                  <SelectItem value="__all__">All Services</SelectItem>
                   {services.map((service) => (
                     <SelectItem key={service.id} value={service.id}>
                       {service.name} - {new Date(service.date).toLocaleDateString()}

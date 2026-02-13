@@ -135,6 +135,18 @@ export function MemberDashboard() {
     }
   }, [tabFromUrl]);
 
+  // When opening a tab via URL (e.g. "View Events" / "View Rota" links), scroll tabs into view
+  useEffect(() => {
+    if (!tabFromUrl || !validTabIds.includes(tabFromUrl)) return;
+    const el = document.querySelector("[data-member-dashboard-tabs]");
+    if (el) {
+      const id = requestAnimationFrame(() => {
+        el.scrollIntoView({ behavior: "smooth", block: "start" });
+      });
+      return () => cancelAnimationFrame(id);
+    }
+  }, [tabFromUrl]);
+
   const fetchTasks = useCallback(async () => {
     try {
       const supabase = createClient();
@@ -605,7 +617,7 @@ export function MemberDashboard() {
       </div>
 
       {/* Tabs */}
-      <Card className="bg-card border-border shadow-xl">
+      <Card className="bg-card border-border shadow-xl" data-member-dashboard-tabs>
         <CardHeader>
           <CardTitle className="text-card-foreground">My Dashboard</CardTitle>
           <CardDescription className="text-muted-foreground">

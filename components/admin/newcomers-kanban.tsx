@@ -35,6 +35,7 @@ import {
   Undo2,
   Bus,
   UserPlus,
+  Trash2,
 } from "lucide-react";
 import { AssignFollowupDialog } from "./assign-followup-dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -1064,6 +1065,27 @@ export function NewcomersKanban({ initialData }: NewcomersKanbanProps) {
     setIsSheetOpen(true);
   }, []);
 
+  const handleDelete = useCallback(async (id: string, name: string) => {
+    if (!confirm(`Are you sure you want to delete ${name}? This action cannot be undone.`)) {
+      return;
+    }
+    try {
+      const response = await fetch(`/api/admin/newcomers/${id}`, { method: "DELETE" });
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || "Failed to delete newcomer");
+      }
+      setNewcomers((prev) => prev.filter((item) => item.id !== id));
+      if (selectedNewcomer?.id === id) {
+        setIsSheetOpen(false);
+        setSelectedNewcomer(null);
+      }
+    } catch (error) {
+      console.error("Error deleting newcomer:", error);
+      alert(error instanceof Error ? error.message : "Failed to delete newcomer");
+    }
+  }, [selectedNewcomer?.id]);
+
   // Handle assignment change
   const handleAssignmentChange = useCallback(async (newcomerId: string, assignedTo: string) => {
     // Optimistic update
@@ -1674,6 +1696,18 @@ export function NewcomersKanban({ initialData }: NewcomersKanbanProps) {
                                             >
                                               <UserPlus className="h-4 w-4 text-slate-300" />
                                             </Button>
+                                            <Button
+                                              variant="ghost"
+                                              size="sm"
+                                              className="h-8 w-8 p-0 hover:bg-red-900/30 text-red-400 hover:text-red-300"
+                                              onClick={(e) => {
+                                                e.stopPropagation();
+                                                handleDelete(newcomer.id, newcomer.full_name);
+                                              }}
+                                              title="Delete"
+                                            >
+                                              <Trash2 className="h-4 w-4" />
+                                            </Button>
                                           </div>
                                         </div>
                                       )}
@@ -1781,7 +1815,7 @@ export function NewcomersKanban({ initialData }: NewcomersKanbanProps) {
             return (
               <div className="mt-6">
                 {/* Quick Actions */}
-                <div className="flex gap-2 pb-4 border-b border-slate-700/50 mb-4">
+                <div className="flex flex-wrap gap-2 pb-4 border-b border-slate-700/50 mb-4">
                   {selectedNewcomer.phone && (
                     <>
                       <Button
@@ -1827,6 +1861,16 @@ export function NewcomersKanban({ initialData }: NewcomersKanbanProps) {
                       Email
                     </Button>
                   )}
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleDelete(selectedNewcomer.id, selectedNewcomer.full_name)}
+                    className="border-red-700/50 hover:bg-red-900/30 text-red-400 hover:text-red-300 ml-auto"
+                    title="Delete this record"
+                  >
+                    <Trash2 className="h-4 w-4 mr-2" />
+                    Delete
+                  </Button>
                 </div>
 
                 {/* Tabs - 2025 Deep Command */}

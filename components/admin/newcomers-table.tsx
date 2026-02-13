@@ -196,7 +196,7 @@ export function NewcomersTable({ initialData }: NewcomersTableProps) {
 
       // Update selected newcomer if it's the one being updated
       if (selectedNewcomer?.id === id) {
-        setSelectedNewcomer({ ...selectedNewcomer, status: newStatus });
+        setSelectedNewcomer({ ...selectedNewcomer, status: newStatus } as Newcomer);
       }
     } catch (error) {
       console.error("Error updating status:", error);
@@ -259,7 +259,7 @@ export function NewcomersTable({ initialData }: NewcomersTableProps) {
         ),
       );
 
-      setSelectedNewcomer({ ...selectedNewcomer, notes: adminNotes || null });
+      setSelectedNewcomer({ ...selectedNewcomer, notes: adminNotes || null } as Newcomer);
       alert("Notes saved successfully!");
     } catch (error) {
       console.error("Error saving notes:", error);
@@ -278,9 +278,9 @@ export function NewcomersTable({ initialData }: NewcomersTableProps) {
   return (
     <div className="space-y-6">
       {/* Summary Stats Cards */}
-      <div className="grid gap-4 md:grid-cols-3">
+      <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-3">
         <Card className="bg-slate-900 border-slate-800">
-          <CardContent className="p-6">
+          <CardContent className="p-4 sm:p-6">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-slate-400">
@@ -298,7 +298,7 @@ export function NewcomersTable({ initialData }: NewcomersTableProps) {
         </Card>
 
         <Card className="bg-slate-900 border-slate-800">
-          <CardContent className="p-6">
+          <CardContent className="p-4 sm:p-6">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-slate-400">
@@ -316,7 +316,7 @@ export function NewcomersTable({ initialData }: NewcomersTableProps) {
         </Card>
 
         <Card className="bg-slate-900 border-slate-800">
-          <CardContent className="p-6">
+          <CardContent className="p-4 sm:p-6">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-slate-400">This Month</p>
@@ -333,52 +333,178 @@ export function NewcomersTable({ initialData }: NewcomersTableProps) {
       </div>
 
       {/* Search and Filters */}
-      <div className="flex flex-col sm:flex-row gap-4">
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400" />
-          <Input
-            placeholder="Search by name, email, or phone..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10 bg-slate-900 border-slate-800 text-white"
-          />
+      <div className="flex flex-col gap-3 sm:gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
+          <div className="relative flex-1 min-w-0">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400" />
+            <Input
+              placeholder="Search by name, email, or phone..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10 bg-slate-900 border-slate-800 text-white min-h-[44px]"
+            />
+          </div>
+
+          <div className="flex flex-wrap gap-2">
+            <select
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+              className="h-10 min-h-[44px] flex-1 sm:flex-initial min-w-[120px] rounded-md border border-slate-800 bg-slate-900 px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-slate-700"
+            >
+              <option value="all">All Statuses</option>
+              {STATUS_OPTIONS.map((status) => (
+                <option key={status} value={status}>
+                  {status}
+                </option>
+              ))}
+            </select>
+
+            <select
+              value={interestFilter}
+              onChange={(e) => setInterestFilter(e.target.value)}
+              className="h-10 min-h-[44px] flex-1 sm:flex-initial min-w-[120px] rounded-md border border-slate-800 bg-slate-900 px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-slate-700"
+            >
+              <option value="all">All Interests</option>
+              {INTEREST_AREAS.map((area) => (
+                <option key={area} value={area}>
+                  {area}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
 
-        <div className="flex gap-2">
-          <select
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-            className="h-10 rounded-md border border-slate-800 bg-slate-900 px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-slate-700"
-          >
-            <option value="all">All Statuses</option>
-            {STATUS_OPTIONS.map((status) => (
-              <option key={status} value={status}>
-                {status}
-              </option>
-            ))}
-          </select>
-
-          <select
-            value={interestFilter}
-            onChange={(e) => setInterestFilter(e.target.value)}
-            className="h-10 rounded-md border border-slate-800 bg-slate-900 px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-slate-700"
-          >
-            <option value="all">All Interests</option>
-            {INTEREST_AREAS.map((area) => (
-              <option key={area} value={area}>
-                {area}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <div className="text-sm text-slate-400 flex items-center">
+        <div className="text-sm text-slate-400">
           {filteredNewcomers.length} of {newcomers.length} records
         </div>
       </div>
 
-      {/* Table */}
-      <div className="rounded-lg border border-slate-800 bg-slate-900 overflow-hidden">
+      {/* Mobile card list */}
+      <div className="space-y-3 md:hidden">
+        {filteredNewcomers.length === 0 ? (
+          <div className="rounded-lg border border-slate-800 bg-slate-900 p-6 text-center text-slate-400">
+            {searchQuery || statusFilter !== "all" || interestFilter !== "all"
+              ? "No newcomers found matching your filters"
+              : "No newcomers registered yet"}
+          </div>
+        ) : (
+          filteredNewcomers.map((newcomer) => (
+            <Card
+              key={newcomer.id}
+              className="bg-slate-900 border-slate-800 cursor-pointer transition-colors active:bg-slate-800/50"
+              onClick={() => handleRowClick(newcomer)}
+            >
+              <CardContent className="p-4">
+                <div className="flex items-start justify-between gap-2">
+                  <div className="min-w-0 flex-1">
+                    <p className="font-medium text-white truncate">{newcomer.full_name}</p>
+                    <p className="text-sm text-slate-400 truncate mt-0.5">
+                      {newcomer.email || newcomer.phone || "—"}
+                    </p>
+                    {newcomer.phone && (
+                      <p className="text-xs text-slate-500 mt-1">{newcomer.phone}</p>
+                    )}
+                    <div className="flex items-center gap-2 mt-2 flex-wrap">
+                      <Badge
+                        className={`${getStatusColor(newcomer.status)} border font-medium text-xs`}
+                      >
+                        {newcomer.status || "No Status"}
+                      </Badge>
+                      <span className="text-xs text-slate-500">
+                        {formatDate(newcomer.created_at)}
+                      </span>
+                    </div>
+                  </div>
+                  <div
+                    className="flex items-center gap-1 flex-shrink-0"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    {newcomer.phone && (
+                      <>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            window.location.href = `tel:${formatPhoneForLink(newcomer.phone)}`;
+                          }}
+                          className="h-9 w-9 p-0 border-slate-700 hover:bg-slate-800 min-h-[44px] min-w-[44px]"
+                          title="Call"
+                        >
+                          <Phone className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            window.open(`https://wa.me/${formatPhoneForLink(newcomer.phone)}`, "_blank");
+                          }}
+                          className="h-9 w-9 p-0 border-slate-700 hover:bg-slate-800 min-h-[44px] min-w-[44px]"
+                          title="WhatsApp"
+                        >
+                          <MessageCircle className="h-4 w-4" />
+                        </Button>
+                      </>
+                    )}
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          disabled={updatingStatus === newcomer.id}
+                          className="h-9 min-h-[44px] border-slate-700 hover:bg-slate-800"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          {updatingStatus === newcomer.id ? (
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                          ) : (
+                            <ChevronDown className="h-4 w-4" />
+                          )}
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent
+                        align="end"
+                        className="bg-slate-900 border-slate-800"
+                      >
+                        {STATUS_OPTIONS.map((status) => (
+                          <DropdownMenuItem
+                            key={status}
+                            onClick={() => handleStatusUpdate(newcomer.id, status)}
+                            className={
+                              newcomer.status === status
+                                ? "bg-slate-800 text-white"
+                                : "text-slate-300 hover:bg-slate-800"
+                            }
+                          >
+                            {status}
+                            {newcomer.status === status && " ✓"}
+                          </DropdownMenuItem>
+                        ))}
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDelete(newcomer.id, newcomer.full_name);
+                      }}
+                      className="h-9 w-9 p-0 border-red-700 hover:bg-red-900/20 text-red-400 min-h-[44px] min-w-[44px]"
+                      title="Delete"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ))
+        )}
+      </div>
+
+      {/* Table (desktop) */}
+      <div className="hidden md:block rounded-lg border border-slate-800 bg-slate-900 overflow-hidden">
         <div className="overflow-x-auto">
           <Table>
             <TableHeader className="sticky top-0 z-10 bg-slate-900 border-b border-slate-800">

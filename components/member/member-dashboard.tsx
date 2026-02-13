@@ -83,6 +83,8 @@ interface AssignedNewcomer {
   followup_count: number | null;
   next_followup_date: string | null;
   created_at: string;
+  assigned_to?: string | null;
+  assigned_at?: string | null;
 }
 
 interface FollowupHistory {
@@ -266,7 +268,7 @@ export function MemberDashboard() {
         .eq("id", user.id)
         .single();
 
-      const role = profile?.role || "member";
+      const role = (profile as { role?: string } | null)?.role || "member";
       setUserRole(role);
 
       // Fetch announcements for user's role or "all"
@@ -361,7 +363,7 @@ export function MemberDashboard() {
 
   const getStatusColor = (status: string) => {
     const colors: Record<string, string> = {
-      pending: "bg-slate-500/20 text-slate-300 border-slate-500/50",
+      pending: "bg-muted text-muted-foreground border-border",
       in_progress: "bg-blue-500/20 text-blue-300 border-blue-500/50",
       completed: "bg-green-500/20 text-green-300 border-green-500/50",
       cancelled: "bg-red-500/20 text-red-300 border-red-500/50",
@@ -374,7 +376,7 @@ export function MemberDashboard() {
 
   const getFollowupStatusColor = (status: string) => {
     const colors: Record<string, string> = {
-      not_started: "bg-slate-500/20 text-slate-300 border-slate-500/50",
+      not_started: "bg-muted text-muted-foreground border-border",
       in_progress: "bg-blue-500/20 text-blue-300 border-blue-500/50",
       contacted: "bg-green-500/20 text-green-300 border-green-500/50",
       completed: "bg-green-500/20 text-green-300 border-green-500/50",
@@ -396,7 +398,7 @@ export function MemberDashboard() {
 
   if (isLoading) {
     return (
-      <Card className="bg-slate-900/40 backdrop-blur-md border-slate-700/50 shadow-xl">
+      <Card className="bg-card border-border shadow-xl">
         <CardContent className="flex items-center justify-center py-12">
           <Loader2 className="h-8 w-8 animate-spin text-blue-400" />
         </CardContent>
@@ -411,7 +413,7 @@ export function MemberDashboard() {
   const hasOverdueFollowups = overdueCount > 0;
 
   return (
-    <div className="space-y-6 w-full mx-auto px-3 sm:px-4 md:px-6 pb-6">
+    <div className="space-y-4 sm:space-y-6 w-full mx-auto px-0 sm:px-4 md:px-6 pb-6">
       {/* Overdue Follow-ups Alert */}
       {hasOverdueFollowups && (
         <Card className="bg-red-500/10 border-red-500/30 shadow-xl">
@@ -433,9 +435,9 @@ export function MemberDashboard() {
 
       {/* Announcements Section */}
       {announcements.length > 0 && (
-        <Card className="bg-slate-900/40 backdrop-blur-md border-slate-700/50 shadow-xl">
+        <Card className="bg-card border-border shadow-xl">
           <CardHeader>
-            <CardTitle className="text-white flex items-center gap-2">
+            <CardTitle className="text-card-foreground flex items-center gap-2">
               <Megaphone className="h-5 w-5" />
               Announcements
             </CardTitle>
@@ -448,19 +450,19 @@ export function MemberDashboard() {
                   className={`p-4 rounded-lg border ${
                     announcement.is_pinned
                       ? "bg-yellow-500/10 border-yellow-500/30"
-                      : "bg-slate-800/50 border-slate-700/50"
+                      : "bg-muted border-border"
                   }`}
                 >
                   <div className="flex items-start gap-2 mb-2">
                     {announcement.is_pinned && (
                       <Pin className="h-4 w-4 text-yellow-400 fill-yellow-400 flex-shrink-0 mt-0.5" />
                     )}
-                    <h3 className="text-white font-semibold">{announcement.title}</h3>
+                    <h3 className="text-card-foreground font-semibold">{announcement.title}</h3>
                   </div>
-                  <p className="text-slate-300 text-sm whitespace-pre-wrap mb-2">
+                  <p className="text-muted-foreground text-sm whitespace-pre-wrap mb-2">
                     {announcement.content}
                   </p>
-                  <p className="text-xs text-slate-500">
+                  <p className="text-xs text-muted-foreground">
                     {new Date(announcement.created_at).toLocaleDateString()}
                     {announcement.expires_at && (
                       <> • Expires: {new Date(announcement.expires_at).toLocaleDateString()}</>
@@ -474,57 +476,57 @@ export function MemberDashboard() {
       )}
 
       {/* Summary Cards */}
-      <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 xl:grid-cols-4">
-        <Card className="bg-slate-900/40 backdrop-blur-md border-slate-700/50 shadow-xl">
+      <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 xl:grid-cols-4">
+        <Card className="bg-card border-border shadow-xl">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-slate-300">Tasks</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">Tasks</CardTitle>
             <CheckSquare className="h-4 w-4 text-blue-400" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-white">{pendingTasksCount}</div>
-            <p className="text-xs text-slate-400">Pending tasks</p>
+            <div className="text-2xl font-bold text-card-foreground">{pendingTasksCount}</div>
+            <p className="text-xs text-muted-foreground">Pending tasks</p>
           </CardContent>
         </Card>
-        <Card className="bg-slate-900/40 backdrop-blur-md border-slate-700/50 shadow-xl">
+        <Card className="bg-card border-border shadow-xl">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-slate-300">Messages</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">Messages</CardTitle>
             <Mail className="h-4 w-4 text-blue-400" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-white">{unreadMessagesCount}</div>
-            <p className="text-xs text-slate-400">Unread messages</p>
+            <div className="text-2xl font-bold text-card-foreground">{unreadMessagesCount}</div>
+            <p className="text-xs text-muted-foreground">Unread messages</p>
           </CardContent>
         </Card>
-        <Card className="bg-slate-900/40 backdrop-blur-md border-slate-700/50 shadow-xl">
+        <Card className="bg-card border-border shadow-xl">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-slate-300">Duties</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">Duties</CardTitle>
             <Calendar className="h-4 w-4 text-blue-400" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-white">{upcomingDutiesCount}</div>
-            <p className="text-xs text-slate-400">Upcoming duties</p>
+            <div className="text-2xl font-bold text-card-foreground">{upcomingDutiesCount}</div>
+            <p className="text-xs text-muted-foreground">Upcoming duties</p>
           </CardContent>
         </Card>
-        <Card className="bg-slate-900/40 backdrop-blur-md border-slate-700/50 shadow-xl">
+        <Card className="bg-card border-border shadow-xl">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-slate-300">Follow-ups</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">Follow-ups</CardTitle>
             <User className="h-4 w-4 text-blue-400" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-white">{assignedNewcomersCount}</div>
-            <p className="text-xs text-slate-400">Assigned newcomers</p>
+            <div className="text-2xl font-bold text-card-foreground">{assignedNewcomersCount}</div>
+            <p className="text-xs text-muted-foreground">Assigned newcomers</p>
           </CardContent>
         </Card>
-        <Card className="bg-slate-900/40 backdrop-blur-md border-slate-700/50 shadow-xl">
+        <Card className="bg-card border-border shadow-xl">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-slate-300">Notifications</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">Notifications</CardTitle>
             <Bell className="h-4 w-4 text-blue-400" />
           </CardHeader>
           <CardContent>
             <div className="flex items-center justify-between">
               <div>
-                <div className="text-2xl font-bold text-white">{unreadNotificationCount}</div>
-                <p className="text-xs text-slate-400">Unread notifications</p>
+                <div className="text-2xl font-bold text-card-foreground">{unreadNotificationCount}</div>
+                <p className="text-xs text-muted-foreground">Unread notifications</p>
               </div>
               {unreadNotificationCount > 0 && (
                 <Button
@@ -542,25 +544,25 @@ export function MemberDashboard() {
       </div>
 
       {/* Tabs */}
-      <Card className="bg-slate-900/40 backdrop-blur-md border-slate-700/50 shadow-xl">
+      <Card className="bg-card border-border shadow-xl">
         <CardHeader>
-          <CardTitle className="text-white">My Dashboard</CardTitle>
-          <CardDescription className="text-slate-400">
+          <CardTitle className="text-card-foreground">My Dashboard</CardTitle>
+          <CardDescription className="text-muted-foreground">
             View your tasks, messages, assigned duties, and follow-ups
           </CardDescription>
         </CardHeader>
         <CardContent>
           <Tabs value={activeTab} onValueChange={setActiveTab}>
-            <TabsList className="w-full flex flex-nowrap overflow-x-auto no-scrollbar bg-slate-800/50">
+            <TabsList className="w-full flex flex-nowrap overflow-x-auto no-scrollbar bg-muted min-h-[44px]">
               <TabsTrigger
                 value="tasks"
-                className="data-[state=active]:bg-blue-600 text-xs sm:text-sm px-3 py-2 whitespace-nowrap"
+                className="data-[state=active]:bg-blue-600 text-xs sm:text-sm px-3 py-2.5 min-h-[44px] whitespace-nowrap flex-shrink-0"
               >
                 Tasks ({tasks.length})
               </TabsTrigger>
               <TabsTrigger
                 value="messages"
-                className="data-[state=active]:bg-blue-600 text-xs sm:text-sm px-3 py-2 whitespace-nowrap"
+                className="data-[state=active]:bg-blue-600 text-xs sm:text-sm px-3 py-2.5 min-h-[44px] whitespace-nowrap flex-shrink-0"
               >
                 Messages ({messages.length})
                 {unreadMessagesCount > 0 && (
@@ -571,44 +573,44 @@ export function MemberDashboard() {
               </TabsTrigger>
               <TabsTrigger
                 value="duties"
-                className="data-[state=active]:bg-blue-600 text-xs sm:text-sm px-3 py-2 whitespace-nowrap"
+                className="data-[state=active]:bg-blue-600 text-xs sm:text-sm px-3 py-2.5 min-h-[44px] whitespace-nowrap flex-shrink-0"
               >
                 Duties ({duties.length})
               </TabsTrigger>
               <TabsTrigger
                 value="calendar"
-                className="data-[state=active]:bg-blue-600 text-xs sm:text-sm px-3 py-2 whitespace-nowrap"
+                className="data-[state=active]:bg-blue-600 text-xs sm:text-sm px-3 py-2.5 min-h-[44px] whitespace-nowrap flex-shrink-0"
               >
                 <Calendar className="h-4 w-4 mr-2" />
                 Calendar
               </TabsTrigger>
               <TabsTrigger
                 value="followups"
-                className="data-[state=active]:bg-blue-600 text-xs sm:text-sm px-3 py-2 whitespace-nowrap"
+                className="data-[state=active]:bg-blue-600 text-xs sm:text-sm px-3 py-2.5 min-h-[44px] whitespace-nowrap flex-shrink-0"
               >
                 Follow-ups ({assignedNewcomers.length})
               </TabsTrigger>
               <TabsTrigger
                 value="feedback"
-                className="data-[state=active]:bg-blue-600 text-xs sm:text-sm px-3 py-2 whitespace-nowrap"
+                className="data-[state=active]:bg-blue-600 text-xs sm:text-sm px-3 py-2.5 min-h-[44px] whitespace-nowrap flex-shrink-0"
               >
                 Feedback
               </TabsTrigger>
               <TabsTrigger
                 value="attendance"
-                className="data-[state=active]:bg-blue-600 text-xs sm:text-sm px-3 py-2 whitespace-nowrap"
+                className="data-[state=active]:bg-blue-600 text-xs sm:text-sm px-3 py-2.5 min-h-[44px] whitespace-nowrap flex-shrink-0"
               >
                 Attendance
               </TabsTrigger>
               <TabsTrigger
                 value="contributions"
-                className="data-[state=active]:bg-blue-600 text-xs sm:text-sm px-3 py-2 whitespace-nowrap"
+                className="data-[state=active]:bg-blue-600 text-xs sm:text-sm px-3 py-2.5 min-h-[44px] whitespace-nowrap flex-shrink-0"
               >
                 Contributions
               </TabsTrigger>
               <TabsTrigger
                 value="profile"
-                className="data-[state=active]:bg-blue-600 text-xs sm:text-sm px-3 py-2 whitespace-nowrap"
+                className="data-[state=active]:bg-blue-600 text-xs sm:text-sm px-3 py-2.5 min-h-[44px] whitespace-nowrap flex-shrink-0"
               >
                 <User className="h-4 w-4 mr-2" />
                 Profile
@@ -618,20 +620,20 @@ export function MemberDashboard() {
             <TabsContent value="tasks" className="mt-4">
               {tasks.length === 0 ? (
                 <div className="text-center py-12">
-                  <CheckSquare className="h-12 w-12 text-slate-500 mx-auto mb-4" />
-                  <p className="text-slate-400">No tasks assigned</p>
+                  <CheckSquare className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                  <p className="text-muted-foreground">No tasks assigned</p>
                 </div>
               ) : (
                 <div className="space-y-3">
                   {tasks.map((task) => (
                     <div
                       key={task.id}
-                      className="p-4 rounded-lg bg-slate-800/50 border border-slate-700/50"
+                      className="p-4 rounded-lg bg-muted border border-border"
                     >
-                      <div className="flex items-start justify-between gap-4">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-3 flex-wrap mb-2">
-                            <h3 className="text-white font-medium">{task.title}</h3>
+                      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 sm:gap-3 flex-wrap mb-2">
+                            <h3 className="text-card-foreground font-medium">{task.title}</h3>
                             <span
                               className={`px-2 py-1 rounded text-xs font-medium border ${getPriorityColor(task.priority)}`}
                             >
@@ -644,10 +646,10 @@ export function MemberDashboard() {
                             </span>
                           </div>
                           {task.description && (
-                            <p className="text-sm text-slate-400 mb-2">{task.description}</p>
+                            <p className="text-sm text-muted-foreground mb-2">{task.description}</p>
                           )}
                           {task.due_date && (
-                            <p className="text-xs text-slate-500">
+                            <p className="text-xs text-muted-foreground">
                               Due: {new Date(task.due_date).toLocaleDateString()}
                             </p>
                           )}
@@ -659,7 +661,7 @@ export function MemberDashboard() {
                               handleTaskStatusUpdate(task.id, newStatus)
                             }
                           >
-                            <SelectTrigger className="w-[140px] bg-slate-700/50 border-slate-600/50 text-white text-xs">
+                            <SelectTrigger className="w-full sm:w-[140px] min-h-[44px] bg-muted border-border text-foreground text-xs flex-shrink-0">
                               <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
@@ -679,8 +681,8 @@ export function MemberDashboard() {
             <TabsContent value="messages" className="mt-4">
               {messages.length === 0 ? (
                 <div className="text-center py-12">
-                  <Mail className="h-12 w-12 text-slate-500 mx-auto mb-4" />
-                  <p className="text-slate-400">No messages</p>
+                  <Mail className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                  <p className="text-muted-foreground">No messages</p>
                 </div>
               ) : (
                 <div className="space-y-3">
@@ -689,24 +691,24 @@ export function MemberDashboard() {
                       key={msg.id}
                       className={`p-4 rounded-lg border ${
                         msg.is_read
-                          ? "bg-slate-800/30 border-slate-700/30"
-                          : "bg-slate-800/50 border-slate-700/50"
+                          ? "bg-muted/50 border-border"
+                          : "bg-muted border-border"
                       }`}
                     >
-                      <div className="flex items-start justify-between gap-4">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-3 flex-wrap mb-2">
-                            <h3 className="text-white font-medium">{msg.subject}</h3>
+                      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 sm:gap-3 flex-wrap mb-2">
+                            <h3 className="text-card-foreground font-medium">{msg.subject}</h3>
                             {!msg.is_read && (
                               <span className="px-2 py-1 rounded text-xs font-medium bg-blue-500/20 text-blue-300 border border-blue-500/50">
                                 New
                               </span>
                             )}
                           </div>
-                          <p className="text-sm text-slate-400 mb-2 whitespace-pre-wrap">
+                          <p className="text-sm text-muted-foreground mb-2 whitespace-pre-wrap break-words">
                             {msg.body}
                           </p>
-                          <p className="text-xs text-slate-500">
+                          <p className="text-xs text-muted-foreground">
                             From: {msg.sender?.full_name || msg.sender?.email || "Unknown"} •{" "}
                             {new Date(msg.created_at).toLocaleString()}
                           </p>
@@ -716,7 +718,7 @@ export function MemberDashboard() {
                             variant="outline"
                             size="sm"
                             onClick={() => handleMarkMessageAsRead(msg.id)}
-                            className="border-slate-700"
+                            className="border-border w-full sm:w-auto min-h-[44px] sm:min-h-0"
                           >
                             Mark as Read
                           </Button>
@@ -731,8 +733,8 @@ export function MemberDashboard() {
             <TabsContent value="duties" className="mt-4">
               {duties.length === 0 ? (
                 <div className="text-center py-12">
-                  <Calendar className="h-12 w-12 text-slate-500 mx-auto mb-4" />
-                  <p className="text-slate-400">No duties assigned</p>
+                  <Calendar className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                  <p className="text-muted-foreground">No duties assigned</p>
                 </div>
               ) : (
                 <div className="space-y-3">
@@ -747,20 +749,20 @@ export function MemberDashboard() {
                           isUpcoming
                             ? "bg-blue-500/10 border-blue-500/30"
                             : isPast
-                            ? "bg-slate-800/30 border-slate-700/30 opacity-75"
-                            : "bg-slate-800/50 border-slate-700/50"
+                            ? "bg-muted/50 border-border opacity-75"
+                            : "bg-muted border-border"
                         }`}
                       >
-                        <div className="flex items-start justify-between gap-4">
-                          <div className="flex-1">
-                            <div className="flex items-center gap-2 mb-1">
-                              <h3 className="text-white font-medium">
+                        <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
+                          <div className="flex-1 min-w-0">
+                            <div className="flex flex-wrap items-center gap-2 mb-1">
+                              <h3 className="text-card-foreground font-medium">
                                 {duty.duty_type.name}
                               </h3>
-                              <span className="text-slate-400">•</span>
-                              <span className="text-slate-300 text-sm">{duty.service.name}</span>
+                              <span className="text-muted-foreground hidden sm:inline">•</span>
+                              <span className="text-muted-foreground text-sm">{duty.service.name}</span>
                             </div>
-                            <p className="text-sm text-slate-400">
+                            <p className="text-sm text-muted-foreground">
                               <Calendar className="h-3 w-3 inline mr-1" />
                               {serviceDate.toLocaleDateString("en-GB", {
                                 weekday: "short",
@@ -769,17 +771,17 @@ export function MemberDashboard() {
                                 year: "numeric",
                               })}
                               {duty.service.time && (
-                                <span className="ml-2">at {duty.service.time}</span>
+                                <span className="ml-0 sm:ml-2">at {duty.service.time}</span>
                               )}
                             </p>
                             {duty.notes && (
-                              <p className="text-xs text-slate-500 mt-2 italic">
+                              <p className="text-xs text-muted-foreground mt-2 italic break-words">
                                 {duty.notes}
                               </p>
                             )}
                           </div>
                           <span
-                            className={`px-2 py-1 rounded text-xs font-medium border whitespace-nowrap ${getStatusColor(duty.status)}`}
+                            className={`px-2 py-1 rounded text-xs font-medium border whitespace-nowrap self-start ${getStatusColor(duty.status)}`}
                           >
                             {duty.status}
                           </span>
@@ -822,8 +824,8 @@ export function MemberDashboard() {
             <TabsContent value="followups" className="mt-4">
               {assignedNewcomers.length === 0 ? (
                 <div className="text-center py-12">
-                  <User className="h-12 w-12 text-slate-500 mx-auto mb-4" />
-                  <p className="text-slate-400">No follow-ups assigned</p>
+                  <User className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                  <p className="text-muted-foreground">No follow-ups assigned</p>
                 </div>
               ) : (
                 <div className="space-y-4">
@@ -846,7 +848,7 @@ export function MemberDashboard() {
                         className={`p-4 rounded-lg border ${
                           isOverdue 
                             ? "bg-red-500/10 border-red-500/30" 
-                            : "bg-slate-800/50 border-slate-700/50"
+                            : "bg-muted border-border"
                         }`}
                       >
                         <div className="space-y-4">
@@ -854,7 +856,7 @@ export function MemberDashboard() {
                           <div className="flex items-start justify-between">
                             <div className="flex-1">
                               <div className="flex items-center gap-2">
-                                <h3 className="text-white font-medium">{newcomer.full_name}</h3>
+                                <h3 className="text-card-foreground font-medium">{newcomer.full_name}</h3>
                                 {isOverdue && (
                                   <Badge className="bg-red-500/20 text-red-300 border-red-500/30 text-[10px]">
                                     Overdue
@@ -862,12 +864,12 @@ export function MemberDashboard() {
                                 )}
                               </div>
                               {newcomer.email && (
-                                <p className="text-sm text-slate-400 mt-1">{newcomer.email}</p>
+                                <p className="text-sm text-muted-foreground mt-1">{newcomer.email}</p>
                               )}
                               {newcomer.phone && (
-                                <p className="text-sm text-slate-400">{newcomer.phone}</p>
+                                <p className="text-sm text-muted-foreground">{newcomer.phone}</p>
                               )}
-                              <p className="text-xs text-slate-500 mt-2">
+                              <p className="text-xs text-muted-foreground mt-2">
                                 Added: {new Date(newcomer.created_at).toLocaleDateString()}
                                 {newcomer.followup_count && newcomer.followup_count > 0 && (
                                   <> • {newcomer.followup_count} follow-up{newcomer.followup_count !== 1 ? 's' : ''}</>
@@ -885,7 +887,7 @@ export function MemberDashboard() {
                                   variant="outline"
                                   size="sm"
                                   onClick={() => setEditingNewcomerId(newcomer.id)}
-                                  className="border-slate-700"
+                                  className="border-border"
                                 >
                                   <Edit className="h-3 w-3" />
                                 </Button>
@@ -902,7 +904,7 @@ export function MemberDashboard() {
                                     variant="outline"
                                     size="sm"
                                     onClick={() => window.location.href = `tel:${newcomer.phone?.replace(/\D/g, '')}`}
-                                    className="border-slate-700 text-xs"
+                                    className="border-border text-xs"
                                   >
                                     <Phone className="h-3 w-3 mr-1" />
                                     Call
@@ -917,7 +919,7 @@ export function MemberDashboard() {
                                       const phoneNumber = newcomer.phone?.replace(/\D/g, '');
                                       window.open(`https://wa.me/${phoneNumber}?text=${encodedMessage}`, "_blank");
                                     }}
-                                    className="border-slate-700 text-xs"
+                                    className="border-border text-xs"
                                   >
                                     <MessageCircle className="h-3 w-3 mr-1" />
                                     WhatsApp
@@ -929,7 +931,7 @@ export function MemberDashboard() {
                                   variant="outline"
                                   size="sm"
                                   onClick={() => window.location.href = `mailto:${newcomer.email}`}
-                                  className="border-slate-700 text-xs"
+                                  className="border-border text-xs"
                                 >
                                   <Mail className="h-3 w-3 mr-1" />
                                   Email
@@ -998,24 +1000,24 @@ export function MemberDashboard() {
                           ) : (
                             <>
                               <div className="flex items-center gap-2">
-                                <Label className="text-xs text-slate-400">Follow-up Status:</Label>
+                                <Label className="text-xs text-muted-foreground">Follow-up Status:</Label>
                                 <span className={`px-2 py-1 rounded text-xs font-medium border ${getFollowupStatusColor(followupStatus)}`}>
                                   {getFollowupStatusLabel(followupStatus)}
                                 </span>
                               </div>
                               {newcomer.followup_notes && (
-                                <div className="bg-slate-900/50 rounded p-3 border border-slate-700/50">
-                                  <Label className="text-xs text-slate-400 mb-1 block">Notes:</Label>
-                                  <p className="text-sm text-slate-300 whitespace-pre-wrap">{newcomer.followup_notes}</p>
+                                <div className="bg-muted rounded p-3 border border-border">
+                                  <Label className="text-xs text-muted-foreground mb-1 block">Notes:</Label>
+                                  <p className="text-sm text-muted-foreground whitespace-pre-wrap">{newcomer.followup_notes}</p>
                                 </div>
                               )}
                               {newcomer.last_followup_at && (
-                                <p className="text-xs text-slate-500">
+                                <p className="text-xs text-muted-foreground">
                                   Last follow-up: {new Date(newcomer.last_followup_at).toLocaleString()}
                                 </p>
                               )}
                               {newcomer.next_followup_date && (
-                                <p className="text-xs text-slate-500">
+                                <p className="text-xs text-muted-foreground">
                                   Next follow-up: {new Date(newcomer.next_followup_date).toLocaleDateString()}
                                 </p>
                               )}
@@ -1024,29 +1026,29 @@ export function MemberDashboard() {
 
                           {/* Follow-up History */}
                           {history.length > 0 && (
-                            <div className="mt-4 pt-4 border-t border-slate-700/50">
-                              <Label className="text-xs text-slate-400 mb-2 block">Follow-up History:</Label>
+                            <div className="mt-4 pt-4 border-t border-border">
+                              <Label className="text-xs text-muted-foreground mb-2 block">Follow-up History:</Label>
                               <div className="space-y-2">
                                 {history.slice(0, 3).map((entry) => (
-                                  <div key={entry.id} className="text-xs bg-slate-900/50 rounded p-2 border border-slate-700/30">
+                                  <div key={entry.id} className="text-xs bg-muted rounded p-2 border border-border">
                                     <div className="flex items-center justify-between mb-1">
                                       <span className={`px-1.5 py-0.5 rounded text-[10px] font-medium border ${getFollowupStatusColor(entry.status)}`}>
                                         {getFollowupStatusLabel(entry.status)}
                                       </span>
-                                      <span className="text-slate-500">
+                                      <span className="text-muted-foreground">
                                         {new Date(entry.created_at).toLocaleDateString()}
                                       </span>
                                     </div>
                                     {entry.contact_method && (
-                                      <p className="text-slate-400 text-[10px]">Method: {entry.contact_method}</p>
+                                      <p className="text-muted-foreground text-[10px]">Method: {entry.contact_method}</p>
                                     )}
                                     {entry.notes && (
-                                      <p className="text-slate-300 text-[10px] mt-1">{entry.notes}</p>
+                                      <p className="text-muted-foreground text-[10px] mt-1">{entry.notes}</p>
                                     )}
                                   </div>
                                 ))}
                                 {history.length > 3 && (
-                                  <p className="text-xs text-slate-500">+ {history.length - 3} more entries</p>
+                                  <p className="text-xs text-muted-foreground">+ {history.length - 3} more entries</p>
                                 )}
                               </div>
                             </div>
@@ -1081,11 +1083,11 @@ function FollowupEditor({
   const [nextDate, setNextDate] = useState<string>(newcomer.next_followup_date || "");
 
   return (
-    <div className="space-y-3 pt-3 border-t border-slate-700/50">
+    <div className="space-y-3 pt-3 border-t border-border">
       <div className="space-y-2">
-        <Label className="text-xs text-slate-300">Follow-up Status</Label>
+        <Label className="text-xs text-muted-foreground">Follow-up Status</Label>
         <Select value={status} onValueChange={setStatus}>
-          <SelectTrigger className="bg-slate-800/50 border-slate-700/50 text-white text-xs">
+          <SelectTrigger className="bg-muted border-border text-foreground text-xs">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -1099,9 +1101,9 @@ function FollowupEditor({
       </div>
 
       <div className="space-y-2">
-        <Label className="text-xs text-slate-300">Contact Method (Optional)</Label>
+        <Label className="text-xs text-muted-foreground">Contact Method (Optional)</Label>
         <Select value={contactMethod} onValueChange={setContactMethod}>
-          <SelectTrigger className="bg-slate-800/50 border-slate-700/50 text-white text-xs">
+          <SelectTrigger className="bg-muted border-border text-foreground text-xs">
             <SelectValue placeholder="Select method" />
           </SelectTrigger>
           <SelectContent>
@@ -1116,23 +1118,23 @@ function FollowupEditor({
       </div>
 
       <div className="space-y-2">
-        <Label className="text-xs text-slate-300">Notes</Label>
+        <Label className="text-xs text-muted-foreground">Notes</Label>
         <Textarea
           value={notes}
           onChange={(e) => setNotes(e.target.value)}
-          className="bg-slate-800/50 border-slate-700/50 text-white text-xs"
+          className="bg-muted border-border text-foreground text-xs"
           rows={3}
           placeholder="Add follow-up notes..."
         />
       </div>
 
       <div className="space-y-2">
-        <Label className="text-xs text-slate-300">Next Follow-up Date (Optional)</Label>
+        <Label className="text-xs text-muted-foreground">Next Follow-up Date (Optional)</Label>
         <Input
           type="date"
           value={nextDate}
           onChange={(e) => setNextDate(e.target.value)}
-          className="bg-slate-800/50 border-slate-700/50 text-white text-xs"
+          className="bg-muted border-border text-foreground text-xs"
         />
       </div>
 
@@ -1149,7 +1151,7 @@ function FollowupEditor({
           size="sm"
           variant="outline"
           onClick={onCancel}
-          className="border-slate-700 text-xs"
+          className="border-border text-xs"
         >
           <X className="h-3 w-3 mr-1" />
           Cancel

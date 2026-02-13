@@ -418,15 +418,15 @@ export function RotaGrid() {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="flex flex-wrap gap-4">
-            <div className="flex-1 min-w-[200px] space-y-2">
+          <div className="flex flex-col sm:flex-row flex-wrap gap-3 sm:gap-4">
+            <div className="flex-1 min-w-0 sm:min-w-[200px] space-y-2">
               <Label htmlFor="template" className="text-slate-300">
                 Template
               </Label>
               <Select value={selectedTemplateId} onValueChange={setSelectedTemplateId}>
                 <SelectTrigger
                   id="template"
-                  className="bg-slate-800/50 border-slate-700/50 text-white"
+                  className="bg-slate-800/50 border-slate-700/50 text-white min-h-[44px] w-full sm:w-auto"
                 >
                   <SelectValue placeholder="Select a template" />
                 </SelectTrigger>
@@ -440,7 +440,7 @@ export function RotaGrid() {
                 </SelectContent>
               </Select>
             </div>
-            <div className="flex-1 min-w-[150px] space-y-2">
+            <div className="flex-1 min-w-0 sm:min-w-[150px] space-y-2">
               <Label htmlFor="startDate" className="text-slate-300">
                 Start Date
               </Label>
@@ -449,10 +449,10 @@ export function RotaGrid() {
                 type="date"
                 value={startDate}
                 onChange={(e) => setStartDate(e.target.value)}
-                className="bg-slate-800/50 border-slate-700/50 text-white"
+                className="bg-slate-800/50 border-slate-700/50 text-white min-h-[44px]"
               />
             </div>
-            <div className="flex-1 min-w-[150px] space-y-2">
+            <div className="flex-1 min-w-0 sm:min-w-[150px] space-y-2">
               <Label htmlFor="endDate" className="text-slate-300">
                 End Date
               </Label>
@@ -461,7 +461,7 @@ export function RotaGrid() {
                 type="date"
                 value={endDate}
                 onChange={(e) => setEndDate(e.target.value)}
-                className="bg-slate-800/50 border-slate-700/50 text-white"
+                className="bg-slate-800/50 border-slate-700/50 text-white min-h-[44px]"
               />
             </div>
             <div className="flex items-end gap-2">
@@ -469,7 +469,7 @@ export function RotaGrid() {
                 variant="outline"
                 size="icon"
                 onClick={() => navigateDateRange(-4)}
-                className="border-slate-700 text-slate-300"
+                className="border-slate-700 text-slate-300 min-h-[44px] min-w-[44px]"
                 title="Previous 4 weeks"
               >
                 <ChevronLeft className="h-4 w-4" />
@@ -478,7 +478,7 @@ export function RotaGrid() {
                 variant="outline"
                 size="icon"
                 onClick={() => navigateDateRange(4)}
-                className="border-slate-700 text-slate-300"
+                className="border-slate-700 text-slate-300 min-h-[44px] min-w-[44px]"
                 title="Next 4 weeks"
               >
                 <ChevronRight className="h-4 w-4" />
@@ -565,7 +565,7 @@ export function RotaGrid() {
         </Card>
       ) : (
         <Card className="border-slate-800 bg-slate-900/50 print:border-0 print:shadow-none">
-          <CardContent className="pt-6 overflow-x-auto print:p-4">
+          <CardContent className="pt-4 sm:pt-6 overflow-x-auto print:p-4">
             <div className="hidden print:block mb-4">
               <h2 className="text-lg font-bold text-white">
                 {templates.find((t) => t.id === selectedTemplateId)?.name || "Service Rota"}
@@ -583,7 +583,7 @@ export function RotaGrid() {
                   {services.map((service) => (
                     <TableHead
                       key={service.id}
-                      className="text-slate-300 font-medium min-w-[120px] text-center"
+                      className="text-slate-300 font-medium min-w-[100px] sm:min-w-[120px] text-center text-xs sm:text-sm"
                     >
                       <div className="flex flex-col items-center gap-1">
                         <span className="text-xs">

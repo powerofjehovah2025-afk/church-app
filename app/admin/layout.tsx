@@ -31,6 +31,7 @@ import { QRCodeDisplay } from "@/components/qr-code-display";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 import { RCCGLogo, RCCGLogoIcon } from "@/components/rccg-logo";
+import { ThemeSwitcher } from "@/components/theme-switcher";
 
 export default function AdminLayout({
   children,
@@ -155,18 +156,18 @@ export default function AdminLayout({
 
   return (
     <div className="min-h-screen bg-background flex">
-      {/* Sidebar - Desktop */}
-      <aside className={`hidden lg:flex ${sidebarCollapsed ? 'w-16' : 'w-64'} flex-col border-r border-rccg-navy/30 bg-rccg-navy/20 backdrop-blur-md transition-all duration-300`}>
-        <div className={`flex h-16 items-center border-b border-rccg-navy/30 ${sidebarCollapsed ? 'justify-center px-2' : 'justify-between px-4'}`}>
+      {/* Sidebar - Desktop (theme-aware) */}
+      <aside className={`hidden lg:flex ${sidebarCollapsed ? 'w-16' : 'w-64'} flex-col border-r border-sidebar-border bg-sidebar backdrop-blur-md transition-all duration-300`}>
+        <div className={`flex h-16 items-center border-b border-sidebar-border ${sidebarCollapsed ? 'justify-center px-2' : 'justify-between px-4'}`}>
           {sidebarCollapsed ? (
-            <RCCGLogoIcon size={32} />
+            <RCCGLogoIcon size={32} className="text-sidebar-foreground" />
           ) : (
-            <RCCGLogo size={40} showText={true} className="flex-1" />
+            <RCCGLogo size={40} showText={true} className="flex-1 text-sidebar-foreground" />
           )}
           <button
             type="button"
             onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-            className={`flex items-center justify-center h-9 w-9 rounded-md text-white hover:bg-rccg-maroon/50 border border-rccg-navy/50 bg-rccg-navy/30 transition-colors ${sidebarCollapsed ? '' : 'ml-auto'}`}
+            className={`flex items-center justify-center h-9 w-9 rounded-md text-sidebar-foreground hover:bg-accent hover:text-accent-foreground border border-sidebar-border bg-muted/50 transition-colors ${sidebarCollapsed ? '' : 'ml-auto'}`}
             title={sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
             aria-label={sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
           >
@@ -188,8 +189,8 @@ export default function AdminLayout({
                 href={item.href}
                 className={`flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
                   isActive
-                    ? "bg-rccg-maroon text-white"
-                    : "text-slate-300 hover:bg-rccg-navy/30 hover:text-white"
+                    ? "bg-primary text-primary-foreground"
+                    : "text-sidebar-foreground hover:bg-accent hover:text-accent-foreground"
                 } ${sidebarCollapsed ? 'justify-center' : ''}`}
                 title={sidebarCollapsed ? item.name : undefined}
               >
@@ -201,13 +202,13 @@ export default function AdminLayout({
         </nav>
 
         {/* QR Code Generator Section */}
-        <div className="border-t border-rccg-navy/30 p-4">
+        <div className="border-t border-sidebar-border p-4">
           {hasMounted && (
             <Sheet open={qrSheetOpen} onOpenChange={setQrSheetOpen}>
               <SheetTrigger asChild>
                 <Button
                   variant="outline"
-                  className={`w-full ${sidebarCollapsed ? 'px-0 justify-center' : 'justify-start'} bg-rccg-navy/30 border-rccg-navy/50 hover:bg-rccg-maroon/50 text-white`}
+                  className={`w-full ${sidebarCollapsed ? 'px-0 justify-center' : 'justify-start'} border-sidebar-border bg-muted/50 hover:bg-accent hover:text-accent-foreground text-sidebar-foreground`}
                   title={sidebarCollapsed ? "QR Code Generator" : undefined}
                 >
                   <QrCode className={`h-5 w-5 ${sidebarCollapsed ? '' : 'mr-2'}`} />
@@ -216,10 +217,10 @@ export default function AdminLayout({
               </SheetTrigger>
               <SheetContent 
                 side="right" 
-                className="w-full sm:max-w-4xl bg-rccg-navy/95 backdrop-blur-md border-rccg-navy/50 overflow-y-auto"
+                className="w-full sm:max-w-4xl bg-card border-border overflow-y-auto"
               >
                 <SheetHeader>
-                  <SheetTitle className="text-white">Form QR Codes</SheetTitle>
+                  <SheetTitle className="text-card-foreground">Form QR Codes</SheetTitle>
                 </SheetHeader>
                 <div className="mt-6 flex flex-row flex-wrap gap-4 pb-6 justify-center items-start">
             <QRCodeDisplay 
@@ -238,12 +239,18 @@ export default function AdminLayout({
           )}
         </div>
 
-        {/* Logout Button */}
-        <div className="border-t border-rccg-navy/30 p-4">
+        {/* Theme + Logout */}
+        <div className="border-t border-sidebar-border p-4 space-y-2">
+          {!sidebarCollapsed && (
+            <div className="flex items-center justify-between gap-2">
+              <span className="text-xs text-sidebar-foreground opacity-80">Theme</span>
+              <ThemeSwitcher />
+            </div>
+          )}
           <Button
             onClick={handleLogout}
             variant="outline"
-            className={`w-full ${sidebarCollapsed ? 'px-0 justify-center' : 'justify-start'} bg-rccg-navy/30 border-rccg-navy/50 hover:bg-rccg-maroon/50 text-white`}
+            className={`w-full ${sidebarCollapsed ? 'px-0 justify-center' : 'justify-start'} border-sidebar-border bg-muted/50 hover:bg-accent hover:text-accent-foreground text-sidebar-foreground`}
             title={sidebarCollapsed ? "Logout" : undefined}
           >
             <LogOut className={`h-5 w-5 ${sidebarCollapsed ? '' : 'mr-2'}`} />
@@ -252,18 +259,18 @@ export default function AdminLayout({
         </div>
       </aside>
 
-      {/* Mobile Sidebar */}
+      {/* Mobile Sidebar (theme-aware) */}
       {hasMounted && (
         <Sheet open={sidebarOpen} onOpenChange={setSidebarOpen}>
           <SheetContent 
             side="left" 
-            className="w-64 bg-rccg-navy/95 backdrop-blur-md border-rccg-navy/50 p-0"
+            className="w-64 bg-sidebar border-sidebar-border p-0"
           >
-          <div className="flex h-16 items-center border-b border-rccg-navy/30 px-6">
-            <RCCGLogo size={40} showText={true} />
+          <div className="flex h-16 items-center border-b border-sidebar-border px-6">
+            <RCCGLogo size={40} showText={true} className="text-sidebar-foreground" />
           </div>
           
-          <nav className="flex-1 space-y-1 p-4">
+          <nav className="flex-1 space-y-1 p-4 overflow-y-auto">
             {navItems.map((item) => {
               const Icon = item.icon;
               const isActive = pathname === item.href;
@@ -272,27 +279,31 @@ export default function AdminLayout({
                   key={item.href}
                   href={item.href}
                   onClick={() => setSidebarOpen(false)}
-                  className={`flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
+                  className={`flex items-center gap-3 rounded-lg px-3 py-3 min-h-[44px] text-sm font-medium transition-colors ${
                     isActive
-                      ? "bg-rccg-maroon text-white"
-                      : "text-slate-300 hover:bg-rccg-navy/30 hover:text-white"
+                      ? "bg-primary text-primary-foreground"
+                      : "text-sidebar-foreground hover:bg-accent hover:text-accent-foreground"
                   }`}
                 >
-                  <Icon className="h-5 w-5" />
+                  <Icon className="h-5 w-5 flex-shrink-0" />
                   {item.name}
                 </Link>
               );
             })}
           </nav>
 
-          <div className="border-t border-rccg-navy/30 p-4 space-y-2">
+          <div className="border-t border-sidebar-border p-4 space-y-2">
+            <div className="flex items-center justify-between gap-2">
+              <span className="text-xs text-sidebar-foreground opacity-80">Theme</span>
+              <ThemeSwitcher />
+            </div>
             <Button
               variant="outline"
               onClick={() => {
                 setSidebarOpen(false);
                 setTimeout(() => setMobileQrSheetOpen(true), 300);
               }}
-              className="w-full justify-start bg-rccg-navy/30 border-rccg-navy/50 hover:bg-rccg-maroon/50 text-white"
+              className="w-full justify-start border-sidebar-border bg-muted/50 hover:bg-accent hover:text-accent-foreground text-sidebar-foreground"
             >
               <QrCode className="h-5 w-5 mr-2" />
               QR Code Generator
@@ -301,7 +312,7 @@ export default function AdminLayout({
             <Button
               onClick={handleLogout}
               variant="outline"
-              className="w-full justify-start bg-rccg-navy/30 border-rccg-navy/50 hover:bg-rccg-maroon/50 text-white"
+              className="w-full justify-start border-sidebar-border bg-muted/50 hover:bg-accent hover:text-accent-foreground text-sidebar-foreground"
             >
               <LogOut className="h-5 w-5 mr-2" />
               Logout
@@ -316,10 +327,10 @@ export default function AdminLayout({
         <Sheet open={mobileQrSheetOpen} onOpenChange={setMobileQrSheetOpen}>
         <SheetContent 
           side="right" 
-          className="w-full sm:max-w-4xl bg-rccg-navy/95 backdrop-blur-md border-rccg-navy/50 overflow-y-auto"
+          className="w-full sm:max-w-4xl bg-card border-border overflow-y-auto"
         >
           <SheetHeader>
-            <SheetTitle className="text-white">Form QR Codes</SheetTitle>
+            <SheetTitle className="text-card-foreground">Form QR Codes</SheetTitle>
           </SheetHeader>
           <div className="mt-6 flex flex-row flex-wrap gap-4 pb-6 justify-center items-start">
             <QRCodeDisplay 
@@ -339,27 +350,27 @@ export default function AdminLayout({
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col">
-        {/* Mobile Header */}
-        <header className="lg:hidden flex h-16 items-center border-b border-rccg-navy/30 px-4 bg-rccg-navy/20 backdrop-blur-md">
+        {/* Mobile Header (theme-aware) */}
+        <header className="lg:hidden flex h-14 sm:h-16 items-center border-b border-sidebar-border px-3 sm:px-4 bg-sidebar backdrop-blur-md">
           {hasMounted && (
             <Sheet open={sidebarOpen} onOpenChange={setSidebarOpen}>
               <SheetTrigger asChild>
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="text-white hover:bg-rccg-maroon/50"
+                  className="text-sidebar-foreground hover:bg-accent hover:text-accent-foreground"
                 >
                   <Menu className="h-6 w-6" />
                 </Button>
               </SheetTrigger>
             </Sheet>
           )}
-          <RCCGLogo size={36} showText={true} className="ml-2" />
+          <RCCGLogo size={36} showText={true} className="ml-2 text-sidebar-foreground" />
         </header>
 
         {/* Page Content */}
         <main className="flex-1 overflow-auto bg-background/60">
-          <div className="w-full mx-auto px-3 sm:px-4 md:px-6 lg:px-8 py-4 md:py-6">
+          <div className="w-full max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 py-4 md:py-6">
             {children}
           </div>
         </main>

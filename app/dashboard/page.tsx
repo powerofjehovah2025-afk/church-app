@@ -9,6 +9,7 @@ import { ProfileError } from "@/components/dashboard/profile-error";
 import { DevRoleSwitcher } from "@/components/dev-role-switcher";
 import { MemberDashboard } from "@/components/member/member-dashboard";
 import { RCCGLogo } from "@/components/rccg-logo";
+import { ThemeSwitcher } from "@/components/theme-switcher";
 
 async function getUserProfile() {
   const supabase = await createClient();
@@ -43,27 +44,26 @@ export default async function DashboardPage() {
   // Show error UI if profile fetch failed
   if (profileError && !profile) {
     return (
-      <div className="min-h-screen bg-[#0f172a] text-foreground">
-        <div className="mx-auto max-w-7xl p-6 pb-24">
-          <div className="mb-8 flex items-center justify-between">
+      <div className="min-h-screen bg-background text-foreground">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 py-6 pb-24">
+          <div className="mb-6 sm:mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <h1 className="text-4xl font-bold tracking-tight text-white bg-gradient-to-r from-white to-slate-300 bg-clip-text text-transparent">
+              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-foreground">
                 Dashboard
               </h1>
-              <p className="text-slate-400 mt-2 text-lg">
+              <p className="text-muted-foreground mt-1 sm:mt-2 text-sm sm:text-lg">
                 Your church dashboard
               </p>
             </div>
-            <form action={handleLogout}>
-              <Button
-                type="submit"
-                variant="outline"
-                className="bg-slate-800/50 border-slate-700/50 hover:bg-slate-700/50 text-white"
-              >
-                <LogOut className="h-4 w-4 mr-2" />
-                Logout
-              </Button>
-            </form>
+            <div className="flex items-center gap-2">
+              <ThemeSwitcher />
+              <form action={handleLogout}>
+                <Button type="submit" variant="outline" className="min-h-[44px]">
+                  <LogOut className="h-4 w-4 mr-2" />
+                  Logout
+                </Button>
+              </form>
+            </div>
           </div>
           <ProfileError error={profileError as Error} />
         </div>
@@ -73,30 +73,29 @@ export default async function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <div className="mx-auto max-w-7xl p-6 pb-24">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 py-6 pb-24">
         {/* Header */}
-        <div className="mb-8 flex items-center justify-between">
+        <div className="mb-6 sm:mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <div className="mb-3">
+            <div className="mb-2 sm:mb-3">
               <RCCGLogo size={40} showText={false} />
             </div>
-            <h1 className="text-4xl font-bold tracking-tight text-foreground bg-gradient-to-r from-foreground to-muted-foreground bg-clip-text text-transparent">
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-foreground bg-gradient-to-r from-foreground to-muted-foreground bg-clip-text text-transparent">
               Welcome, {(profile as { full_name?: string | null } | null)?.full_name || user.email?.split("@")[0] || "Member"}!
             </h1>
-            <p className="text-muted-foreground mt-2 text-lg">
+            <p className="text-muted-foreground mt-1 sm:mt-2 text-sm sm:text-lg">
               Your church dashboard
             </p>
           </div>
-          <form action={handleLogout}>
-            <Button
-              type="submit"
-              variant="outline"
-              className="bg-rccg-navy/30 border-rccg-navy/50 hover:bg-rccg-maroon/50 text-foreground"
-            >
-              <LogOut className="h-4 w-4 mr-2" />
-              Logout
-            </Button>
-          </form>
+          <div className="flex items-center gap-2">
+            <ThemeSwitcher />
+            <form action={handleLogout}>
+              <Button type="submit" variant="outline" className="min-h-[44px]">
+                <LogOut className="h-4 w-4 mr-2" />
+                Logout
+              </Button>
+            </form>
+          </div>
         </div>
 
         {/* My Follow-ups Section */}
@@ -110,77 +109,65 @@ export default async function DashboardPage() {
         </div>
 
         {/* Dashboard Cards */}
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-4 sm:gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
           {/* Upcoming Events */}
-          <Card className="bg-slate-900/40 backdrop-blur-md border-slate-700/50 shadow-xl">
+          <Card className="bg-card border-border shadow-xl">
             <CardHeader>
               <div className="flex items-center gap-2">
-                <Calendar className="h-5 w-5 text-blue-400" />
-                <CardTitle className="text-white">Upcoming Events</CardTitle>
+                <Calendar className="h-5 w-5 text-blue-500 dark:text-blue-400" />
+                <CardTitle className="text-card-foreground">Upcoming Events</CardTitle>
               </div>
-              <CardDescription className="text-slate-400">
+              <CardDescription className="text-muted-foreground">
                 View church events and services
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <p className="text-slate-300 text-sm mb-4">
+              <p className="text-muted-foreground text-sm mb-4">
                 Check out our upcoming events and services.
               </p>
-              <Button
-                variant="outline"
-                className="w-full bg-slate-800/50 border-slate-700/50 hover:bg-slate-700/50 text-white"
-                asChild
-              >
+              <Button variant="outline" className="w-full" asChild>
                 <Link href="/events">View Events</Link>
               </Button>
             </CardContent>
           </Card>
 
           {/* My Rota */}
-          <Card className="bg-slate-900/40 backdrop-blur-md border-slate-700/50 shadow-xl">
+          <Card className="bg-card border-border shadow-xl">
             <CardHeader>
               <div className="flex items-center gap-2">
-                <Users className="h-5 w-5 text-purple-400" />
-                <CardTitle className="text-white">My Rota</CardTitle>
+                <Users className="h-5 w-5 text-purple-500 dark:text-purple-400" />
+                <CardTitle className="text-card-foreground">My Rota</CardTitle>
               </div>
-              <CardDescription className="text-slate-400">
+              <CardDescription className="text-muted-foreground">
                 View your assigned shifts
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <p className="text-slate-300 text-sm mb-4">
+              <p className="text-muted-foreground text-sm mb-4">
                 See your upcoming rota assignments.
               </p>
-              <Button
-                variant="outline"
-                className="w-full bg-slate-800/50 border-slate-700/50 hover:bg-slate-700/50 text-white"
-                asChild
-              >
+              <Button variant="outline" className="w-full" asChild>
                 <Link href="/rota">View Rota</Link>
               </Button>
             </CardContent>
           </Card>
 
           {/* Notifications */}
-          <Card className="bg-slate-900/40 backdrop-blur-md border-slate-700/50 shadow-xl">
+          <Card className="bg-card border-border shadow-xl">
             <CardHeader>
               <div className="flex items-center gap-2">
-                <Bell className="h-5 w-5 text-amber-400" />
-                <CardTitle className="text-white">Notifications</CardTitle>
+                <Bell className="h-5 w-5 text-amber-500 dark:text-amber-400" />
+                <CardTitle className="text-card-foreground">Notifications</CardTitle>
               </div>
-              <CardDescription className="text-slate-400">
+              <CardDescription className="text-muted-foreground">
                 Stay updated with church news
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <p className="text-slate-300 text-sm mb-4">
+              <p className="text-muted-foreground text-sm mb-4">
                 You&apos;re all caught up!
               </p>
-              <Button
-                variant="outline"
-                className="w-full bg-slate-800/50 border-slate-700/50 hover:bg-slate-700/50 text-white"
-                disabled
-              >
+              <Button variant="outline" className="w-full" disabled>
                 No New Notifications
               </Button>
             </CardContent>
@@ -188,25 +175,25 @@ export default async function DashboardPage() {
         </div>
 
         {/* Profile Info */}
-        <Card className="mt-6 bg-slate-900/40 backdrop-blur-md border-slate-700/50 shadow-xl">
+        <Card className="mt-6 bg-card border-border shadow-xl">
           <CardHeader>
-            <CardTitle className="text-white">Profile Information</CardTitle>
-            <CardDescription className="text-slate-400">
+            <CardTitle className="text-card-foreground">Profile Information</CardTitle>
+            <CardDescription className="text-muted-foreground">
               Your account details
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div>
-              <p className="text-sm text-slate-400">Full Name</p>
-              <p className="text-white">{(profile as { full_name?: string | null } | null)?.full_name || "Not set"}</p>
+              <p className="text-sm text-muted-foreground">Full Name</p>
+              <p className="text-card-foreground">{(profile as { full_name?: string | null } | null)?.full_name || "Not set"}</p>
             </div>
             <div>
-              <p className="text-sm text-slate-400">Email</p>
-              <p className="text-white">{user.email}</p>
+              <p className="text-sm text-muted-foreground">Email</p>
+              <p className="text-card-foreground">{user.email}</p>
             </div>
             <div>
-              <p className="text-sm text-slate-400">Role</p>
-              <p className="text-white capitalize">{(profile as { role?: string | null } | null)?.role || "member"}</p>
+              <p className="text-sm text-muted-foreground">Role</p>
+              <p className="text-card-foreground capitalize">{(profile as { role?: string | null } | null)?.role || "member"}</p>
             </div>
             <DevRoleSwitcher
               email={user.email || ""}

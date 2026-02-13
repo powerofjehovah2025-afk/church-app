@@ -139,7 +139,7 @@ export function LoginForm({
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="bg-slate-800/50 border-slate-700/50 text-white placeholder:text-slate-500 focus:border-slate-500"
+                  className="bg-slate-800/50 border-slate-700/50 text-white placeholder:text-slate-500 focus:border-slate-500 min-h-[44px]"
                 />
               </div>
               <div className="grid gap-2">
@@ -158,13 +158,13 @@ export function LoginForm({
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="bg-slate-800/50 border-slate-700/50 text-white placeholder:text-slate-500 focus:border-slate-500"
+                  className="bg-slate-800/50 border-slate-700/50 text-white placeholder:text-slate-500 focus:border-slate-500 min-h-[44px]"
                 />
               </div>
               {error && <p className="text-sm text-[#ef4444]">{error}</p>}
               <Button 
                 type="submit" 
-                className="w-full bg-blue-600 hover:bg-blue-700 text-white shadow-lg shadow-blue-500/20" 
+                className="w-full min-h-[44px] bg-blue-600 hover:bg-blue-700 text-white shadow-lg shadow-blue-500/20" 
                 disabled={isLoading || isGoogleLoading}
               >
                 {isLoading ? "Logging in..." : "Login"}
@@ -184,7 +184,7 @@ export function LoginForm({
                 variant="outline"
                 onClick={handleGoogleLogin}
                 disabled={isLoading || isGoogleLoading}
-                className="w-full bg-white/5 border-slate-700/50 hover:bg-white/10 text-white"
+                className="w-full min-h-[44px] bg-white/5 border-slate-700/50 hover:bg-white/10 text-white"
               >
                 {isGoogleLoading ? (
                   <>

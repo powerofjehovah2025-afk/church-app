@@ -1,16 +1,16 @@
 "use client";
 
 import { useState } from "react";
-import { AssignmentsManager } from "@/components/admin/assignments-manager";
+import { RotaGrid } from "@/components/admin/rota-grid";
 import { ServicesManager } from "@/components/admin/services-manager";
 import { DutyTypesManager } from "@/components/admin/duty-types-manager";
 import { ServiceTemplatesManager } from "@/components/admin/service-templates-manager";
 import { RecurringPatternsManager } from "@/components/admin/recurring-patterns-manager";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Calendar, Users, Settings, FileText, Repeat } from "lucide-react";
+import { Calendar, Grid3x3, Settings, FileText, Repeat } from "lucide-react";
 
 export default function RotaPage() {
-  const [activeTab, setActiveTab] = useState("assignments");
+  const [activeTab, setActiveTab] = useState("rota");
 
   return (
     <div className="min-h-screen bg-[#0f172a] text-foreground">
@@ -27,11 +27,11 @@ export default function RotaPage() {
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="w-full flex flex-nowrap overflow-x-auto no-scrollbar bg-slate-900/50 border-slate-800">
             <TabsTrigger
-              value="assignments"
+              value="rota"
               className="data-[state=active]:bg-slate-800 text-xs sm:text-sm px-3 py-2 whitespace-nowrap"
             >
-              <Users className="mr-2 h-4 w-4" />
-              Assignments
+              <Grid3x3 className="mr-2 h-4 w-4" />
+              Rota
             </TabsTrigger>
             <TabsTrigger
               value="services"
@@ -63,8 +63,8 @@ export default function RotaPage() {
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="assignments" className="mt-6">
-            <AssignmentsManager />
+          <TabsContent value="rota" className="mt-6">
+            <RotaGrid />
           </TabsContent>
 
           <TabsContent value="services" className="mt-6">

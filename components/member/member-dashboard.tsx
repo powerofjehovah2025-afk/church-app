@@ -68,6 +68,7 @@ interface ServiceAssignment {
     name: string;
   };
   status: string;
+  notes: string | null;
 }
 
 interface AssignedNewcomer {
@@ -157,19 +158,25 @@ export function MemberDashboard() {
         .select(`
           id,
           status,
+          notes,
           service:services(id, date, name, time),
           duty_type:duty_types(id, name)
         `)
         .eq("member_id", user.id)
-        .order("created_at", { ascending: false })
-        .limit(10);
+        .order("created_at", { ascending: false });
 
       if (error) {
         console.error("Error fetching duties:", error);
         return;
       }
 
-      setDuties((data as ServiceAssignment[]) || []);
+      const dutiesData = (data as ServiceAssignment[]) || [];
+      dutiesData.sort((a, b) => {
+        const dateA = new Date(a.service.date).getTime();
+        const dateB = new Date(b.service.date).getTime();
+        return dateA - dateB;
+      });
+      setDuties(dutiesData);
     } catch (error) {
       console.error("Error fetching duties:", error);
     }
@@ -359,6 +366,7 @@ export function MemberDashboard() {
       completed: "bg-green-500/20 text-green-300 border-green-500/50",
       cancelled: "bg-red-500/20 text-red-300 border-red-500/50",
       confirmed: "bg-green-500/20 text-green-300 border-green-500/50",
+      scheduled: "bg-blue-500/20 text-blue-300 border-blue-500/50",
       declined: "bg-red-500/20 text-red-300 border-red-500/50",
     };
     return colors[status] || colors.pending;
@@ -728,29 +736,57 @@ export function MemberDashboard() {
                 </div>
               ) : (
                 <div className="space-y-3">
-                  {duties.map((duty) => (
-                    <div
-                      key={duty.id}
-                      className="p-4 rounded-lg bg-slate-800/50 border border-slate-700/50"
-                    >
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <h3 className="text-white font-medium">
-                            {duty.service.name} - {duty.duty_type.name}
-                          </h3>
-                          <p className="text-sm text-slate-400 mt-1">
-                            {new Date(duty.service.date).toLocaleDateString()}
-                            {duty.service.time && ` at ${duty.service.time}`}
-                          </p>
+                  {duties.map((duty) => {
+                    const serviceDate = new Date(duty.service.date);
+                    const isUpcoming = serviceDate >= new Date();
+                    const isPast = serviceDate < new Date();
+                    return (
+                      <div
+                        key={duty.id}
+                        className={`p-4 rounded-lg border ${
+                          isUpcoming
+                            ? "bg-blue-500/10 border-blue-500/30"
+                            : isPast
+                            ? "bg-slate-800/30 border-slate-700/30 opacity-75"
+                            : "bg-slate-800/50 border-slate-700/50"
+                        }`}
+                      >
+                        <div className="flex items-start justify-between gap-4">
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2 mb-1">
+                              <h3 className="text-white font-medium">
+                                {duty.duty_type.name}
+                              </h3>
+                              <span className="text-slate-400">•</span>
+                              <span className="text-slate-300 text-sm">{duty.service.name}</span>
+                            </div>
+                            <p className="text-sm text-slate-400">
+                              <Calendar className="h-3 w-3 inline mr-1" />
+                              {serviceDate.toLocaleDateString("en-GB", {
+                                weekday: "short",
+                                day: "numeric",
+                                month: "short",
+                                year: "numeric",
+                              })}
+                              {duty.service.time && (
+                                <span className="ml-2">at {duty.service.time}</span>
+                              )}
+                            </p>
+                            {duty.notes && (
+                              <p className="text-xs text-slate-500 mt-2 italic">
+                                {duty.notes}
+                              </p>
+                            )}
+                          </div>
+                          <span
+                            className={`px-2 py-1 rounded text-xs font-medium border whitespace-nowrap ${getStatusColor(duty.status)}`}
+                          >
+                            {duty.status}
+                          </span>
                         </div>
-                        <span
-                          className={`px-2 py-1 rounded text-xs font-medium border ${getStatusColor(duty.status)}`}
-                        >
-                          {duty.status}
-                        </span>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               )}
             </TabsContent>

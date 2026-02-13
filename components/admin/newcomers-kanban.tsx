@@ -848,11 +848,10 @@ export function NewcomersKanban({ initialData }: NewcomersKanbanProps) {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             user_id: userId,
-            type: "duty_reminder",
-            title: `New Follow-up Assignment: ${newcomerToAssign.full_name}`,
-            message: `You have been assigned to follow up with ${newcomerToAssign.full_name}. Please contact them within 48 hours.`,
-            link: "/dashboard",
-            is_read: false,
+            type: "followup",
+            title: "New follow-up assigned",
+            message: newcomerToAssign.full_name,
+            link: "/dashboard?tab=followups",
           }),
         });
       } catch (notifyError) {
@@ -1154,11 +1153,10 @@ export function NewcomersKanban({ initialData }: NewcomersKanbanProps) {
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({
                 user_id: assignedTo,
-                type: "duty_reminder",
-                title: `New Follow-up Assignment: ${newcomerName}`,
-                message: `You have been assigned to follow up with ${newcomerName}. Please contact them within 48 hours.`,
-                link: "/dashboard",
-                is_read: false,
+                type: "followup",
+                title: "New follow-up assigned",
+                message: newcomerName,
+                link: "/dashboard?tab=followups",
               }),
             });
           } catch (notifyError) {

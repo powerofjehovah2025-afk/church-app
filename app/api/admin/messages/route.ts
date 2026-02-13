@@ -93,7 +93,7 @@ export async function POST(request: NextRequest) {
       type: "message",
       title: `New message from ${message.sender?.full_name || message.sender?.email || "Admin"}`,
       message: subject,
-      link: `/dashboard/messages`,
+      link: "/dashboard?tab=messages",
     });
 
     return NextResponse.json({ message }, { status: 201 });

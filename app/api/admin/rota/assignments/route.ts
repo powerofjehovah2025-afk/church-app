@@ -274,6 +274,24 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    if (created?.member_id) {
+      const service = created.service as { name?: string } | null;
+      const dutyType = created.duty_type as { name?: string } | null;
+      const message = [service?.name, dutyType?.name].filter(Boolean).join(" – ") || "New duty";
+      await admin
+        .from("notifications")
+        .insert({
+          user_id: created.member_id,
+          type: "rota",
+          title: "New duty assigned",
+          message,
+          link: "/dashboard?tab=duties",
+        })
+        .then(({ error: notifyErr }) => {
+          if (notifyErr) console.error("Error creating rota notification:", notifyErr);
+        });
+    }
+
     return NextResponse.json({ assignment: created });
   } catch (err) {
     console.error("POST /api/admin/rota/assignments:", err);

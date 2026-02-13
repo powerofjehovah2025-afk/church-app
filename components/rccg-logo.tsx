@@ -39,14 +39,14 @@ export function RCCGLogo({
     <div className={cn("flex items-center gap-2", className)}>
       <RCCGLogoIcon size={size} />
       {showText && (
-        <div className="leading-tight">
-          <div className="text-xs font-semibold uppercase text-slate-200">
+        <div className="leading-tight text-inherit">
+          <div className="text-xs font-semibold uppercase opacity-90">
             RCCG
           </div>
-          <div className="text-sm font-bold text-white">
+          <div className="text-sm font-bold">
             Power of Jehovah Parish
           </div>
-          <div className="text-[0.65rem] text-slate-400">
+          <div className="text-[0.65rem] opacity-75">
             Essex Church Management
           </div>
         </div>

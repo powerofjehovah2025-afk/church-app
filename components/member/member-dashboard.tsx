@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
@@ -111,8 +112,28 @@ export function MemberDashboard() {
   const [announcements, setAnnouncements] = useState<Announcement[]>([]);
   const [, setUserRole] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState("tasks");
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const tabFromUrl = searchParams.get("tab");
+  const validTabIds = ["tasks", "messages", "duties", "calendar", "followups", "feedback", "attendance", "contributions", "profile", "prayer", "events"];
+  const [activeTabState, setActiveTabState] = useState("tasks");
+  const [replyingToMessageId, setReplyingToMessageId] = useState<string | null>(null);
+  const [replyBody, setReplyBody] = useState("");
+  const [isSendingReply, setIsSendingReply] = useState(false);
   const [unreadNotificationCount, setUnreadNotificationCount] = useState(0);
+  const activeTab = validTabIds.includes(tabFromUrl || "") ? tabFromUrl! : activeTabState;
+  const setActiveTab = useCallback((value: string) => {
+    setActiveTabState(value);
+    const url = new URL(window.location.href);
+    url.searchParams.set("tab", value);
+    router.replace(url.pathname + "?" + url.searchParams.toString(), { scroll: false });
+  }, [router]);
+
+  useEffect(() => {
+    if (tabFromUrl && validTabIds.includes(tabFromUrl)) {
+      setActiveTabState(tabFromUrl);
+    }
+  }, [tabFromUrl]);
 
   const fetchTasks = useCallback(async () => {
     try {
@@ -315,6 +336,21 @@ export function MemberDashboard() {
     loadData();
   }, [fetchTasks, fetchMessages, fetchDuties, fetchAssignedNewcomers, fetchAnnouncements, fetchNotifications]);
 
+  useEffect(() => {
+    const POLL_INTERVAL_MS = 75000;
+    const refresh = () => {
+      if (typeof document !== "undefined" && document.visibilityState === "hidden") return;
+      void fetchTasks();
+      void fetchMessages();
+      void fetchDuties();
+      void fetchAssignedNewcomers();
+      void fetchAnnouncements();
+      void fetchNotifications();
+    };
+    const id = setInterval(refresh, POLL_INTERVAL_MS);
+    return () => clearInterval(id);
+  }, [fetchTasks, fetchMessages, fetchDuties, fetchAssignedNewcomers, fetchAnnouncements, fetchNotifications]);
+
   const handleTaskStatusUpdate = async (taskId: string, newStatus: string) => {
     try {
       const response = await fetch(`/api/admin/tasks/${taskId}`, {
@@ -348,6 +384,31 @@ export function MemberDashboard() {
       }
     } catch (error) {
       console.error("Error marking message as read:", error);
+    }
+  };
+
+  const handleSendReply = async (messageId: string) => {
+    if (!replyBody.trim()) return;
+    setIsSendingReply(true);
+    try {
+      const response = await fetch("/api/member/messages/reply", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message_id: messageId, body: replyBody.trim() }),
+      });
+      if (response.ok) {
+        setReplyingToMessageId(null);
+        setReplyBody("");
+        await fetchMessages();
+      } else {
+        const data = await response.json().catch(() => ({}));
+        alert(data.error || "Failed to send reply");
+      }
+    } catch (error) {
+      console.error("Error sending reply:", error);
+      alert("Failed to send reply. Please try again.");
+    } finally {
+      setIsSendingReply(false);
     }
   };
 
@@ -713,17 +774,56 @@ export function MemberDashboard() {
                             {new Date(msg.created_at).toLocaleString()}
                           </p>
                         </div>
-                        {!msg.is_read && (
+                        <div className="flex flex-wrap gap-2">
+                          {!msg.is_read && (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => handleMarkMessageAsRead(msg.id)}
+                              className="border-border w-full sm:w-auto min-h-[44px] sm:min-h-0"
+                            >
+                              Mark as Read
+                            </Button>
+                          )}
                           <Button
                             variant="outline"
                             size="sm"
-                            onClick={() => handleMarkMessageAsRead(msg.id)}
+                            onClick={() => {
+                              setReplyingToMessageId(replyingToMessageId === msg.id ? null : msg.id);
+                              setReplyBody("");
+                            }}
                             className="border-border w-full sm:w-auto min-h-[44px] sm:min-h-0"
                           >
-                            Mark as Read
+                            {replyingToMessageId === msg.id ? "Cancel" : "Reply"}
                           </Button>
-                        )}
+                        </div>
                       </div>
+                      {replyingToMessageId === msg.id && (
+                        <div className="mt-3 pt-3 border-t border-border space-y-2">
+                          <Label htmlFor={`reply-${msg.id}`} className="text-xs text-muted-foreground">Your reply</Label>
+                          <Textarea
+                            id={`reply-${msg.id}`}
+                            value={replyBody}
+                            onChange={(e) => setReplyBody(e.target.value)}
+                            placeholder="Type your reply..."
+                            className="min-h-[80px] bg-muted border-border"
+                          />
+                          <Button
+                            size="sm"
+                            onClick={() => handleSendReply(msg.id)}
+                            disabled={!replyBody.trim() || isSendingReply}
+                          >
+                            {isSendingReply ? (
+                              <>
+                                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                                Sending...
+                              </>
+                            ) : (
+                              "Send Reply"
+                            )}
+                          </Button>
+                        </div>
+                      )}
                     </div>
                   ))}
                 </div>

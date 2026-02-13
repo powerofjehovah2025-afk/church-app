@@ -126,7 +126,7 @@ export default async function DashboardPage() {
                 Check out our upcoming events and services.
               </p>
               <Button variant="outline" className="w-full" asChild>
-                <Link href="/events">View Events</Link>
+                <Link href="/dashboard?tab=events">View Events</Link>
               </Button>
             </CardContent>
           </Card>
@@ -147,7 +147,7 @@ export default async function DashboardPage() {
                 See your upcoming rota assignments.
               </p>
               <Button variant="outline" className="w-full" asChild>
-                <Link href="/rota">View Rota</Link>
+                <Link href="/dashboard?tab=duties">View Rota</Link>
               </Button>
             </CardContent>
           </Card>
@@ -165,10 +165,10 @@ export default async function DashboardPage() {
             </CardHeader>
             <CardContent>
               <p className="text-muted-foreground text-sm mb-4">
-                You&apos;re all caught up!
+                View and manage your notifications
               </p>
-              <Button variant="outline" className="w-full" disabled>
-                No New Notifications
+              <Button variant="outline" className="w-full" asChild>
+                <Link href="/dashboard/notifications">View all notifications</Link>
               </Button>
             </CardContent>
           </Card>

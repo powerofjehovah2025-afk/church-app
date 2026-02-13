@@ -93,6 +93,19 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    if (task) {
+      const messagePreview = typeof task.title === "string" ? task.title.slice(0, 100) : "New task";
+      await admin.from("notifications").insert({
+        user_id: assigned_to,
+        type: "task",
+        title: "New task assigned",
+        message: messagePreview,
+        link: "/dashboard?tab=tasks",
+      }).then(({ error: notifyErr }) => {
+        if (notifyErr) console.error("Error creating task notification:", notifyErr);
+      });
+    }
+
     return NextResponse.json({ task }, { status: 201 });
   } catch (error) {
     console.error("Error in POST /api/admin/tasks:", error);

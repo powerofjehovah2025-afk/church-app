@@ -192,6 +192,10 @@ export default async function DashboardPage() {
               <p className="text-card-foreground">{user.email}</p>
             </div>
             <div>
+              <p className="text-sm text-muted-foreground">Phone</p>
+              <p className="text-card-foreground">{(profile as { phone?: string | null } | null)?.phone || "Not set"}</p>
+            </div>
+            <div>
               <p className="text-sm text-muted-foreground">Role</p>
               <p className="text-card-foreground capitalize">{(profile as { role?: string | null } | null)?.role || "member"}</p>
             </div>

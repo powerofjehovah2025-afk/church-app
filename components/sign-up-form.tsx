@@ -23,6 +23,7 @@ export function SignUpForm({
 }: React.ComponentPropsWithoutRef<"div">) {
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
   const [repeatPassword, setRepeatPassword] = useState("");
   const [invitationCode, setInvitationCode] = useState("");
@@ -138,6 +139,7 @@ export function SignUpForm({
           emailRedirectTo: `${window.location.origin}/auth/confirm`,
           data: {
             full_name: fullName,
+            phone: phone.trim() || null,
             invitation_code: invitationCode.trim().toUpperCase(),
             invitation_code_id: validationData.codeId,
           },
@@ -155,6 +157,7 @@ export function SignUpForm({
             id: authData.user.id,
             full_name: fullName,
             email: email,
+            phone: phone.trim() || null,
             role: "member", // Default role
           });
 
@@ -294,6 +297,17 @@ export function SignUpForm({
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
+                  className="bg-slate-800/50 border-slate-700/50 text-white placeholder:text-slate-500 focus:border-slate-500"
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="phone" className="text-slate-300">Phone number</Label>
+                <Input
+                  id="phone"
+                  type="tel"
+                  placeholder="e.g. 07xxx xxxxxx"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
                   className="bg-slate-800/50 border-slate-700/50 text-white placeholder:text-slate-500 focus:border-slate-500"
                 />
               </div>

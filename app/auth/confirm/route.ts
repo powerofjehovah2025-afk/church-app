@@ -84,7 +84,7 @@ export async function GET(request: NextRequest) {
         .maybeSingle();
 
       if (!existingProfile) {
-        // Create profile if it doesn't exist
+        // Create profile if it doesn't exist (metadata set at sign-up)
         const { error: profileError } = await supabase
           .from("profiles")
           // @ts-expect-error - Supabase type inference issue, but this works at runtime
@@ -92,6 +92,7 @@ export async function GET(request: NextRequest) {
             id: data.user.id,
             email: data.user.email || null,
             full_name: data.user.user_metadata?.full_name || null,
+            phone: data.user.user_metadata?.phone || null,
             role: "member", // Default role
           });
 

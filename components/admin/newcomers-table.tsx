@@ -38,6 +38,7 @@ import {
   Users,
   Clock,
   AlertCircle,
+  Trash2,
 } from "lucide-react";
 
 interface NewcomersTableProps {
@@ -202,6 +203,33 @@ export function NewcomersTable({ initialData }: NewcomersTableProps) {
       alert("Failed to update status. Please try again.");
     } finally {
       setUpdatingStatus(null);
+    }
+  };
+
+  const handleDelete = async (id: string, name: string) => {
+    if (!confirm(`Are you sure you want to delete ${name}? This action cannot be undone.`)) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/admin/newcomers/${id}`, {
+        method: "DELETE",
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || "Failed to delete newcomer");
+      }
+
+      setNewcomers((prev) => prev.filter((item) => item.id !== id));
+
+      if (selectedNewcomer?.id === id) {
+        setIsSheetOpen(false);
+        setSelectedNewcomer(null);
+      }
+    } catch (error) {
+      console.error("Error deleting newcomer:", error);
+      alert(error instanceof Error ? error.message : "Failed to delete newcomer");
     }
   };
 
@@ -495,6 +523,18 @@ export function NewcomersTable({ initialData }: NewcomersTableProps) {
                             ))}
                           </DropdownMenuContent>
                         </DropdownMenu>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDelete(newcomer.id, newcomer.full_name);
+                          }}
+                          className="h-8 w-8 p-0 border-red-700 hover:bg-red-900/20 text-red-400 hover:text-red-300"
+                          title="Delete"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
                       </div>
                     </TableCell>
                   </TableRow>

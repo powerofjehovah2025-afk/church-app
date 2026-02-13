@@ -21,7 +21,7 @@ import {
 } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Loader2, CheckCircle2, AlertCircle, MessageSquare, Star } from "lucide-react";
+import { Loader2, CheckCircle2, AlertCircle, MessageSquare, Star, Trash2 } from "lucide-react";
 import type { Feedback } from "@/types/database.types";
 
 interface FeedbackWithUser extends Feedback {
@@ -124,6 +124,42 @@ export function FeedbackManager() {
       setMessage({
         type: "error",
         text: error instanceof Error ? error.message : "Failed to update feedback",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleDelete = async (id: string) => {
+    if (!confirm("Are you sure you want to delete this feedback? This action cannot be undone.")) {
+      return;
+    }
+
+    setIsSubmitting(true);
+    setMessage(null);
+
+    try {
+      const response = await fetch(`/api/admin/feedback/${id}`, {
+        method: "DELETE",
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || "Failed to delete feedback");
+      }
+
+      setMessage({
+        type: "success",
+        text: "Feedback deleted successfully!",
+      });
+
+      handleCloseDialog();
+      fetchFeedback();
+    } catch (error) {
+      console.error("Error deleting feedback:", error);
+      setMessage({
+        type: "error",
+        text: error instanceof Error ? error.message : "Failed to delete feedback",
       });
     } finally {
       setIsSubmitting(false);
@@ -234,8 +270,8 @@ export function FeedbackManager() {
                   onClick={() => handleOpenDialog(item)}
                 >
                   <CardContent className="pt-6">
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-2">
                           <h3 className="font-medium text-white">{item.title}</h3>
                           <Badge className={getStatusColor(item.status)}>
@@ -261,6 +297,18 @@ export function FeedbackManager() {
                           </span>
                         </div>
                       </div>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDelete(item.id);
+                        }}
+                        className="shrink-0 text-red-400 hover:text-red-300 hover:bg-red-900/20"
+                        title="Delete feedback"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
                     </div>
                   </CardContent>
                 </Card>
@@ -349,7 +397,17 @@ export function FeedbackManager() {
             </div>
           )}
 
-          <DialogFooter>
+          <DialogFooter className="flex-wrap gap-2 sm:gap-0">
+            <Button
+              type="button"
+              variant="destructive"
+              onClick={() => selectedFeedback && handleDelete(selectedFeedback.id)}
+              disabled={isSubmitting}
+              className="bg-red-600 hover:bg-red-700 mr-auto"
+            >
+              <Trash2 className="mr-2 h-4 w-4" />
+              Delete
+            </Button>
             <Button
               type="button"
               variant="outline"

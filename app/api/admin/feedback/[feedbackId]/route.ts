@@ -6,6 +6,7 @@ import type { FeedbackUpdate } from "@/types/database.types";
 /**
  * GET: Get single feedback item (admin only)
  * PUT: Update feedback status/notes (admin only)
+ * DELETE: Delete feedback (admin only)
  */
 export async function GET(
   request: NextRequest,
@@ -32,7 +33,8 @@ export async function GET(
       .eq("id", user.id)
       .single();
 
-    if (profile?.role !== "admin") {
+    const role = profile && "role" in profile ? (profile as { role: string | null }).role : null;
+    if (role !== "admin") {
       return NextResponse.json(
         { error: "Forbidden. Admin access required." },
         { status: 403 }
@@ -72,6 +74,73 @@ export async function GET(
 }
 
 /**
+ * DELETE: Delete feedback (admin only)
+ */
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: Promise<{ feedbackId: string }> }
+) {
+  try {
+    const supabase = await createClient();
+    const {
+      data: { user },
+      error: userError,
+    } = await supabase.auth.getUser();
+
+    if (userError || !user) {
+      return NextResponse.json(
+        { error: "Unauthorized" },
+        { status: 401 }
+      );
+    }
+
+    // Verify user is admin
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("role")
+      .eq("id", user.id)
+      .single();
+
+    const role = profile && "role" in profile ? (profile as { role: string | null }).role : null;
+    if (role !== "admin") {
+      return NextResponse.json(
+        { error: "Forbidden. Admin access required." },
+        { status: 403 }
+      );
+    }
+
+    const { feedbackId } = await params;
+    const admin = createAdminClient();
+
+    const { error } = await admin
+      .from("feedback")
+      .delete()
+      .eq("id", feedbackId);
+
+    if (error) {
+      console.error("Error deleting feedback:", error);
+      return NextResponse.json(
+        { error: error.message || "Failed to delete feedback" },
+        { status: 500 }
+      );
+    }
+
+    return NextResponse.json({
+      success: true,
+      message: "Feedback deleted successfully",
+    });
+  } catch (error) {
+    console.error("Unexpected error:", error);
+    return NextResponse.json(
+      {
+        error: error instanceof Error ? error.message : "An unexpected error occurred",
+      },
+      { status: 500 }
+    );
+  }
+}
+
+/**
  * PUT: Update feedback (admin only)
  */
 export async function PUT(
@@ -99,7 +168,8 @@ export async function PUT(
       .eq("id", user.id)
       .single();
 
-    if (profile?.role !== "admin") {
+    const role = profile && "role" in profile ? (profile as { role: string | null }).role : null;
+    if (role !== "admin") {
       return NextResponse.json(
         { error: "Forbidden. Admin access required." },
         { status: 403 }
@@ -162,4 +232,3 @@ export async function PUT(
     );
   }
 }
-

@@ -34,8 +34,8 @@ export function Pagination({
       for (let i = 1; i <= totalPages; i++) pages.push(i);
     } else {
       pages.push(1);
-      let lo = Math.max(2, currentPage - 1);
-      let hi = Math.min(totalPages - 1, currentPage + 1);
+      const lo = Math.max(2, currentPage - 1);
+      const hi = Math.min(totalPages - 1, currentPage + 1);
       if (lo > 2) pages.push("ellipsis");
       for (let i = lo; i <= hi; i++) if (i !== 1 && i !== totalPages) pages.push(i);
       if (hi < totalPages - 1) pages.push("ellipsis");

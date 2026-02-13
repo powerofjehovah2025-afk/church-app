@@ -56,7 +56,7 @@ interface Member {
 
 export function RotaGrid() {
   const [templates, setTemplates] = useState<ServiceTemplate[]>([]);
-  const [selectedTemplateId, setSelectedTemplateId] = useState<string>("");
+  const [selectedTemplateId, setSelectedTemplateId] = useState<string>("__all__");
   const [dutyTypes, setDutyTypes] = useState<DutyType[]>([]);
   const [services, setServices] = useState<Service[]>([]);
   const [assignments, setAssignments] = useState<Assignment[]>([]);
@@ -96,7 +96,7 @@ export function RotaGrid() {
   }, []);
 
   const fetchDutyTypes = useCallback(async (templateId: string) => {
-    if (!templateId) {
+    if (!templateId || templateId === "__all__") {
       setDutyTypes([]);
       return;
     }
@@ -122,7 +122,7 @@ export function RotaGrid() {
       if (response.ok) {
         const data = await response.json();
         const svcs = (data.services || []).filter((s: Service) =>
-          selectedTemplateId
+          selectedTemplateId && selectedTemplateId !== "__all__"
             ? templates.find((t) => t.id === selectedTemplateId)?.name === s.name
             : true
         );
@@ -142,7 +142,7 @@ export function RotaGrid() {
         start_date: startDate,
         end_date: endDate,
       });
-      if (selectedTemplateId) {
+      if (selectedTemplateId && selectedTemplateId !== "__all__") {
         params.append("template_id", selectedTemplateId);
       }
       const response = await fetch(`/api/admin/rota/assignments?${params.toString()}`);
@@ -173,7 +173,7 @@ export function RotaGrid() {
   }, [fetchTemplates, fetchMembers]);
 
   useEffect(() => {
-    if (selectedTemplateId) {
+    if (selectedTemplateId && selectedTemplateId !== "__all__") {
       localStorage.setItem("rota_selected_template", selectedTemplateId);
       fetchDutyTypes(selectedTemplateId);
     } else {
@@ -254,7 +254,7 @@ export function RotaGrid() {
             duty_type_id: selectedCell.dutyTypeId,
             member_id: selectedMemberId,
             notes: notes || null,
-            template_id: selectedTemplateId || undefined,
+            template_id: selectedTemplateId && selectedTemplateId !== "__all__" ? selectedTemplateId : undefined,
           }),
         });
         if (!response.ok) {
@@ -431,7 +431,7 @@ export function RotaGrid() {
                   <SelectValue placeholder="Select a template" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">All Templates</SelectItem>
+                  <SelectItem value="__all__">All Templates</SelectItem>
                   {templates.map((template) => (
                     <SelectItem key={template.id} value={template.id}>
                       {template.name}
@@ -533,7 +533,7 @@ export function RotaGrid() {
         </Card>
       )}
 
-      {!selectedTemplateId ? (
+      {!selectedTemplateId || selectedTemplateId === "__all__" ? (
         <Card className="border-slate-800 bg-slate-900/50">
           <CardContent className="pt-6 text-center text-slate-400">
             <p>Please select a template to view the rota grid.</p>

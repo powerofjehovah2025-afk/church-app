@@ -53,7 +53,6 @@ export async function updateSession(request: NextRequest) {
     "/",
     "/welcome",
     "/membership",
-    "/newcomer",
   ];
 
   // Define auth routes (login/signup pages and OAuth callbacks)

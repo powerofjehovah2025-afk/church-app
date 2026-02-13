@@ -21,6 +21,7 @@ export function ProfileEditor() {
   const [, setProfile] = useState<Profile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+  const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
   const [newSkill, setNewSkill] = useState("");
   const [formData, setFormData] = useState({
     full_name: "",
@@ -59,6 +60,7 @@ export function ProfileEditor() {
   };
 
   const handleSave = async () => {
+    setMessage(null);
     setIsSaving(true);
     try {
       const response = await fetch("/api/member/profile", {
@@ -70,14 +72,15 @@ export function ProfileEditor() {
       if (response.ok) {
         const data = await response.json();
         setProfile(data.profile);
-        alert("Profile updated successfully!");
+        setMessage({ type: "success", text: "Profile updated successfully." });
+        setTimeout(() => setMessage(null), 5000);
       } else {
-        const error = await response.json();
-        alert(`Failed to update profile: ${error.error}`);
+        const err = await response.json();
+        setMessage({ type: "error", text: err.error || "Failed to update profile." });
       }
     } catch (error) {
       console.error("Error updating profile:", error);
-      alert("Failed to update profile");
+      setMessage({ type: "error", text: "Failed to update profile. Please try again." });
     } finally {
       setIsSaving(false);
     }
@@ -115,6 +118,18 @@ export function ProfileEditor() {
           <CardTitle className="text-white">Edit Profile</CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
+          {message && (
+            <div
+              role="alert"
+              className={`rounded-md px-3 py-2 text-sm ${
+                message.type === "success"
+                  ? "bg-green-500/20 text-green-300 border border-green-500/50"
+                  : "bg-red-500/20 text-red-300 border border-red-500/50"
+              }`}
+            >
+              {message.text}
+            </div>
+          )}
           {/* Basic Information */}
           <div className="space-y-4">
             <h3 className="text-white font-semibold">Basic Information</h3>

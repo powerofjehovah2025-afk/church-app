@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 
 export async function GET(
@@ -7,17 +8,16 @@ export async function GET(
 ) {
   try {
     const { requestId } = await params;
-    const admin = createAdminClient();
-    
-    // Get current user
-    const { data: { user } } = await admin.auth.getUser();
-    if (!user) {
+    const supabase = await createClient();
+    const { data: { user }, error: userError } = await supabase.auth.getUser();
+    if (userError || !user) {
       return NextResponse.json(
         { error: "Unauthorized" },
         { status: 401 }
       );
     }
 
+    const admin = createAdminClient();
     const { data: prayerRequest, error } = await admin
       .from("prayer_requests")
       .select(`
@@ -70,17 +70,16 @@ export async function PUT(
 ) {
   try {
     const { requestId } = await params;
-    const admin = createAdminClient();
-    
-    // Get current user
-    const { data: { user } } = await admin.auth.getUser();
-    if (!user) {
+    const supabase = await createClient();
+    const { data: { user }, error: userError } = await supabase.auth.getUser();
+    if (userError || !user) {
       return NextResponse.json(
         { error: "Unauthorized" },
         { status: 401 }
       );
     }
 
+    const admin = createAdminClient();
     const body = await request.json();
     const { title, request: requestText, priority, status } = body;
 
@@ -143,17 +142,16 @@ export async function DELETE(
 ) {
   try {
     const { requestId } = await params;
-    const admin = createAdminClient();
-    
-    // Get current user
-    const { data: { user } } = await admin.auth.getUser();
-    if (!user) {
+    const supabase = await createClient();
+    const { data: { user }, error: userError } = await supabase.auth.getUser();
+    if (userError || !user) {
       return NextResponse.json(
         { error: "Unauthorized" },
         { status: 401 }
       );
     }
 
+    const admin = createAdminClient();
     const { error } = await admin
       .from("prayer_requests")
       .delete()

@@ -1,19 +1,19 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
+import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 
 export async function GET() {
   try {
-    const admin = createAdminClient();
-    
-    // Get current user
-    const { data: { user } } = await admin.auth.getUser();
-    if (!user) {
+    const supabase = await createClient();
+    const { data: { user }, error: userError } = await supabase.auth.getUser();
+    if (userError || !user) {
       return NextResponse.json(
         { error: "Unauthorized" },
         { status: 401 }
       );
     }
 
+    const admin = createAdminClient();
     const { data: profile, error } = await admin
       .from("profiles")
       .select("*")
@@ -40,17 +40,16 @@ export async function GET() {
 
 export async function PUT(request: NextRequest) {
   try {
-    const admin = createAdminClient();
-    
-    // Get current user
-    const { data: { user } } = await admin.auth.getUser();
-    if (!user) {
+    const supabase = await createClient();
+    const { data: { user }, error: userError } = await supabase.auth.getUser();
+    if (userError || !user) {
       return NextResponse.json(
         { error: "Unauthorized" },
         { status: 401 }
       );
     }
 
+    const admin = createAdminClient();
     const body = await request.json();
     const { full_name, email, phone, skills, availability } = body;
 

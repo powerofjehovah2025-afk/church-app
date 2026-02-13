@@ -101,6 +101,8 @@ interface FollowupHistory {
   };
 }
 
+const VALID_TAB_IDS = ["tasks", "messages", "duties", "calendar", "followups", "feedback", "attendance", "contributions", "profile", "prayer", "events"];
+
 export function MemberDashboard() {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [messages, setMessages] = useState<Message[]>([]);
@@ -115,13 +117,12 @@ export function MemberDashboard() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const tabFromUrl = searchParams.get("tab");
-  const validTabIds = ["tasks", "messages", "duties", "calendar", "followups", "feedback", "attendance", "contributions", "profile", "prayer", "events"];
   const [activeTabState, setActiveTabState] = useState("tasks");
   const [replyingToMessageId, setReplyingToMessageId] = useState<string | null>(null);
   const [replyBody, setReplyBody] = useState("");
   const [isSendingReply, setIsSendingReply] = useState(false);
   const [unreadNotificationCount, setUnreadNotificationCount] = useState(0);
-  const activeTab = validTabIds.includes(tabFromUrl || "") ? tabFromUrl! : activeTabState;
+  const activeTab = VALID_TAB_IDS.includes(tabFromUrl || "") ? tabFromUrl! : activeTabState;
   const setActiveTab = useCallback((value: string) => {
     setActiveTabState(value);
     const url = new URL(window.location.href);
@@ -130,14 +131,14 @@ export function MemberDashboard() {
   }, [router]);
 
   useEffect(() => {
-    if (tabFromUrl && validTabIds.includes(tabFromUrl)) {
+    if (tabFromUrl && VALID_TAB_IDS.includes(tabFromUrl)) {
       setActiveTabState(tabFromUrl);
     }
   }, [tabFromUrl]);
 
   // When opening a tab via URL (e.g. "View Events" / "View Rota" links), scroll tabs into view
   useEffect(() => {
-    if (!tabFromUrl || !validTabIds.includes(tabFromUrl)) return;
+    if (!tabFromUrl || !VALID_TAB_IDS.includes(tabFromUrl)) return;
     const el = document.querySelector("[data-member-dashboard-tabs]");
     if (el) {
       const id = requestAnimationFrame(() => {

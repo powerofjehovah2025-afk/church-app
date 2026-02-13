@@ -8,7 +8,6 @@ import { MyFollowups } from "@/components/dashboard/my-followups";
 import { ProfileError } from "@/components/dashboard/profile-error";
 import { DevRoleSwitcher } from "@/components/dev-role-switcher";
 import { MemberDashboard } from "@/components/member/member-dashboard";
-import { RCCGLogo } from "@/components/rccg-logo";
 
 async function getUserProfile() {
   const supabase = await createClient();

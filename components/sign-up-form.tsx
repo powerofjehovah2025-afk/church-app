@@ -16,6 +16,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, useRef } from "react";
 import { Chrome } from "lucide-react";
+import { isValidPhoneWithCountryCode, PHONE_COUNTRY_CODE_HINT } from "@/lib/phone";
 
 export function SignUpForm({
   className,
@@ -126,6 +127,12 @@ export function SignUpForm({
 
     if (password.length < 6) {
       setError("Password must be at least 6 characters");
+      setIsLoading(false);
+      return;
+    }
+
+    if (phone.trim() && !isValidPhoneWithCountryCode(phone)) {
+      setError("Phone must include country code (e.g. +44 UK or +234 Nigeria) so we can reach you on WhatsApp.");
       setIsLoading(false);
       return;
     }
@@ -305,11 +312,12 @@ export function SignUpForm({
                 <Input
                   id="phone"
                   type="tel"
-                  placeholder="e.g. 07xxx xxxxxx"
+                  placeholder="e.g. +44 7xxx xxxxxx or +234 8xx xxx xxxx"
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
                   className="bg-slate-800/50 border-slate-700/50 text-white placeholder:text-slate-500 focus:border-slate-500"
                 />
+                <p className="text-xs text-slate-400">{PHONE_COUNTRY_CODE_HINT}</p>
               </div>
               <div className="grid gap-2">
                 <div className="flex items-center">

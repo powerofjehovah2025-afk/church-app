@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { isValidPhoneWithCountryCode, getPhoneValidationError } from "@/lib/phone";
 
 export async function GET() {
   try {
@@ -70,7 +71,15 @@ export async function PUT(request: NextRequest) {
       updateData.email = email;
     }
     if (phone !== undefined) {
-      updateData.phone = phone;
+      const trimmed = typeof phone === "string" ? phone.trim() : "";
+      if (trimmed && !isValidPhoneWithCountryCode(trimmed)) {
+        const err = getPhoneValidationError(trimmed);
+        return NextResponse.json(
+          { error: err || "Phone must include country code (e.g. +44 or +234)." },
+          { status: 400 }
+        );
+      }
+      updateData.phone = trimmed || null;
     }
     if (skills !== undefined) {
       updateData.skills = skills;

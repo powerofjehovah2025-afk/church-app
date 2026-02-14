@@ -16,6 +16,7 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Stepper } from "@/components/ui/stepper";
 import { CheckCircle2, ArrowLeft, ArrowRight } from "lucide-react";
+import { isValidPhoneWithCountryCode, PHONE_COUNTRY_CODE_HINT } from "@/lib/phone";
 
 const DEPARTMENTS = [
   "Choir",
@@ -230,6 +231,15 @@ export default function MembershipPage() {
       return;
     }
 
+    if (formData.phone?.trim() && !isValidPhoneWithCountryCode(formData.phone)) {
+      setError("Phone must include country code (e.g. +44 UK or +234 Nigeria) so we can reach you on WhatsApp.");
+      return;
+    }
+    if (formData.whatsapp?.trim() && !isValidPhoneWithCountryCode(formData.whatsapp)) {
+      setError("WhatsApp number must include country code (e.g. +44 UK or +234 Nigeria).");
+      return;
+    }
+
     const supabase = createClient();
     setIsLoading(true);
 
@@ -389,6 +399,7 @@ export default function MembershipPage() {
                 <Input
                   id="phone"
                   type="tel"
+                  placeholder="e.g. +44 7xxx or +234 8xx"
                   value={formData.phone}
                   onChange={(e) =>
                     setFormData({ ...formData, phone: e.target.value })
@@ -396,6 +407,7 @@ export default function MembershipPage() {
                   className="h-11"
                   disabled={isLoading}
                 />
+                <p className="text-xs text-muted-foreground">{PHONE_COUNTRY_CODE_HINT}</p>
               </div>
 
               <div className="space-y-2">
@@ -403,6 +415,7 @@ export default function MembershipPage() {
                 <Input
                   id="whatsapp"
                   type="tel"
+                  placeholder="e.g. +44 7xxx or +234 8xx"
                   value={formData.whatsapp}
                   onChange={(e) =>
                     setFormData({ ...formData, whatsapp: e.target.value })
@@ -410,6 +423,7 @@ export default function MembershipPage() {
                   className="h-11"
                   disabled={isLoading}
                 />
+                <p className="text-xs text-muted-foreground">{PHONE_COUNTRY_CODE_HINT}</p>
               </div>
             </div>
 

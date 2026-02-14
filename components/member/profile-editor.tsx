@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Loader2, Save, X, Plus } from "lucide-react";
+import { getPhoneValidationError, PHONE_COUNTRY_CODE_HINT } from "@/lib/phone";
 
 interface Profile {
   id: string;
@@ -61,6 +62,11 @@ export function ProfileEditor() {
 
   const handleSave = async () => {
     setMessage(null);
+    const phoneError = getPhoneValidationError(formData.phone);
+    if (phoneError) {
+      setMessage({ type: "error", text: phoneError });
+      return;
+    }
     setIsSaving(true);
     try {
       const response = await fetch("/api/member/profile", {
@@ -168,8 +174,9 @@ export function ProfileEditor() {
                   setFormData({ ...formData, phone: e.target.value })
                 }
                 className="bg-slate-800/50 border-slate-700/50 text-white"
-                placeholder="Enter your phone number"
+                placeholder="e.g. +44 7xxx or +234 8xx"
               />
+              <p className="text-xs text-slate-400">{PHONE_COUNTRY_CODE_HINT}</p>
             </div>
           </div>
 

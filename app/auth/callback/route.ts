@@ -1,4 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
+import { cookies } from "next/headers";
 import { NextResponse, type NextRequest } from "next/server";
 
 /**
@@ -91,19 +93,46 @@ export async function GET(request: NextRequest) {
       profile = existingProfile;
     }
 
-    // Create profile if it doesn't exist (RLS policies now allow this)
+    // New user: require valid invitation cookie before creating profile
+    let shouldClearInviteCookie = false;
     if (!profile) {
+      const cookieStore = await cookies();
+      const codeId = cookieStore.get("pending_invite_id")?.value?.trim();
+
+      if (!codeId) {
+        await supabase.auth.signOut();
+        const signUpUrl = new URL("/auth/sign-up", request.url);
+        signUpUrl.searchParams.set("error", "invitation_required");
+        return NextResponse.redirect(signUpUrl);
+      }
+
+      const admin = createAdminClient();
+      const { data: inviteRow, error: inviteError } = await admin
+        .from("invitation_codes")
+        .select("id")
+        .eq("id", codeId)
+        .eq("is_active", true)
+        .is("used_at", null)
+        .maybeSingle();
+
+      if (inviteError || !inviteRow) {
+        await supabase.auth.signOut();
+        const signUpUrl = new URL("/auth/sign-up", request.url);
+        signUpUrl.searchParams.set("error", "invalid_invitation");
+        return NextResponse.redirect(signUpUrl);
+      }
+
       // Extract name from user_metadata or email
-      const fullName = session.user.user_metadata?.full_name || 
+      const fullName = session.user.user_metadata?.full_name ||
                       session.user.user_metadata?.name ||
-                      session.user.email?.split("@")[0] || 
+                      session.user.email?.split("@")[0] ||
                       null;
 
       const profileData = {
         id: session.user.id,
         email: session.user.email || null,
         full_name: fullName,
-        role: "member", // Default role
+        role: "member",
       };
 
       const { data: newProfile, error: profileError } = await supabase
@@ -115,16 +144,14 @@ export async function GET(request: NextRequest) {
 
       if (profileError) {
         console.error("Error creating profile:", profileError);
-        
-        // Check if it's a duplicate key error (profile was created by another process/race condition)
+
         if (profileError.code === "23505") {
-          // Profile already exists, fetch it
           const { data: retryProfile } = await supabase
             .from("profiles")
             .select("id, role")
             .eq("id", session.user.id)
             .maybeSingle();
-          
+
           if (retryProfile) {
             profile = retryProfile;
           } else {
@@ -133,14 +160,12 @@ export async function GET(request: NextRequest) {
             return NextResponse.redirect(errorUrl);
           }
         } else {
-          // Other error - log details for debugging
           console.error("Profile creation error details:", {
             code: profileError.code,
             message: profileError.message,
             details: profileError.details,
             hint: profileError.hint,
           });
-          
           const errorUrl = new URL("/auth/error", request.url);
           errorUrl.searchParams.set("error", `Failed to create user profile: ${profileError.message || "Unknown error"}`);
           return NextResponse.redirect(errorUrl);
@@ -148,6 +173,17 @@ export async function GET(request: NextRequest) {
       } else if (newProfile) {
         profile = newProfile;
       }
+
+      // Mark invitation code as used
+      await admin
+        .from("invitation_codes")
+        .update({
+          used_at: new Date().toISOString(),
+          used_by: session.user.id,
+        })
+        .eq("id", codeId);
+
+      shouldClearInviteCookie = true;
     }
 
     // Ensure we have a profile at this point
@@ -168,7 +204,14 @@ export async function GET(request: NextRequest) {
 
     // Use NextResponse.redirect with absolute URL to avoid NEXT_REDIRECT error
     const redirectUrl = new URL(redirectPath, request.url);
-    return NextResponse.redirect(redirectUrl);
+    const response = NextResponse.redirect(redirectUrl);
+    if (shouldClearInviteCookie) {
+      const clearCookie =
+        "pending_invite_id=; Path=/; Max-Age=0; SameSite=Lax; HttpOnly" +
+        (process.env.NODE_ENV === "production" ? "; Secure" : "");
+      response.headers.set("Set-Cookie", clearCookie);
+    }
+    return response;
   } catch (error) {
     console.error("Unexpected error in OAuth callback:", error);
     const errorMessage = error instanceof Error ? error.message : "An unexpected error occurred";

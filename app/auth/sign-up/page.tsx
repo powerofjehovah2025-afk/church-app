@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { SignUpForm } from "@/components/sign-up-form";
 import { RCCGLogo } from "@/components/rccg-logo";
 
@@ -14,7 +15,9 @@ export default function Page() {
           </h1>
           <p className="text-slate-400 text-sm">Essex Church Management</p>
         </div>
-        <SignUpForm />
+        <Suspense fallback={<div className="h-64 bg-slate-900/40 rounded-lg animate-pulse" />}>
+          <SignUpForm />
+        </Suspense>
       </div>
     </div>
   );

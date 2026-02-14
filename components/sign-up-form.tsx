@@ -13,7 +13,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useState, useRef } from "react";
 import { Chrome } from "lucide-react";
 import { isValidPhoneWithCountryCode, PHONE_COUNTRY_CODE_HINT } from "@/lib/phone";
@@ -29,11 +29,15 @@ export function SignUpForm({
   const [repeatPassword, setRepeatPassword] = useState("");
   const [invitationCode, setInvitationCode] = useState("");
   const [codeValid, setCodeValid] = useState<boolean | null>(null);
+  const [validatedCodeId, setValidatedCodeId] = useState<string | null>(null);
+  const [codeValidated, setCodeValidated] = useState(false);
   const [validatingCode, setValidatingCode] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const redirectError = searchParams.get("error");
   const validationTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const validateInvitationCode = async (code: string) => {
@@ -54,8 +58,12 @@ export function SignUpForm({
       setCodeValid(data.valid);
       if (!data.valid) {
         setError(data.error || "Invalid invitation code");
+        setValidatedCodeId(null);
+        setCodeValidated(false);
       } else {
         setError(null);
+        setValidatedCodeId(data.codeId ?? null);
+        setCodeValidated(!!data.codeId);
       }
     } catch {
       setCodeValid(false);
@@ -70,7 +78,9 @@ export function SignUpForm({
     setInvitationCode(code);
     setError(null);
     setCodeValid(null);
-    
+    setValidatedCodeId(null);
+    setCodeValidated(false);
+
     // Clear any existing timeout
     if (validationTimeoutRef.current) {
       clearTimeout(validationTimeoutRef.current);
@@ -92,15 +102,14 @@ export function SignUpForm({
     setIsLoading(true);
     setError(null);
 
-    // Validate invitation code first
-    if (!invitationCode.trim()) {
-      setError("Invitation code is required");
+    if (!codeValidated || !validatedCodeId) {
+      setError("Please enter and validate your invitation code first");
       setIsLoading(false);
       return;
     }
 
-    if (codeValid === false) {
-      setError("Please enter a valid invitation code");
+    if (!invitationCode.trim()) {
+      setError("Invitation code is required");
       setIsLoading(false);
       return;
     }
@@ -198,30 +207,22 @@ export function SignUpForm({
   };
 
   const handleGoogleSignUp = async () => {
-    // For Google OAuth, we need an invitation code first
-    // Since OAuth redirects, we'll validate the code first
-    if (!invitationCode.trim()) {
-      setError("Please enter an invitation code before signing up with Google");
+    if (!codeValidated || !validatedCodeId) {
+      setError("Please enter and validate your invitation code first");
       return;
     }
 
-    // Validate code before proceeding
-    const validationResponse = await fetch("/api/invitation-codes/validate", {
+    const cookieRes = await fetch("/api/auth/set-invite-cookie", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ code: invitationCode.trim().toUpperCase() }),
+      body: JSON.stringify({ codeId: validatedCodeId }),
+      credentials: "include",
     });
 
-    const validationData = await validationResponse.json();
-    if (!validationData.valid) {
-      setError(validationData.error || "Invalid invitation code");
+    if (!cookieRes.ok) {
+      const data = await cookieRes.json().catch(() => ({}));
+      setError(data.error || "Invalid or already used invitation code");
       return;
-    }
-
-    // Store code in sessionStorage for use after OAuth redirect
-    if (typeof window !== "undefined") {
-      sessionStorage.setItem("pending_invitation_code", invitationCode.trim().toUpperCase());
-      sessionStorage.setItem("pending_invitation_code_id", validationData.codeId);
     }
 
     const supabase = createClient();
@@ -237,7 +238,6 @@ export function SignUpForm({
       });
 
       if (googleError) throw googleError;
-      // The redirect will happen automatically
     } catch (error: unknown) {
       setError(error instanceof Error ? error.message : "Failed to sign up with Google");
       setIsGoogleLoading(false);
@@ -249,32 +249,32 @@ export function SignUpForm({
       <Card className="bg-slate-900/40 backdrop-blur-md border-slate-700/50 shadow-xl">
         <CardHeader>
           <CardTitle className="text-2xl text-white">Sign up</CardTitle>
-          <CardDescription className="text-slate-400">Create a new account</CardDescription>
+          <CardDescription className="text-slate-400">
+            {codeValidated ? "Create a new account" : "Enter your invitation code to continue"}
+          </CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSignUp}>
+          {/* Step 1: Invitation code gate */}
+          {!codeValidated && (
             <div className="flex flex-col gap-6">
-              <div className="grid gap-2">
-                <Label htmlFor="fullName" className="text-slate-300">Full Name</Label>
-                <Input
-                  id="fullName"
-                  type="text"
-                  placeholder="John Doe"
-                  required
-                  value={fullName}
-                  onChange={(e) => setFullName(e.target.value)}
-                  className="bg-slate-800/50 border-slate-700/50 text-white placeholder:text-slate-500 focus:border-slate-500"
-                />
-              </div>
+              {redirectError === "invitation_required" && (
+                <p className="text-sm text-amber-400 bg-amber-500/10 border border-amber-500/30 rounded-md p-3">
+                  Please sign up using an invitation code. Enter your code below and try again.
+                </p>
+              )}
+              {redirectError === "invalid_invitation" && (
+                <p className="text-sm text-amber-400 bg-amber-500/10 border border-amber-500/30 rounded-md p-3">
+                  Invitation code invalid or already used. Please enter a valid code.
+                </p>
+              )}
               <div className="grid gap-2">
                 <Label htmlFor="invitationCode" className="text-slate-300">
-                  Invitation Code <span className="text-red-400">*</span>
+                  Enter your invitation code <span className="text-red-400">*</span>
                 </Label>
                 <Input
                   id="invitationCode"
                   type="text"
                   placeholder="Enter your invitation code"
-                  required
                   value={invitationCode}
                   onChange={handleCodeChange}
                   className={`bg-slate-800/50 border-slate-700/50 text-white placeholder:text-slate-500 focus:border-slate-500 ${
@@ -295,8 +295,44 @@ export function SignUpForm({
                   <p className="text-xs text-red-400">Invalid or expired code</p>
                 )}
               </div>
-              <div className="grid gap-2">
-                <Label htmlFor="email" className="text-slate-300">Email</Label>
+              {error && <p className="text-sm text-[#ef4444]">{error}</p>}
+              <p className="text-xs text-slate-400">
+                After entering a valid code, you can sign up with email or Google.
+              </p>
+            </div>
+          )}
+
+          {/* Step 2: Full sign-up form (only after valid code) */}
+          {codeValidated && (
+            <form onSubmit={handleSignUp}>
+              <div className="flex flex-col gap-6">
+                <div className="grid gap-2">
+                  <Label htmlFor="invitationCodeReadOnly" className="text-slate-300">
+                    Invitation code
+                  </Label>
+                  <Input
+                    id="invitationCodeReadOnly"
+                    type="text"
+                    value={invitationCode}
+                    readOnly
+                    className="bg-slate-800/50 border-slate-700/50 text-slate-400 border-green-500/50"
+                  />
+                  <p className="text-xs text-green-400">✓ Valid invitation code</p>
+                </div>
+                <div className="grid gap-2">
+                  <Label htmlFor="fullName" className="text-slate-300">Full Name</Label>
+                  <Input
+                    id="fullName"
+                    type="text"
+                    placeholder="John Doe"
+                    required
+                    value={fullName}
+                    onChange={(e) => setFullName(e.target.value)}
+                    className="bg-slate-800/50 border-slate-700/50 text-white placeholder:text-slate-500 focus:border-slate-500"
+                  />
+                </div>
+                <div className="grid gap-2">
+                  <Label htmlFor="email" className="text-slate-300">Email</Label>
                 <Input
                   id="email"
                   type="email"
@@ -383,13 +419,14 @@ export function SignUpForm({
                 )}
               </Button>
             </div>
-            <div className="mt-4 text-center text-sm text-slate-400">
-              Already have an account?{" "}
-              <Link href="/auth/login" className="text-slate-300 underline underline-offset-4 hover:text-white">
-                Login
-              </Link>
-            </div>
-          </form>
+              <div className="mt-4 text-center text-sm text-slate-400">
+                Already have an account?{" "}
+                <Link href="/auth/login" className="text-slate-300 underline underline-offset-4 hover:text-white">
+                  Login
+                </Link>
+              </div>
+            </form>
+          )}
         </CardContent>
       </Card>
     </div>

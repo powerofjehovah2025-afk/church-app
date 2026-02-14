@@ -267,10 +267,10 @@ export function NewcomersKanban({ initialData }: NewcomersKanbanProps) {
   // Sync initialData when it changes (e.g., from server-side fetch)
   useEffect(() => {
     if (initialData && initialData.length > 0) {
-      process.env.NODE_ENV === "development" && console.log(`Initial data received: ${initialData.length} newcomers`);
+      if (process.env.NODE_ENV === "development") { console.log(`Initial data received: ${initialData.length} newcomers`); }
       setNewcomers(initialData);
     } else {
-      process.env.NODE_ENV === "development" && console.log("Initial data is empty or undefined");
+      if (process.env.NODE_ENV === "development") { console.log("Initial data is empty or undefined"); }
     }
   }, [initialData]);
 
@@ -383,7 +383,7 @@ export function NewcomersKanban({ initialData }: NewcomersKanbanProps) {
     // Fetch function for real-time updates
     const fetchNewcomers = async () => {
       try {
-        process.env.NODE_ENV === "development" && console.log("🔄 Fetching newcomers from database...");
+        if (process.env.NODE_ENV === "development") { console.log("🔄 Fetching newcomers from database..."); }
         const { data, error } = await supabase
           .from("newcomers")
           .select("*, followup_status, followup_notes, last_followup_at, followup_count, next_followup_date, assigned_at")
@@ -396,12 +396,12 @@ export function NewcomersKanban({ initialData }: NewcomersKanbanProps) {
         }
 
         if (data) {
-          process.env.NODE_ENV === "development" && console.log(`✅ Fetched ${data.length} newcomers from database`);
+          if (process.env.NODE_ENV === "development") { console.log(`✅ Fetched ${data.length} newcomers from database`); }
           if (isMounted) {
             setNewcomers(data);
           }
         } else {
-          process.env.NODE_ENV === "development" && console.log("⚠️ No data returned from query");
+          if (process.env.NODE_ENV === "development") { console.log("⚠️ No data returned from query"); }
         }
       } catch (err) {
         console.error("❌ Error in fetchNewcomers:", err);
@@ -412,25 +412,25 @@ export function NewcomersKanban({ initialData }: NewcomersKanbanProps) {
     const handleRealtimeChange = (payload: { eventType: string; new?: unknown; old?: unknown }) => {
       if (!isMounted) return;
 
-      process.env.NODE_ENV === "development" && console.log(`📡 Real-time event received: ${payload.eventType}`, payload);
+      if (process.env.NODE_ENV === "development") { console.log(`📡 Real-time event received: ${payload.eventType}`, payload); }
 
       if (payload.eventType === 'INSERT') {
         const newRecord = payload.new as Newcomer;
-        process.env.NODE_ENV === "development" && console.log('🆕 New row inserted:', newRecord);
+        if (process.env.NODE_ENV === "development") { console.log('🆕 New row inserted:', newRecord); }
         setNewcomers((prev) => {
           // Check if record already exists to avoid duplicates
           if (!prev.find((n) => n.id === newRecord.id)) {
             const updated = [newRecord, ...prev].sort((a, b) => 
               new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
             );
-            process.env.NODE_ENV === "development" && console.log(`✅ Added new record. Total records: ${updated.length}`);
+            if (process.env.NODE_ENV === "development") { console.log(`✅ Added new record. Total records: ${updated.length}`); }
             return updated;
           }
           return prev;
         });
       } else if (payload.eventType === 'UPDATE') {
         const updatedRecord = payload.new as Newcomer;
-        process.env.NODE_ENV === "development" && console.log('🔄 Row updated:', updatedRecord);
+        if (process.env.NODE_ENV === "development") { console.log('🔄 Row updated:', updatedRecord); }
         setNewcomers((prev) =>
           prev.map((item) =>
             item.id === updatedRecord.id ? updatedRecord : item
@@ -444,7 +444,7 @@ export function NewcomersKanban({ initialData }: NewcomersKanbanProps) {
         }
       } else if (payload.eventType === 'DELETE') {
         const deletedRecordId = payload.old.id;
-        process.env.NODE_ENV === "development" && console.log('🗑️ Row deleted:', deletedRecordId);
+        if (process.env.NODE_ENV === "development") { console.log('🗑️ Row deleted:', deletedRecordId); }
         setNewcomers((prev) => prev.filter((item) => item.id !== deletedRecordId));
         // Close sheet if the deleted record is currently selected
         if (selectedNewcomerRef.current?.id === deletedRecordId) {
@@ -459,31 +459,31 @@ export function NewcomersKanban({ initialData }: NewcomersKanbanProps) {
     const setupRealtime = async () => {
       try {
         // Step 1: Check authentication
-        process.env.NODE_ENV === "development" && console.log("🔐 Checking authentication status...");
+        if (process.env.NODE_ENV === "development") { console.log("🔐 Checking authentication status..."); }
         const { data: { user }, error: authError } = await supabase.auth.getUser();
         
         if (authError) {
           console.error("❌ Authentication error:", authError);
-          process.env.NODE_ENV === "development" && console.warn("⚠️ User not authenticated, skipping real-time subscription");
+          if (process.env.NODE_ENV === "development") { console.warn("⚠️ User not authenticated, skipping real-time subscription"); }
           // Still fetch data, but don't subscribe
           await fetchNewcomers();
           return;
         }
 
         if (!user) {
-          process.env.NODE_ENV === "development" && console.warn("⚠️ User not authenticated, skipping real-time subscription");
+          if (process.env.NODE_ENV === "development") { console.warn("⚠️ User not authenticated, skipping real-time subscription"); }
           // Still fetch data, but don't subscribe
           await fetchNewcomers();
           return;
         }
 
-        process.env.NODE_ENV === "development" && console.log("✅ User authenticated:", user.email);
+        if (process.env.NODE_ENV === "development") { console.log("✅ User authenticated:", user.email); }
 
         // Step 2: Fetch initial data
         await fetchNewcomers();
 
         // Step 3: Set up real-time subscription (non-blocking)
-        process.env.NODE_ENV === "development" && console.log("📡 Setting up real-time subscription...");
+        if (process.env.NODE_ENV === "development") { console.log("📡 Setting up real-time subscription..."); }
         
         try {
           // Create a unique channel name to avoid conflicts
@@ -503,55 +503,55 @@ export function NewcomersKanban({ initialData }: NewcomersKanbanProps) {
             .subscribe(async (status, err) => {
               if (!isMounted) return;
 
-              process.env.NODE_ENV === "development" && console.log(`📡 Subscription status changed: ${status}`, err || '');
+              if (process.env.NODE_ENV === "development") { console.log(`📡 Subscription status changed: ${status}`, err || ''); }
 
               if (status === 'SUBSCRIBED') {
-                process.env.NODE_ENV === "development" && console.log('✅ Successfully subscribed to newcomers real-time changes');
+                if (process.env.NODE_ENV === "development") { console.log('✅ Successfully subscribed to newcomers real-time changes'); }
                 setIsRealtimeConnected(true);
                 
                 // Test the subscription by checking if we can receive events
-                process.env.NODE_ENV === "development" && console.log('🧪 Testing subscription...');
+                if (process.env.NODE_ENV === "development") { console.log('🧪 Testing subscription...'); }
                 // The subscription is working if we reach here
               } else if (status === 'CHANNEL_ERROR') {
                 // Don't throw - just log and continue
-                process.env.NODE_ENV === "development" && console.warn('⚠️ Real-time subscription error (non-critical)');
+                if (process.env.NODE_ENV === "development") { console.warn('⚠️ Real-time subscription error (non-critical)'); }
                 if (err) {
-                  process.env.NODE_ENV === "development" && console.warn('Error details:', err);
+                  if (process.env.NODE_ENV === "development") { console.warn('Error details:', err); }
                 }
-                process.env.NODE_ENV === "development" && console.warn('💡 Real-time updates disabled. Data will still load, but you may need to refresh to see new entries.');
-                process.env.NODE_ENV === "development" && console.warn('💡 To enable real-time:');
-                process.env.NODE_ENV === "development" && console.warn('   1. Go to Supabase Dashboard → Database → Replication');
-                process.env.NODE_ENV === "development" && console.warn('   2. Enable Realtime for "newcomers" table');
-                process.env.NODE_ENV === "development" && console.warn('   3. Or run: ALTER PUBLICATION supabase_realtime ADD TABLE newcomers;');
+                if (process.env.NODE_ENV === "development") { console.warn('💡 Real-time updates disabled. Data will still load, but you may need to refresh to see new entries.'); }
+                if (process.env.NODE_ENV === "development") { console.warn('💡 To enable real-time:'); }
+                if (process.env.NODE_ENV === "development") { console.warn('   1. Go to Supabase Dashboard → Database → Replication'); }
+                if (process.env.NODE_ENV === "development") { console.warn('   2. Enable Realtime for "newcomers" table'); }
+                if (process.env.NODE_ENV === "development") { console.warn('   3. Or run: ALTER PUBLICATION supabase_realtime ADD TABLE newcomers;'); }
                 setIsRealtimeConnected(false);
               } else if (status === 'TIMED_OUT') {
-                process.env.NODE_ENV === "development" && console.warn('⏱️ Real-time subscription timed out (non-critical)');
-                process.env.NODE_ENV === "development" && console.warn('💡 This usually means the table is not in the Realtime publication');
+                if (process.env.NODE_ENV === "development") { console.warn('⏱️ Real-time subscription timed out (non-critical)'); }
+                if (process.env.NODE_ENV === "development") { console.warn('💡 This usually means the table is not in the Realtime publication'); }
                 setIsRealtimeConnected(false);
               } else if (status === 'CLOSED') {
-                process.env.NODE_ENV === "development" && console.warn('🔒 Real-time subscription closed (non-critical)');
+                if (process.env.NODE_ENV === "development") { console.warn('🔒 Real-time subscription closed (non-critical)'); }
                 setIsRealtimeConnected(false);
               } else {
-                process.env.NODE_ENV === "development" && console.log('📡 Real-time subscription status:', status);
+                if (process.env.NODE_ENV === "development") { console.log('📡 Real-time subscription status:', status); }
                 setIsRealtimeConnected(status === 'SUBSCRIBED');
               }
             });
 
-          process.env.NODE_ENV === "development" && console.log("📡 Real-time subscription setup initiated with channel:", channelName);
+          if (process.env.NODE_ENV === "development") { console.log("📡 Real-time subscription setup initiated with channel:", channelName); }
           
           // Wait a moment to see if subscription succeeds
           await new Promise(resolve => setTimeout(resolve, 1000));
           
           // Check channel state
           if (channel && channel.state === 'joined') {
-            process.env.NODE_ENV === "development" && console.log('✅ Channel successfully joined');
+            if (process.env.NODE_ENV === "development") { console.log('✅ Channel successfully joined'); }
           } else if (channel) {
-            process.env.NODE_ENV === "development" && console.warn('⚠️ Channel state:', channel.state);
+            if (process.env.NODE_ENV === "development") { console.warn('⚠️ Channel state:', channel.state); }
           }
         } catch (realtimeError) {
           // Don't let real-time errors break the app
-          process.env.NODE_ENV === "development" && console.warn('⚠️ Real-time subscription failed (non-critical):', realtimeError);
-          process.env.NODE_ENV === "development" && console.warn('💡 App will continue to work, but real-time updates are disabled');
+          if (process.env.NODE_ENV === "development") { console.warn('⚠️ Real-time subscription failed (non-critical):', realtimeError); }
+          if (process.env.NODE_ENV === "development") { console.warn('💡 App will continue to work, but real-time updates are disabled'); }
           setIsRealtimeConnected(false);
         }
 
@@ -568,12 +568,12 @@ export function NewcomersKanban({ initialData }: NewcomersKanbanProps) {
 
     // Cleanup function
     return () => {
-      process.env.NODE_ENV === "development" && console.log('🧹 Cleaning up real-time subscription');
+      if (process.env.NODE_ENV === "development") { console.log('🧹 Cleaning up real-time subscription'); }
       isMounted = false;
       setIsRealtimeConnected(false);
       if (channel) {
         supabase.removeChannel(channel);
-        process.env.NODE_ENV === "development" && console.log('✅ Real-time subscription cleaned up');
+        if (process.env.NODE_ENV === "development") { console.log('✅ Real-time subscription cleaned up'); }
       }
     };
   }, []); // Empty dependency array - subscription should only be set up once

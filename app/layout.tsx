@@ -9,8 +9,8 @@ const defaultUrl = process.env.VERCEL_URL
 
 export const metadata: Metadata = {
   metadataBase: new URL(defaultUrl),
-  title: "Next.js and Supabase Starter Kit",
-  description: "The fastest way to build apps with Next.js and Supabase",
+  title: "Church Management System",
+  description: "Streamline church operations, volunteer management, and newcomer follow-up",
 };
 
 // Use system font stack as fallback when Google Fonts are unavailable

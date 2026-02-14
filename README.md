@@ -196,6 +196,12 @@ NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
 ```
 
+Optional (for full functionality):
+
+- **`RESEND_API_KEY`** – [Resend](https://resend.com) API key for sending follow-up assignment and reminder emails. If unset, in-app notifications only; no emails are sent.
+- **`RESEND_FROM_EMAIL`** – From address for emails (e.g. `Church <notifications@yourdomain.com>`). Defaults to Resend’s onboarding address when not set.
+- **`CRON_SECRET`** – Secret for protecting cron endpoints (`/api/cron/followup-reminders`, `/api/cron/generate-services`). In production, set this and send `Authorization: Bearer <CRON_SECRET>` when calling these endpoints.
+
 ## 🧪 Available Scripts
 
 - `npm run dev` - Start development server

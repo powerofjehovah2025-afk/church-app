@@ -267,10 +267,10 @@ export function NewcomersKanban({ initialData }: NewcomersKanbanProps) {
   // Sync initialData when it changes (e.g., from server-side fetch)
   useEffect(() => {
     if (initialData && initialData.length > 0) {
-      console.log(`Initial data received: ${initialData.length} newcomers`);
+      process.env.NODE_ENV === "development" && console.log(`Initial data received: ${initialData.length} newcomers`);
       setNewcomers(initialData);
     } else {
-      console.log("Initial data is empty or undefined");
+      process.env.NODE_ENV === "development" && console.log("Initial data is empty or undefined");
     }
   }, [initialData]);
 
@@ -383,7 +383,7 @@ export function NewcomersKanban({ initialData }: NewcomersKanbanProps) {
     // Fetch function for real-time updates
     const fetchNewcomers = async () => {
       try {
-        console.log("🔄 Fetching newcomers from database...");
+        process.env.NODE_ENV === "development" && console.log("🔄 Fetching newcomers from database...");
         const { data, error } = await supabase
           .from("newcomers")
           .select("*, followup_status, followup_notes, last_followup_at, followup_count, next_followup_date, assigned_at")
@@ -396,12 +396,12 @@ export function NewcomersKanban({ initialData }: NewcomersKanbanProps) {
         }
 
         if (data) {
-          console.log(`✅ Fetched ${data.length} newcomers from database`);
+          process.env.NODE_ENV === "development" && console.log(`✅ Fetched ${data.length} newcomers from database`);
           if (isMounted) {
             setNewcomers(data);
           }
         } else {
-          console.log("⚠️ No data returned from query");
+          process.env.NODE_ENV === "development" && console.log("⚠️ No data returned from query");
         }
       } catch (err) {
         console.error("❌ Error in fetchNewcomers:", err);
@@ -412,25 +412,25 @@ export function NewcomersKanban({ initialData }: NewcomersKanbanProps) {
     const handleRealtimeChange = (payload: { eventType: string; new?: unknown; old?: unknown }) => {
       if (!isMounted) return;
 
-      console.log(`📡 Real-time event received: ${payload.eventType}`, payload);
+      process.env.NODE_ENV === "development" && console.log(`📡 Real-time event received: ${payload.eventType}`, payload);
 
       if (payload.eventType === 'INSERT') {
         const newRecord = payload.new as Newcomer;
-        console.log('🆕 New row inserted:', newRecord);
+        process.env.NODE_ENV === "development" && console.log('🆕 New row inserted:', newRecord);
         setNewcomers((prev) => {
           // Check if record already exists to avoid duplicates
           if (!prev.find((n) => n.id === newRecord.id)) {
             const updated = [newRecord, ...prev].sort((a, b) => 
               new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
             );
-            console.log(`✅ Added new record. Total records: ${updated.length}`);
+            process.env.NODE_ENV === "development" && console.log(`✅ Added new record. Total records: ${updated.length}`);
             return updated;
           }
           return prev;
         });
       } else if (payload.eventType === 'UPDATE') {
         const updatedRecord = payload.new as Newcomer;
-        console.log('🔄 Row updated:', updatedRecord);
+        process.env.NODE_ENV === "development" && console.log('🔄 Row updated:', updatedRecord);
         setNewcomers((prev) =>
           prev.map((item) =>
             item.id === updatedRecord.id ? updatedRecord : item
@@ -444,7 +444,7 @@ export function NewcomersKanban({ initialData }: NewcomersKanbanProps) {
         }
       } else if (payload.eventType === 'DELETE') {
         const deletedRecordId = payload.old.id;
-        console.log('🗑️ Row deleted:', deletedRecordId);
+        process.env.NODE_ENV === "development" && console.log('🗑️ Row deleted:', deletedRecordId);
         setNewcomers((prev) => prev.filter((item) => item.id !== deletedRecordId));
         // Close sheet if the deleted record is currently selected
         if (selectedNewcomerRef.current?.id === deletedRecordId) {
@@ -459,31 +459,31 @@ export function NewcomersKanban({ initialData }: NewcomersKanbanProps) {
     const setupRealtime = async () => {
       try {
         // Step 1: Check authentication
-        console.log("🔐 Checking authentication status...");
+        process.env.NODE_ENV === "development" && console.log("🔐 Checking authentication status...");
         const { data: { user }, error: authError } = await supabase.auth.getUser();
         
         if (authError) {
           console.error("❌ Authentication error:", authError);
-          console.warn("⚠️ User not authenticated, skipping real-time subscription");
+          process.env.NODE_ENV === "development" && console.warn("⚠️ User not authenticated, skipping real-time subscription");
           // Still fetch data, but don't subscribe
           await fetchNewcomers();
           return;
         }
 
         if (!user) {
-          console.warn("⚠️ User not authenticated, skipping real-time subscription");
+          process.env.NODE_ENV === "development" && console.warn("⚠️ User not authenticated, skipping real-time subscription");
           // Still fetch data, but don't subscribe
           await fetchNewcomers();
           return;
         }
 
-        console.log("✅ User authenticated:", user.email);
+        process.env.NODE_ENV === "development" && console.log("✅ User authenticated:", user.email);
 
         // Step 2: Fetch initial data
         await fetchNewcomers();
 
         // Step 3: Set up real-time subscription (non-blocking)
-        console.log("📡 Setting up real-time subscription...");
+        process.env.NODE_ENV === "development" && console.log("📡 Setting up real-time subscription...");
         
         try {
           // Create a unique channel name to avoid conflicts
@@ -503,55 +503,55 @@ export function NewcomersKanban({ initialData }: NewcomersKanbanProps) {
             .subscribe(async (status, err) => {
               if (!isMounted) return;
 
-              console.log(`📡 Subscription status changed: ${status}`, err || '');
+              process.env.NODE_ENV === "development" && console.log(`📡 Subscription status changed: ${status}`, err || '');
 
               if (status === 'SUBSCRIBED') {
-                console.log('✅ Successfully subscribed to newcomers real-time changes');
+                process.env.NODE_ENV === "development" && console.log('✅ Successfully subscribed to newcomers real-time changes');
                 setIsRealtimeConnected(true);
                 
                 // Test the subscription by checking if we can receive events
-                console.log('🧪 Testing subscription...');
+                process.env.NODE_ENV === "development" && console.log('🧪 Testing subscription...');
                 // The subscription is working if we reach here
               } else if (status === 'CHANNEL_ERROR') {
                 // Don't throw - just log and continue
-                console.warn('⚠️ Real-time subscription error (non-critical)');
+                process.env.NODE_ENV === "development" && console.warn('⚠️ Real-time subscription error (non-critical)');
                 if (err) {
-                  console.warn('Error details:', err);
+                  process.env.NODE_ENV === "development" && console.warn('Error details:', err);
                 }
-                console.warn('💡 Real-time updates disabled. Data will still load, but you may need to refresh to see new entries.');
-                console.warn('💡 To enable real-time:');
-                console.warn('   1. Go to Supabase Dashboard → Database → Replication');
-                console.warn('   2. Enable Realtime for "newcomers" table');
-                console.warn('   3. Or run: ALTER PUBLICATION supabase_realtime ADD TABLE newcomers;');
+                process.env.NODE_ENV === "development" && console.warn('💡 Real-time updates disabled. Data will still load, but you may need to refresh to see new entries.');
+                process.env.NODE_ENV === "development" && console.warn('💡 To enable real-time:');
+                process.env.NODE_ENV === "development" && console.warn('   1. Go to Supabase Dashboard → Database → Replication');
+                process.env.NODE_ENV === "development" && console.warn('   2. Enable Realtime for "newcomers" table');
+                process.env.NODE_ENV === "development" && console.warn('   3. Or run: ALTER PUBLICATION supabase_realtime ADD TABLE newcomers;');
                 setIsRealtimeConnected(false);
               } else if (status === 'TIMED_OUT') {
-                console.warn('⏱️ Real-time subscription timed out (non-critical)');
-                console.warn('💡 This usually means the table is not in the Realtime publication');
+                process.env.NODE_ENV === "development" && console.warn('⏱️ Real-time subscription timed out (non-critical)');
+                process.env.NODE_ENV === "development" && console.warn('💡 This usually means the table is not in the Realtime publication');
                 setIsRealtimeConnected(false);
               } else if (status === 'CLOSED') {
-                console.warn('🔒 Real-time subscription closed (non-critical)');
+                process.env.NODE_ENV === "development" && console.warn('🔒 Real-time subscription closed (non-critical)');
                 setIsRealtimeConnected(false);
               } else {
-                console.log('📡 Real-time subscription status:', status);
+                process.env.NODE_ENV === "development" && console.log('📡 Real-time subscription status:', status);
                 setIsRealtimeConnected(status === 'SUBSCRIBED');
               }
             });
 
-          console.log("📡 Real-time subscription setup initiated with channel:", channelName);
+          process.env.NODE_ENV === "development" && console.log("📡 Real-time subscription setup initiated with channel:", channelName);
           
           // Wait a moment to see if subscription succeeds
           await new Promise(resolve => setTimeout(resolve, 1000));
           
           // Check channel state
           if (channel && channel.state === 'joined') {
-            console.log('✅ Channel successfully joined');
+            process.env.NODE_ENV === "development" && console.log('✅ Channel successfully joined');
           } else if (channel) {
-            console.warn('⚠️ Channel state:', channel.state);
+            process.env.NODE_ENV === "development" && console.warn('⚠️ Channel state:', channel.state);
           }
         } catch (realtimeError) {
           // Don't let real-time errors break the app
-          console.warn('⚠️ Real-time subscription failed (non-critical):', realtimeError);
-          console.warn('💡 App will continue to work, but real-time updates are disabled');
+          process.env.NODE_ENV === "development" && console.warn('⚠️ Real-time subscription failed (non-critical):', realtimeError);
+          process.env.NODE_ENV === "development" && console.warn('💡 App will continue to work, but real-time updates are disabled');
           setIsRealtimeConnected(false);
         }
 
@@ -568,12 +568,12 @@ export function NewcomersKanban({ initialData }: NewcomersKanbanProps) {
 
     // Cleanup function
     return () => {
-      console.log('🧹 Cleaning up real-time subscription');
+      process.env.NODE_ENV === "development" && console.log('🧹 Cleaning up real-time subscription');
       isMounted = false;
       setIsRealtimeConnected(false);
       if (channel) {
         supabase.removeChannel(channel);
-        console.log('✅ Real-time subscription cleaned up');
+        process.env.NODE_ENV === "development" && console.log('✅ Real-time subscription cleaned up');
       }
     };
   }, []); // Empty dependency array - subscription should only be set up once

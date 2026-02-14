@@ -1,8 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { requireAuthMemberOrAdmin } from "@/lib/auth/require-auth";
 
 export async function GET(request: NextRequest) {
   try {
+    const auth = await requireAuthMemberOrAdmin({
+      request,
+      allowedParam: "assigned_to",
+      paramRequiredForMember: true,
+    });
+    if (auth instanceof NextResponse) return auth;
+
     const admin = createAdminClient();
     const { searchParams } = new URL(request.url);
     const assignedTo = searchParams.get("assigned_to");

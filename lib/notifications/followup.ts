@@ -1,6 +1,7 @@
 import { createAdminClient } from "@/lib/supabase/admin";
 import { generateFollowupAssignmentEmail } from "@/lib/emails/followup-assignment";
 import { generateFollowupReminderEmail } from "@/lib/emails/followup-reminder";
+import { sendEmail } from "@/lib/emails/send";
 
 /**
  * Send follow-up assignment notification
@@ -35,7 +36,7 @@ export async function sendFollowupAssignmentNotification(data: {
       console.error("Error creating notification:", notifyError);
     }
 
-    // Generate email content (ready for email service integration)
+    // Send email when staff has an email address (uses Resend when RESEND_API_KEY is set)
     if (data.staffEmail) {
       const emailContent = generateFollowupAssignmentEmail({
         staffName: data.staffName || data.staffEmail,
@@ -44,19 +45,11 @@ export async function sendFollowupAssignmentNotification(data: {
         newcomerPhone: data.newcomerPhone,
         dashboardUrl,
       });
-
-      // TODO: Integrate with email service (e.g., Resend, SendGrid, etc.)
-      // Example:
-      // await sendEmail({
-      //   to: data.staffEmail,
-      //   subject: emailContent.subject,
-      //   html: emailContent.html,
-      //   text: emailContent.text,
-      // });
-
-      console.log("Email notification ready:", {
+      await sendEmail({
         to: data.staffEmail,
         subject: emailContent.subject,
+        html: emailContent.html,
+        text: emailContent.text,
       });
     }
 
@@ -100,7 +93,7 @@ export async function sendFollowupReminderNotification(data: {
       console.error("Error creating notification:", notifyError);
     }
 
-    // Generate email content (ready for email service integration)
+    // Send email when staff has an email address (uses Resend when RESEND_API_KEY is set)
     if (data.staffEmail) {
       const emailContent = generateFollowupReminderEmail({
         staffName: data.staffName || data.staffEmail,
@@ -110,19 +103,11 @@ export async function sendFollowupReminderNotification(data: {
         daysOverdue: data.daysOverdue,
         dashboardUrl,
       });
-
-      // TODO: Integrate with email service (e.g., Resend, SendGrid, etc.)
-      // Example:
-      // await sendEmail({
-      //   to: data.staffEmail,
-      //   subject: emailContent.subject,
-      //   html: emailContent.html,
-      //   text: emailContent.text,
-      // });
-
-      console.log("Email reminder ready:", {
+      await sendEmail({
         to: data.staffEmail,
         subject: emailContent.subject,
+        html: emailContent.html,
+        text: emailContent.text,
       });
     }
 

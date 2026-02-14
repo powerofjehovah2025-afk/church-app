@@ -1,13 +1,40 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { getAuthUser } from "@/lib/auth/require-auth";
 
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ newcomerId: string }> }
 ) {
   try {
+    const auth = await getAuthUser();
+    if (!auth) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     const { newcomerId } = await params;
     const admin = createAdminClient();
+
+    // Non-admins may only view follow-up for newcomers assigned to them
+    if (auth.role !== "admin") {
+      const { data: newcomer, error: newcomerErr } = await admin
+        .from("newcomers")
+        .select("assigned_to")
+        .eq("id", newcomerId)
+        .single();
+      if (newcomerErr || !newcomer) {
+        return NextResponse.json(
+          { error: "Failed to fetch newcomer" },
+          { status: 500 }
+        );
+      }
+      if ((newcomer as { assigned_to: string | null }).assigned_to !== auth.user.id) {
+        return NextResponse.json(
+          { error: "Forbidden. You may only view follow-up for newcomers assigned to you." },
+          { status: 403 }
+        );
+      }
+    }
 
     // Get follow-up history
     const { data: history, error: historyError } = await admin
@@ -78,13 +105,35 @@ export async function PUT(
       );
     }
 
-    // Get current user (staff member making the update)
-    const { data: { user } } = await admin.auth.getUser();
-    if (!user) {
+    // Get current user (staff member making the update) via server client
+    const auth = await getAuthUser();
+    if (!auth) {
       return NextResponse.json(
         { error: "Unauthorized" },
         { status: 401 }
       );
+    }
+    const user = auth.user;
+
+    // Non-admins may only update follow-up for newcomers assigned to them
+    if (auth.role !== "admin") {
+      const { data: newcomer, error: newcomerErr } = await admin
+        .from("newcomers")
+        .select("assigned_to")
+        .eq("id", newcomerId)
+        .single();
+      if (newcomerErr || !newcomer) {
+        return NextResponse.json(
+          { error: "Failed to fetch newcomer" },
+          { status: 500 }
+        );
+      }
+      if ((newcomer as { assigned_to: string | null }).assigned_to !== user.id) {
+        return NextResponse.json(
+          { error: "Forbidden. You may only update follow-up for newcomers assigned to you." },
+          { status: 403 }
+        );
+      }
     }
 
     // Update newcomer follow-up fields

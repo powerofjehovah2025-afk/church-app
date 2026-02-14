@@ -3,11 +3,14 @@ import { createAdminClient } from "@/lib/supabase/admin";
 
 export async function GET(request: NextRequest) {
   try {
-    // Verify this is a cron job request (optional: add auth header check)
     const authHeader = request.headers.get("authorization");
     const cronSecret = process.env.CRON_SECRET;
 
-    // Optional: Add secret for security
+    // In production, CRON_SECRET must be set
+    if (process.env.NODE_ENV === "production" && !cronSecret) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+    // When secret is set, require correct Bearer token
     if (cronSecret && authHeader !== `Bearer ${cronSecret}`) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }

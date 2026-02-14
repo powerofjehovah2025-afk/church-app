@@ -1,8 +1,12 @@
 import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { requireAdmin } from "@/lib/auth/require-auth";
 
 export async function GET() {
   try {
+    const auth = await requireAdmin();
+    if (auth instanceof NextResponse) return auth;
+
     const admin = createAdminClient();
 
     // Get all staff members (excluding regular members)

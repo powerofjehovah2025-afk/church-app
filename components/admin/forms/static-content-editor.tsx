@@ -70,8 +70,14 @@ export function StaticContentEditor({
       });
 
       if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.error || "Failed to save content");
+        const text = await response.text();
+        let data: { error?: string } = {};
+        try {
+          data = text ? JSON.parse(text) : {};
+        } catch {
+          // non-JSON response (e.g. 404 page)
+        }
+        throw new Error(data.error || `Failed to save content (${response.status})`);
       }
 
       setMessage({ type: "success", text: "Content saved successfully" });

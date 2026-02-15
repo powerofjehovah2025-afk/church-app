@@ -7,7 +7,22 @@ import { DutyTypesManager } from "@/components/admin/duty-types-manager";
 import { ServiceTemplatesManager } from "@/components/admin/service-templates-manager";
 import { RecurringPatternsManager } from "@/components/admin/recurring-patterns-manager";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Calendar, Grid3x3, Settings, FileText, Repeat } from "lucide-react";
+
+const TAB_OPTIONS = [
+  { value: "rota", label: "Rota" },
+  { value: "services", label: "Services" },
+  { value: "duty-types", label: "Duty Types" },
+  { value: "templates", label: "Templates" },
+  { value: "recurring", label: "Recurring" },
+] as const;
 
 export default function RotaPage() {
   const [activeTab, setActiveTab] = useState("rota");
@@ -25,7 +40,24 @@ export default function RotaPage() {
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full min-w-0">
-          <TabsList className="w-full min-w-0 flex flex-nowrap overflow-x-auto no-scrollbar bg-slate-900/50 border-slate-800 px-1 py-1 -mx-1 sm:mx-0 sm:px-2">
+          {/* Mobile: dropdown so all tabs (Rota, Recurring, etc.) are visible */}
+          <div className="md:hidden w-full">
+            <Select value={activeTab} onValueChange={setActiveTab}>
+              <SelectTrigger className="w-full min-h-[44px] bg-slate-900/50 border-slate-700 text-white">
+                <SelectValue placeholder="Choose section" />
+              </SelectTrigger>
+              <SelectContent>
+                {TAB_OPTIONS.map((opt) => (
+                  <SelectItem key={opt.value} value={opt.value} className="min-h-[44px]">
+                    {opt.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Desktop: horizontal tabs */}
+          <TabsList className="mt-0 hidden md:flex w-full min-w-0 flex-nowrap overflow-x-auto no-scrollbar bg-slate-900/50 border-slate-800 px-1 py-1 sm:px-2">
             <TabsTrigger
               value="rota"
               className="data-[state=active]:bg-slate-800 text-xs sm:text-sm px-3 py-2 whitespace-nowrap"

@@ -272,11 +272,11 @@ export function UserManagement() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="min-w-0 space-y-6">
       {/* Search Bar */}
-      <Card className="bg-slate-900/40 backdrop-blur-md border-slate-700/50 shadow-xl">
-        <CardContent className="pt-6">
-          <div className="relative">
+      <Card className="min-w-0 bg-slate-900/40 backdrop-blur-md border-slate-700/50 shadow-xl">
+        <CardContent className="min-w-0 pt-6">
+          <div className="relative min-w-0">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-slate-400" />
             <Input
               type="text"
@@ -290,13 +290,13 @@ export function UserManagement() {
       </Card>
 
       {/* Roles (read-only) */}
-      <Card className="bg-slate-900/40 backdrop-blur-md border-slate-700/50 shadow-xl">
-        <CardHeader>
-          <div className="flex items-center gap-2">
-            <Shield className="h-5 w-5 text-slate-400" />
-            <div>
+      <Card className="min-w-0 bg-slate-900/40 backdrop-blur-md border-slate-700/50 shadow-xl">
+        <CardHeader className="min-w-0">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+            <Shield className="h-5 w-5 shrink-0 text-slate-400" />
+            <div className="min-w-0">
               <CardTitle className="text-white">Roles</CardTitle>
-              <CardDescription className="text-slate-400">
+              <CardDescription className="text-slate-400 text-pretty break-words">
                 Assign a role to each user below. Admin can manage the app; member has standard access.
               </CardDescription>
             </div>
@@ -355,12 +355,12 @@ export function UserManagement() {
       )}
 
       {/* Users List */}
-      <Card className="bg-slate-900/40 backdrop-blur-md border-slate-700/50 shadow-xl">
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <div>
+      <Card className="min-w-0 bg-slate-900/40 backdrop-blur-md border-slate-700/50 shadow-xl">
+        <CardHeader className="min-w-0">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+            <div className="min-w-0">
               <CardTitle className="text-white">Users</CardTitle>
-              <CardDescription className="text-slate-400">
+              <CardDescription className="text-slate-400 text-pretty break-words">
                 Total users: {totalFiltered}. Change role with the dropdown.
               </CardDescription>
             </div>

@@ -413,7 +413,7 @@ export function RotaGrid() {
       <Card className="min-w-0 border-slate-800 bg-slate-900/50 print:hidden">
         <CardHeader className="min-w-0">
           <CardTitle className="text-white">Service Rota</CardTitle>
-          <CardDescription className="text-slate-400 text-pretty">
+          <CardDescription className="text-slate-400 text-pretty break-words">
             Assign members to duties for each service. Tap a cell to assign or update.
           </CardDescription>
         </CardHeader>

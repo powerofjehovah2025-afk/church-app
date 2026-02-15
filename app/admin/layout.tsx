@@ -348,8 +348,8 @@ export default function AdminLayout({
         </Sheet>
       )}
 
-      {/* Main Content */}
-      <div className="flex-1 flex flex-col">
+      {/* Main Content - min-w-0 so column shrinks to viewport and content can scroll */}
+      <div className="flex min-w-0 flex-1 flex-col">
         {/* Mobile Header (theme-aware) */}
         <header className="lg:hidden flex h-14 sm:h-16 items-center gap-2 border-b border-sidebar-border px-3 sm:px-4 bg-sidebar backdrop-blur-md">
           {hasMounted && (

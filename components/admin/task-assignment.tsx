@@ -237,7 +237,7 @@ export function TaskAssignment() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="min-w-0 space-y-6">
       {/* Message Alert */}
       {message && (
         <Card
@@ -267,18 +267,18 @@ export function TaskAssignment() {
       )}
 
       {/* Tasks List */}
-      <Card className="bg-slate-900/40 backdrop-blur-md border-slate-700/50 shadow-xl">
-        <CardHeader>
-          <div className="flex items-center justify-between flex-wrap gap-4">
-            <div>
+      <Card className="min-w-0 bg-slate-900/40 backdrop-blur-md border-slate-700/50 shadow-xl">
+        <CardHeader className="min-w-0">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="min-w-0">
               <CardTitle className="text-white">Task Assignment</CardTitle>
-              <CardDescription className="text-slate-400">
+              <CardDescription className="text-slate-400 text-pretty break-words">
                 Assign duties and responsibilities to members
               </CardDescription>
             </div>
-            <div className="flex items-center gap-3">
+            <div className="flex min-w-0 flex-col gap-3 sm:flex-row sm:items-center">
               <Select value={filterStatus} onValueChange={setFilterStatus}>
-                <SelectTrigger className="w-[140px] bg-slate-800/50 border-slate-700/50 text-white">
+                <SelectTrigger className="min-h-[44px] w-full bg-slate-800/50 border-slate-700/50 text-white sm:w-[140px]">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -293,9 +293,9 @@ export function TaskAssignment() {
                 <DialogTrigger asChild>
                   <Button
                     onClick={handleOpenDialog}
-                    className="bg-blue-600 hover:bg-blue-700 text-white"
+                    className="min-h-[44px] w-full shrink-0 bg-blue-600 hover:bg-blue-700 text-white sm:w-auto"
                   >
-                    <Plus className="h-4 w-4 mr-2" />
+                    <Plus className="mr-2 h-4 w-4 shrink-0" />
                     Assign Task
                   </Button>
                 </DialogTrigger>

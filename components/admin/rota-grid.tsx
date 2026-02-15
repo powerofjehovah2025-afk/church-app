@@ -409,15 +409,15 @@ export function RotaGrid() {
   };
 
   return (
-    <div className="space-y-6">
-      <Card className="border-slate-800 bg-slate-900/50 print:hidden">
-        <CardHeader>
+    <div className="min-w-0 space-y-6">
+      <Card className="min-w-0 border-slate-800 bg-slate-900/50 print:hidden">
+        <CardHeader className="min-w-0">
           <CardTitle className="text-white">Service Rota</CardTitle>
-          <CardDescription className="text-slate-400">
-            Assign members to duties for each service. Click a cell to assign or update.
+          <CardDescription className="text-slate-400 text-pretty">
+            Assign members to duties for each service. Tap a cell to assign or update.
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-4 min-w-0">
           <div className="flex flex-col sm:flex-row flex-wrap gap-3 sm:gap-4">
             <div className="flex-1 min-w-0 sm:min-w-[200px] space-y-2">
               <Label htmlFor="template" className="text-slate-300">
@@ -485,22 +485,22 @@ export function RotaGrid() {
               </Button>
             </div>
           </div>
-          <div className="flex flex-wrap gap-2 mt-4 print:hidden">
+          <div className="mt-4 flex min-w-0 flex-wrap gap-2 print:hidden">
             <Button
               variant="outline"
               onClick={handlePrint}
-              className="border-slate-700 text-slate-300 hover:bg-slate-800"
+              className="shrink-0 border-slate-700 text-slate-300 hover:bg-slate-800"
             >
-              <Printer className="h-4 w-4 mr-2" />
+              <Printer className="mr-2 h-4 w-4 shrink-0" />
               Print Rota
             </Button>
             <Button
               variant="outline"
               onClick={handleExportCSV}
               disabled={services.length === 0 || dutyTypes.length === 0}
-              className="border-slate-700 text-slate-300 hover:bg-slate-800"
+              className="shrink-0 border-slate-700 text-slate-300 hover:bg-slate-800"
             >
-              <Download className="h-4 w-4 mr-2" />
+              <Download className="mr-2 h-4 w-4 shrink-0" />
               Export CSV
             </Button>
           </div>
@@ -564,8 +564,8 @@ export function RotaGrid() {
           </CardContent>
         </Card>
       ) : (
-        <Card className="border-slate-800 bg-slate-900/50 print:border-0 print:shadow-none">
-          <CardContent className="pt-4 sm:pt-6 overflow-x-auto print:p-4">
+        <Card className="min-w-0 border-slate-800 bg-slate-900/50 print:border-0 print:shadow-none">
+          <CardContent className="min-w-0 overflow-x-auto pt-4 sm:pt-6 print:p-4">
             <div className="hidden print:block mb-4">
               <h2 className="text-lg font-bold text-white">
                 {templates.find((t) => t.id === selectedTemplateId)?.name || "Service Rota"}

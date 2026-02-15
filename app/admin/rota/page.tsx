@@ -13,19 +13,19 @@ export default function RotaPage() {
   const [activeTab, setActiveTab] = useState("rota");
 
   return (
-    <div className="min-h-screen bg-[#0f172a] text-foreground">
-      <div className="mx-auto max-w-7xl p-4 sm:p-6 pb-24">
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold tracking-tight text-white bg-gradient-to-r from-white to-slate-300 bg-clip-text text-transparent">
+    <div className="min-h-screen min-w-0 bg-[#0f172a] text-foreground">
+      <div className="mx-auto min-w-0 max-w-7xl p-4 sm:p-6 pb-24">
+        <div className="mb-6 sm:mb-8">
+          <h1 className="text-2xl font-bold tracking-tight text-white sm:text-4xl bg-gradient-to-r from-white to-slate-300 bg-clip-text text-transparent">
             Rota Management
           </h1>
-          <p className="text-slate-400 mt-2 text-lg">
+          <p className="text-slate-400 mt-1 sm:mt-2 text-base sm:text-lg text-pretty">
             Assign members to duties for church services
           </p>
         </div>
 
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="w-full flex flex-nowrap overflow-x-auto no-scrollbar bg-slate-900/50 border-slate-800">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full min-w-0">
+          <TabsList className="w-full min-w-0 flex flex-nowrap overflow-x-auto no-scrollbar bg-slate-900/50 border-slate-800 px-1 py-1 -mx-1 sm:mx-0 sm:px-2">
             <TabsTrigger
               value="rota"
               className="data-[state=active]:bg-slate-800 text-xs sm:text-sm px-3 py-2 whitespace-nowrap"

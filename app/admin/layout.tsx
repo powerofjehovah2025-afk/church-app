@@ -259,18 +259,18 @@ export default function AdminLayout({
         </div>
       </aside>
 
-      {/* Mobile Sidebar (theme-aware) */}
+      {/* Mobile Sidebar (theme-aware) - flex column so nav can scroll */}
       {hasMounted && (
         <Sheet open={sidebarOpen} onOpenChange={setSidebarOpen}>
           <SheetContent 
             side="left" 
-            className="w-64 bg-sidebar border-sidebar-border p-0"
+            className="flex h-full w-64 flex-col bg-sidebar border-sidebar-border p-0"
           >
-          <div className="flex h-16 items-center border-b border-sidebar-border px-6">
+          <div className="flex h-16 shrink-0 items-center border-b border-sidebar-border px-6">
             <RCCGLogo size={40} showText={true} className="text-sidebar-foreground" />
           </div>
           
-          <nav className="flex-1 space-y-1 p-4 overflow-y-auto">
+          <nav className="min-h-0 flex-1 space-y-1 overflow-y-auto p-4 overscroll-contain">
             {navItems.map((item) => {
               const Icon = item.icon;
               const isActive = pathname === item.href;
@@ -292,7 +292,7 @@ export default function AdminLayout({
             })}
           </nav>
 
-          <div className="border-t border-sidebar-border p-4 space-y-2">
+          <div className="shrink-0 border-t border-sidebar-border p-4 space-y-2">
             <div className="flex items-center justify-between gap-2">
               <span className="text-xs text-sidebar-foreground opacity-80">Theme</span>
               <ThemeSwitcher />
@@ -351,26 +351,28 @@ export default function AdminLayout({
       {/* Main Content */}
       <div className="flex-1 flex flex-col">
         {/* Mobile Header (theme-aware) */}
-        <header className="lg:hidden flex h-14 sm:h-16 items-center border-b border-sidebar-border px-3 sm:px-4 bg-sidebar backdrop-blur-md">
+        <header className="lg:hidden flex h-14 sm:h-16 items-center gap-2 border-b border-sidebar-border px-3 sm:px-4 bg-sidebar backdrop-blur-md">
           {hasMounted && (
             <Sheet open={sidebarOpen} onOpenChange={setSidebarOpen}>
               <SheetTrigger asChild>
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="text-sidebar-foreground hover:bg-accent hover:text-accent-foreground"
+                  className="shrink-0 text-sidebar-foreground hover:bg-accent hover:text-accent-foreground"
                 >
                   <Menu className="h-6 w-6" />
                 </Button>
               </SheetTrigger>
             </Sheet>
           )}
-          <RCCGLogo size={36} showText={true} className="ml-2 text-sidebar-foreground" />
+          <div className="flex min-w-0 flex-1 items-center gap-2 overflow-hidden">
+            <RCCGLogo size={36} showText={true} className="min-w-0 shrink-0 text-sidebar-foreground [&>div:last-child]:min-w-0 [&>div:last-child]:truncate" />
+          </div>
         </header>
 
         {/* Page Content */}
-        <main className="flex-1 overflow-auto bg-background/60">
-          <div className="w-full max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 py-4 md:py-6">
+        <main className="flex-1 min-w-0 overflow-auto bg-background/60">
+          <div className="mx-auto w-full min-w-0 max-w-7xl px-3 sm:px-4 md:px-6 lg:px-8 py-4 md:py-6">
             {children}
           </div>
         </main>

@@ -215,15 +215,15 @@ export function EventsManager() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="min-w-0 space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-bold text-white flex items-center gap-2">
-            <Calendar className="h-6 w-6" />
-            Events Management
+      <div className="flex min-w-0 flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="min-w-0">
+          <h2 className="flex min-w-0 items-center gap-2 text-2xl font-bold text-white sm:text-4xl">
+            <Calendar className="h-6 w-6 shrink-0" />
+            <span className="truncate">Events Management</span>
           </h2>
-          <p className="text-slate-400 text-sm mt-1">
+          <p className="mt-1 text-sm text-pretty break-words text-slate-400">
             Create and manage church events
           </p>
         </div>
@@ -231,9 +231,9 @@ export function EventsManager() {
           <DialogTrigger asChild>
             <Button
               onClick={resetForm}
-              className="bg-blue-600 hover:bg-blue-700"
+              className="min-h-[44px] w-full bg-blue-600 hover:bg-blue-700 sm:w-auto"
             >
-              <Plus className="h-4 w-4 mr-2" />
+              <Plus className="mr-2 h-4 w-4 shrink-0" />
               New Event
             </Button>
           </DialogTrigger>
@@ -266,7 +266,7 @@ export function EventsManager() {
                   rows={4}
                 />
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div className="space-y-2">
                   <Label className="text-slate-300">Event Date *</Label>
                   <Input
@@ -290,7 +290,7 @@ export function EventsManager() {
                   />
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div className="space-y-2">
                   <Label className="text-slate-300">Start Time</Label>
                   <Input
@@ -314,7 +314,7 @@ export function EventsManager() {
                   />
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div className="space-y-2">
                   <Label className="text-slate-300">Max Attendees</Label>
                   <Input
@@ -328,7 +328,7 @@ export function EventsManager() {
                   />
                 </div>
               </div>
-              <div className="flex items-center space-x-4">
+              <div className="flex flex-wrap items-center gap-4">
                 <div className="flex items-center space-x-2">
                   <input
                     type="checkbox"
@@ -381,75 +381,75 @@ export function EventsManager() {
 
       {/* Events List */}
       {events.length === 0 ? (
-        <Card className="bg-slate-900/40 border-slate-700/50">
-          <CardContent className="pt-6">
-            <div className="text-center py-12">
-              <Calendar className="h-12 w-12 text-slate-500 mx-auto mb-4" />
+        <Card className="min-w-0 bg-slate-900/40 border-slate-700/50">
+          <CardContent className="min-w-0 pt-6">
+            <div className="py-12 text-center">
+              <Calendar className="mx-auto mb-4 h-12 w-12 text-slate-500" />
               <p className="text-slate-400">No events created yet</p>
             </div>
           </CardContent>
         </Card>
       ) : (
-        <div className="space-y-4">
+        <div className="min-w-0 space-y-4">
           {events.map((event) => (
-            <Card key={event.id} className="bg-slate-900/40 border-slate-700/50">
-              <CardHeader>
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <CardTitle className="text-white flex items-center gap-2">
-                      {event.title}
+            <Card key={event.id} className="min-w-0 bg-slate-900/40 border-slate-700/50">
+              <CardHeader className="min-w-0">
+                <div className="flex min-w-0 flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                  <div className="min-w-0 flex-1">
+                    <CardTitle className="flex min-w-0 flex-wrap items-center gap-2 text-white">
+                      <span className="truncate">{event.title}</span>
                       {!event.is_active && (
-                        <Badge className="bg-gray-500/20 text-gray-300 border-gray-500/50">
+                        <Badge className="shrink-0 bg-gray-500/20 text-gray-300 border-gray-500/50">
                           Inactive
                         </Badge>
                       )}
                       {event.requires_rsvp && (
-                        <Badge className="bg-blue-500/20 text-blue-300 border-blue-500/50">
+                        <Badge className="shrink-0 bg-blue-500/20 text-blue-300 border-blue-500/50">
                           RSVP Required
                         </Badge>
                       )}
                     </CardTitle>
-                    <div className="flex items-center gap-4 mt-2 text-sm text-slate-400">
-                      <div className="flex items-center gap-1">
-                        <Calendar className="h-4 w-4" />
+                    <div className="mt-2 flex flex-wrap items-center gap-2 text-sm text-slate-400 sm:gap-4">
+                      <div className="flex shrink-0 items-center gap-1">
+                        <Calendar className="h-4 w-4 shrink-0" />
                         {new Date(event.event_date).toLocaleDateString()}
                       </div>
                       {event.start_time && (
-                        <div className="flex items-center gap-1">
-                          <Clock className="h-4 w-4" />
+                        <div className="flex shrink-0 items-center gap-1">
+                          <Clock className="h-4 w-4 shrink-0" />
                           {event.start_time}
                           {event.end_time && ` - ${event.end_time}`}
                         </div>
                       )}
                       {event.location && (
-                        <div className="flex items-center gap-1">
-                          <MapPin className="h-4 w-4" />
-                          {event.location}
+                        <div className="flex shrink-0 items-center gap-1">
+                          <MapPin className="h-4 w-4 shrink-0" />
+                          <span className="truncate">{event.location}</span>
                         </div>
                       )}
                       {event.max_attendees && (
-                        <div className="flex items-center gap-1">
-                          <Users className="h-4 w-4" />
+                        <div className="flex shrink-0 items-center gap-1">
+                          <Users className="h-4 w-4 shrink-0" />
                           Max: {event.max_attendees}
                         </div>
                       )}
                       {event.requires_rsvp && (
-                        <div className="flex items-center gap-1">
-                          <Users className="h-4 w-4" />
+                        <div className="flex shrink-0 items-center gap-1">
+                          <Users className="h-4 w-4 shrink-0" />
                           RSVPs: {event.rsvp_count?.[0]?.count || 0}
                         </div>
                       )}
                     </div>
                   </div>
-                  <div className="flex gap-2">
+                  <div className="flex min-w-0 shrink-0 flex-row flex-wrap gap-2">
                     {event.requires_rsvp && (
                       <Button
                         variant="outline"
                         size="sm"
                         onClick={() => handleViewRsvps(event)}
-                        className="border-slate-700"
+                        className="min-h-[44px] shrink-0 border-slate-700 sm:w-auto"
                       >
-                        <Eye className="h-4 w-4 mr-2" />
+                        <Eye className="mr-2 h-4 w-4 shrink-0" />
                         View RSVPs
                       </Button>
                     )}
@@ -457,25 +457,25 @@ export function EventsManager() {
                       variant="outline"
                       size="sm"
                       onClick={() => handleEdit(event)}
-                      className="border-slate-700"
+                      className="min-h-[44px] shrink-0 border-slate-700 sm:w-auto"
                     >
-                      <Edit className="h-4 w-4 mr-2" />
+                      <Edit className="mr-2 h-4 w-4 shrink-0" />
                       Edit
                     </Button>
                     <Button
                       variant="outline"
                       size="sm"
                       onClick={() => handleDelete(event.id)}
-                      className="border-red-700 text-red-400"
+                      className="min-h-[44px] shrink-0 border-red-700 text-red-400 sm:w-auto"
                     >
-                      <Trash2 className="h-4 w-4" />
+                      <Trash2 className="h-4 w-4 shrink-0" />
                     </Button>
                   </div>
                 </div>
               </CardHeader>
               {event.description && (
-                <CardContent>
-                  <p className="text-slate-300 whitespace-pre-wrap">
+                <CardContent className="min-w-0">
+                  <p className="whitespace-pre-wrap break-words text-slate-300">
                     {event.description}
                   </p>
                 </CardContent>
@@ -487,12 +487,12 @@ export function EventsManager() {
 
       {/* RSVPs View Dialog */}
       <Dialog open={isViewDialogOpen} onOpenChange={setIsViewDialogOpen}>
-        <DialogContent className="bg-slate-900 border-slate-700 max-w-4xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle className="text-white">
+        <DialogContent className="min-w-0 max-w-4xl max-h-[90vh] overflow-y-auto bg-slate-900 border-slate-700">
+          <DialogHeader className="min-w-0">
+            <DialogTitle className="min-w-0 break-words text-white">
               RSVPs for {selectedEvent?.title}
             </DialogTitle>
-            <DialogDescription className="text-slate-400">
+            <DialogDescription className="min-w-0 break-words text-slate-400">
               {selectedEvent?.event_date && (
                 <>
                   {new Date(selectedEvent.event_date).toLocaleDateString()}
@@ -502,43 +502,45 @@ export function EventsManager() {
             </DialogDescription>
           </DialogHeader>
           {rsvps.length === 0 ? (
-            <p className="text-slate-400 text-center py-8">No RSVPs yet</p>
+            <p className="py-8 text-center text-slate-400">No RSVPs yet</p>
           ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="text-slate-300">Member</TableHead>
-                  <TableHead className="text-slate-300">Status</TableHead>
-                  <TableHead className="text-slate-300">Notes</TableHead>
-                  <TableHead className="text-slate-300">RSVP Date</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {rsvps.map((rsvp) => (
-                  <TableRow key={rsvp.id}>
-                    <TableCell className="text-slate-300">
-                      {rsvp.member.full_name || rsvp.member.email || "Unknown"}
-                      {rsvp.member.phone && (
-                        <div className="text-xs text-slate-500">
-                          {rsvp.member.phone}
-                        </div>
-                      )}
-                    </TableCell>
-                    <TableCell>
-                      <Badge className={getStatusColor(rsvp.status)}>
-                        {rsvp.status}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="text-slate-300">
-                      {rsvp.notes || "-"}
-                    </TableCell>
-                    <TableCell className="text-slate-300">
-                      {new Date(rsvp.rsvp_at).toLocaleDateString()}
-                    </TableCell>
+            <div className="min-w-0 overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="text-slate-300">Member</TableHead>
+                    <TableHead className="text-slate-300">Status</TableHead>
+                    <TableHead className="text-slate-300">Notes</TableHead>
+                    <TableHead className="text-slate-300">RSVP Date</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                </TableHeader>
+                <TableBody>
+                  {rsvps.map((rsvp) => (
+                    <TableRow key={rsvp.id}>
+                      <TableCell className="min-w-0 break-words text-slate-300">
+                        {rsvp.member.full_name || rsvp.member.email || "Unknown"}
+                        {rsvp.member.phone && (
+                          <div className="text-xs text-slate-500">
+                            {rsvp.member.phone}
+                          </div>
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        <Badge className={getStatusColor(rsvp.status)}>
+                          {rsvp.status}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="min-w-0 break-words text-slate-300">
+                        {rsvp.notes || "-"}
+                      </TableCell>
+                      <TableCell className="text-slate-300">
+                        {new Date(rsvp.rsvp_at).toLocaleDateString()}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
           )}
         </DialogContent>
       </Dialog>

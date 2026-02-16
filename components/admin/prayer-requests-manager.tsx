@@ -192,18 +192,18 @@ export function PrayerRequestsManager() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="min-w-0 space-y-6">
       {/* Header with Filters */}
-      <Card className="bg-slate-900/40 border-slate-700/50">
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <CardTitle className="text-white flex items-center gap-2">
-              <Heart className="h-5 w-5" />
-              Prayer Requests Management
+      <Card className="min-w-0 bg-slate-900/40 border-slate-700/50">
+        <CardHeader className="min-w-0">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <CardTitle className="min-w-0 flex items-center gap-2 text-white">
+              <Heart className="h-5 w-5 shrink-0" />
+              <span className="truncate">Prayer Requests Management</span>
             </CardTitle>
-            <div className="flex items-center gap-3">
+            <div className="flex min-w-0 flex-col gap-3 sm:flex-row sm:items-center">
               <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger className="w-32 bg-slate-800/50 border-slate-700/50 text-white">
+                <SelectTrigger className="min-h-[44px] w-full bg-slate-800/50 border-slate-700/50 text-white sm:w-32">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -215,7 +215,7 @@ export function PrayerRequestsManager() {
                 </SelectContent>
               </Select>
               <Select value={priorityFilter} onValueChange={setPriorityFilter}>
-                <SelectTrigger className="w-32 bg-slate-800/50 border-slate-700/50 text-white">
+                <SelectTrigger className="min-h-[44px] w-full bg-slate-800/50 border-slate-700/50 text-white sm:w-32">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -233,42 +233,42 @@ export function PrayerRequestsManager() {
 
       {/* Requests List */}
       {requests.length === 0 ? (
-        <Card className="bg-slate-900/40 border-slate-700/50">
-          <CardContent className="pt-6">
-            <div className="text-center py-12">
-              <Heart className="h-12 w-12 text-slate-500 mx-auto mb-4" />
+        <Card className="min-w-0 bg-slate-900/40 border-slate-700/50">
+          <CardContent className="min-w-0 pt-6">
+            <div className="py-12 text-center">
+              <Heart className="mx-auto mb-4 h-12 w-12 text-slate-500" />
               <p className="text-slate-400">No prayer requests found</p>
             </div>
           </CardContent>
         </Card>
       ) : (
-        <div className="space-y-4">
+        <div className="min-w-0 space-y-4">
           {requests.map((request) => (
             <Card
               key={request.id}
-              className="bg-slate-900/40 border-slate-700/50"
+              className="min-w-0 bg-slate-900/40 border-slate-700/50"
             >
-              <CardHeader>
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <CardTitle className="text-white flex items-center gap-2">
-                      {request.title}
+              <CardHeader className="min-w-0">
+                <div className="flex min-w-0 flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                  <div className="min-w-0 flex-1">
+                    <CardTitle className="flex min-w-0 items-center gap-2 text-white">
+                      <span className="truncate">{request.title}</span>
                     </CardTitle>
-                    <div className="flex items-center gap-2 mt-2">
-                      <Badge className={getStatusColor(request.status)}>
+                    <div className="mt-2 flex flex-wrap items-center gap-2">
+                      <Badge className={`shrink-0 ${getStatusColor(request.status)}`}>
                         {request.status.replace("_", " ")}
                       </Badge>
-                      <Badge className={getPriorityColor(request.priority)}>
+                      <Badge className={`shrink-0 ${getPriorityColor(request.priority)}`}>
                         {request.priority}
                       </Badge>
                       {request.is_anonymous && (
-                        <Badge className="bg-purple-500/20 text-purple-300 border-purple-500/50">
+                        <Badge className="shrink-0 bg-purple-500/20 text-purple-300 border-purple-500/50">
                           Anonymous
                         </Badge>
                       )}
                     </div>
                   </div>
-                  <div className="flex gap-2">
+                  <div className="flex min-w-0 shrink-0 flex-row gap-2">
                     <Button
                       variant="outline"
                       size="sm"
@@ -279,9 +279,9 @@ export function PrayerRequestsManager() {
                         );
                         setIsAssignDialogOpen(true);
                       }}
-                      className="border-slate-700"
+                      className="min-h-[44px] shrink-0 border-slate-700 sm:w-auto"
                     >
-                      <Users className="h-4 w-4 mr-2" />
+                      <Users className="mr-2 h-4 w-4 shrink-0" />
                       Assign
                     </Button>
                     <Button
@@ -292,35 +292,35 @@ export function PrayerRequestsManager() {
                         setUpdateStatus(request.status);
                         setIsUpdateDialogOpen(true);
                       }}
-                      className="border-slate-700"
+                      className="min-h-[44px] shrink-0 border-slate-700 sm:w-auto"
                     >
-                      <MessageSquare className="h-4 w-4 mr-2" />
+                      <MessageSquare className="mr-2 h-4 w-4 shrink-0" />
                       Update
                     </Button>
                   </div>
                 </div>
               </CardHeader>
-              <CardContent>
-                <p className="text-slate-300 whitespace-pre-wrap mb-4">
+              <CardContent className="min-w-0">
+                <p className="mb-4 whitespace-pre-wrap break-words text-slate-300">
                   {request.request}
                 </p>
-                <div className="flex items-center justify-between text-sm text-slate-500">
-                  <div className="flex items-center gap-4">
-                    <span>
+                <div className="flex min-w-0 flex-col gap-2 text-sm text-slate-500 sm:flex-row sm:items-center sm:justify-between">
+                  <div className="flex min-w-0 flex-wrap items-center gap-2 sm:gap-4">
+                    <span className="shrink-0">
                       From: {request.is_anonymous ? "Anonymous" : (request.member?.full_name || request.member?.email || "Unknown")}
                     </span>
                     {request.assigned_to_profile && (
-                      <span>
+                      <span className="shrink-0">
                         Assigned to: {request.assigned_to_profile.full_name || request.assigned_to_profile.email}
                       </span>
                     )}
                     {request.team_assignments && request.team_assignments.length > 0 && (
-                      <span>
+                      <span className="shrink-0">
                         Team: {request.team_assignments.length} member(s)
                       </span>
                     )}
                   </div>
-                  <span>
+                  <span className="shrink-0">
                     {new Date(request.created_at).toLocaleDateString()}
                   </span>
                 </div>

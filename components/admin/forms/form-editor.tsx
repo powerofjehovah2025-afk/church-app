@@ -4,6 +4,13 @@ import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
@@ -37,11 +44,20 @@ export function FormEditor({ formType, onBack }: FormEditorProps) {
   // Local state for settings inputs to allow immediate typing
   const [localTitle, setLocalTitle] = useState("");
   const [localDescription, setLocalDescription] = useState("");
+  const [activeTab, setActiveTab] = useState("fields");
 
   const formTypeLabels: Record<string, string> = {
     welcome: "Welcome Form",
     membership: "Membership Form",
   };
+
+  const TAB_OPTIONS = [
+    { value: "fields", label: "Fields" },
+    { value: "content", label: "Static Content" },
+    { value: "rules", label: "Business Rules" },
+    { value: "settings", label: "Settings" },
+    { value: "preview", label: "Preview" },
+  ] as const;
 
   const fetchFormData = async () => {
     setIsLoading(true);
@@ -413,31 +429,31 @@ export function FormEditor({ formType, onBack }: FormEditorProps) {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
+    <div className="min-w-0 w-full max-w-full space-y-6">
+      <div className="flex min-w-0 flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+        <div className="min-w-0">
           <Button onClick={onBack} variant="ghost" className="mb-4">
-            <ArrowLeft className="h-4 w-4 mr-2" />
+            <ArrowLeft className="mr-2 h-4 w-4" />
             Back
           </Button>
-          <h1 className="text-3xl font-bold text-foreground">
+          <h1 className="text-2xl font-bold text-foreground sm:text-3xl">
             {formTypeLabels[formType]}
           </h1>
-          <p className="text-muted-foreground mt-2">
+          <p className="mt-1 text-base text-muted-foreground text-pretty break-words sm:mt-2">
             Edit form fields, content, and settings
           </p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex min-w-0 flex-col gap-2 sm:flex-row">
           {formConfig.status === "draft" && (
             <Button
               onClick={() => handlePublishVersion(formConfig.id)}
               disabled={isPublishing}
-              className="bg-green-600 hover:bg-green-700"
+              className="min-h-[44px] w-full shrink-0 bg-green-600 hover:bg-green-700 sm:w-auto"
             >
               {isPublishing ? (
-                <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               ) : (
-                <Rocket className="h-4 w-4 mr-2" />
+                <Rocket className="mr-2 h-4 w-4 shrink-0" />
               )}
               Publish Version
             </Button>
@@ -446,11 +462,12 @@ export function FormEditor({ formType, onBack }: FormEditorProps) {
             onClick={handleCreateVersion}
             disabled={isCreatingVersion}
             variant="outline"
+            className="min-h-[44px] w-full shrink-0 sm:w-auto"
           >
             {isCreatingVersion ? (
-              <Loader2 className="h-4 w-4 animate-spin mr-2" />
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
             ) : (
-              <GitBranch className="h-4 w-4 mr-2" />
+              <GitBranch className="mr-2 h-4 w-4 shrink-0" />
             )}
             Create New Version
           </Button>
@@ -459,54 +476,55 @@ export function FormEditor({ formType, onBack }: FormEditorProps) {
 
       {/* Version Selector */}
       {allVersions.length > 1 && (
-        <Card>
-          <CardHeader>
+        <Card className="min-w-0">
+          <CardHeader className="min-w-0">
             <CardTitle className="text-lg">Versions</CardTitle>
-            <CardDescription>Switch between versions or create a new one</CardDescription>
+            <CardDescription className="text-pretty break-words">
+              Switch between versions or create a new one
+            </CardDescription>
           </CardHeader>
-          <CardContent>
+          <CardContent className="min-w-0">
             <div className="space-y-2">
               {allVersions.map((version) => (
                 <div
                   key={version.id}
-                  className={`flex items-center justify-between p-3 border rounded-lg ${
+                  className={`flex min-w-0 flex-col gap-3 rounded-lg border p-3 sm:flex-row sm:items-center sm:justify-between ${
                     version.id === formConfig?.id
                       ? "bg-primary/10 border-primary"
                       : "hover:bg-muted/50"
                   }`}
                 >
-                  <div className="flex items-center gap-3 flex-1">
-                    <div className="flex flex-col">
-                      <div className="flex items-center gap-2">
-                        <span className="font-medium">
-                          Version {version.version}
-                          {version.version_name && ` - ${version.version_name}`}
-                        </span>
-                        <span
-                          className={`text-xs px-2 py-0.5 rounded ${
-                            version.status === "published"
-                              ? "bg-green-100 text-green-800"
-                              : version.status === "draft"
-                              ? "bg-yellow-100 text-yellow-800"
-                              : "bg-gray-100 text-gray-800"
-                          }`}
-                        >
-                          {version.status}
-                        </span>
-                      </div>
-                      <div className="text-sm text-muted-foreground">
-                        {version.title} • Updated {new Date(version.updated_at).toLocaleDateString()}
-                      </div>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="truncate font-medium">
+                        Version {version.version}
+                        {version.version_name && ` - ${version.version_name}`}
+                      </span>
+                      <span
+                        className={`shrink-0 rounded px-2 py-0.5 text-xs ${
+                          version.status === "published"
+                            ? "bg-green-100 text-green-800"
+                            : version.status === "draft"
+                            ? "bg-yellow-100 text-yellow-800"
+                            : "bg-gray-100 text-gray-800"
+                        }`}
+                      >
+                        {version.status}
+                      </span>
+                    </div>
+                    <div className="mt-1 truncate text-sm text-muted-foreground">
+                      {version.title} • Updated {new Date(version.updated_at).toLocaleDateString()}
                     </div>
                   </div>
-                  <div className="flex gap-2">
+                  <div className="flex min-w-0 flex-wrap gap-2">
                     {version.id !== formConfig?.id && (
                       <Button
                         variant="outline"
                         size="sm"
                         onClick={() => handleSwitchVersion(version.id)}
+                        className="min-h-[44px] shrink-0 sm:w-auto"
                       >
-                        <FileText className="h-4 w-4 mr-1" />
+                        <FileText className="mr-1 h-4 w-4 shrink-0" />
                         Switch
                       </Button>
                     )}
@@ -516,8 +534,9 @@ export function FormEditor({ formType, onBack }: FormEditorProps) {
                         size="sm"
                         onClick={() => handlePublishVersion(version.id)}
                         disabled={isPublishing}
+                        className="min-h-[44px] shrink-0 sm:w-auto"
                       >
-                        <Rocket className="h-4 w-4 mr-1" />
+                        <Rocket className="mr-1 h-4 w-4 shrink-0" />
                         Publish
                       </Button>
                     )}
@@ -531,14 +550,14 @@ export function FormEditor({ formType, onBack }: FormEditorProps) {
 
       {/* Current Version Info */}
       {formConfig && (
-        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-          <span>Currently editing:</span>
-          <span className="font-medium text-foreground">
+        <div className="flex min-w-0 flex-wrap items-center gap-2 text-sm text-muted-foreground">
+          <span className="shrink-0">Currently editing:</span>
+          <span className="min-w-0 truncate font-medium text-foreground">
             Version {formConfig.version}
             {formConfig.version_name && ` - ${formConfig.version_name}`}
           </span>
           <span
-            className={`px-2 py-0.5 rounded text-xs ${
+            className={`shrink-0 rounded px-2 py-0.5 text-xs ${
               formConfig.status === "published"
                 ? "bg-green-100 text-green-800"
                 : formConfig.status === "draft"
@@ -563,8 +582,25 @@ export function FormEditor({ formType, onBack }: FormEditorProps) {
         </div>
       )}
 
-      <Tabs defaultValue="fields" className="space-y-4">
-        <TabsList>
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="min-w-0 w-full space-y-4">
+        {/* Mobile: dropdown so all tabs are visible */}
+        <div className="md:hidden w-full">
+          <Select value={activeTab} onValueChange={setActiveTab}>
+            <SelectTrigger className="w-full min-h-[44px]">
+              <SelectValue placeholder="Choose section" />
+            </SelectTrigger>
+            <SelectContent>
+              {TAB_OPTIONS.map((opt) => (
+                <SelectItem key={opt.value} value={opt.value} className="min-h-[44px]">
+                  {opt.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        {/* Desktop: horizontal tabs */}
+        <TabsList className="hidden md:flex w-full min-w-0 flex-nowrap overflow-x-auto no-scrollbar px-1 py-1 sm:px-2">
           <TabsTrigger value="fields">Fields</TabsTrigger>
           <TabsTrigger value="content">Static Content</TabsTrigger>
           <TabsTrigger value="rules">Business Rules</TabsTrigger>
@@ -573,24 +609,24 @@ export function FormEditor({ formType, onBack }: FormEditorProps) {
         </TabsList>
 
         <TabsContent value="fields" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <div>
+          <Card className="min-w-0">
+            <CardHeader className="min-w-0">
+              <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                <div className="min-w-0">
                   <CardTitle>Form Fields</CardTitle>
-                  <CardDescription>
+                  <CardDescription className="text-pretty break-words">
                     Add, edit, and reorder form fields
                   </CardDescription>
                 </div>
-                <Button onClick={handleAddField}>
-                  <Plus className="h-4 w-4 mr-2" />
+                <Button onClick={handleAddField} className="min-h-[44px] w-full shrink-0 sm:w-auto">
+                  <Plus className="mr-2 h-4 w-4 shrink-0" />
                   Add Field
                 </Button>
               </div>
             </CardHeader>
-            <CardContent>
+            <CardContent className="min-w-0">
               {formFields.length === 0 ? (
-                <p className="text-muted-foreground text-center py-8">
+                <p className="py-8 text-center text-muted-foreground">
                   No fields yet. Click &quot;Add Field&quot; to get started.
                 </p>
               ) : (
@@ -612,35 +648,38 @@ export function FormEditor({ formType, onBack }: FormEditorProps) {
                               <div
                                 ref={provided.innerRef}
                                 {...provided.draggableProps}
-                                className={`flex items-center gap-3 p-4 border rounded-lg bg-background transition-colors ${
+                                className={`flex min-w-0 flex-col gap-3 rounded-lg border bg-background p-4 transition-colors sm:flex-row sm:items-center ${
                                   snapshot.isDragging
-                                    ? "shadow-lg border-primary"
+                                    ? "border-primary shadow-lg"
                                     : "hover:bg-muted/50"
                                 }`}
                               >
-                                <div
-                                  {...provided.dragHandleProps}
-                                  className="cursor-grab active:cursor-grabbing text-muted-foreground hover:text-foreground"
-                                >
-                                  <GripVertical className="h-5 w-5" />
-                                </div>
-                                <div className="flex-1">
-                                  <div className="flex items-center gap-2">
-                                    <span className="text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded">
-                                      #{index + 1}
-                                    </span>
-                                    <span className="font-medium">{field.label}</span>
+                                <div className="flex min-w-0 flex-1 items-center gap-3">
+                                  <div
+                                    {...provided.dragHandleProps}
+                                    className="shrink-0 cursor-grab active:cursor-grabbing text-muted-foreground hover:text-foreground"
+                                  >
+                                    <GripVertical className="h-5 w-5" />
                                   </div>
-                                  <div className="text-sm text-muted-foreground mt-1">
-                                    {field.field_type} • {field.section || "General"}
-                                    {field.is_required && " • Required"}
+                                  <div className="min-w-0 flex-1">
+                                    <div className="flex flex-wrap items-center gap-2">
+                                      <span className="shrink-0 rounded bg-muted px-2 py-0.5 text-xs text-muted-foreground">
+                                        #{index + 1}
+                                      </span>
+                                      <span className="truncate font-medium">{field.label}</span>
+                                    </div>
+                                    <div className="mt-1 truncate text-sm text-muted-foreground">
+                                      {field.field_type} • {field.section || "General"}
+                                      {field.is_required && " • Required"}
+                                    </div>
                                   </div>
                                 </div>
-                                <div className="flex gap-2">
+                                <div className="flex min-w-0 flex-wrap gap-2">
                                   <Button
                                     variant="outline"
                                     size="sm"
                                     onClick={() => handleEditField(field)}
+                                    className="min-h-[44px] shrink-0 sm:w-auto"
                                   >
                                     Edit
                                   </Button>
@@ -649,13 +688,15 @@ export function FormEditor({ formType, onBack }: FormEditorProps) {
                                     size="sm"
                                     onClick={() => handleDuplicateField(field)}
                                     title="Duplicate field"
+                                    className="min-h-[44px] shrink-0 sm:w-auto"
                                   >
-                                    <Copy className="h-4 w-4" />
+                                    <Copy className="h-4 w-4 shrink-0" />
                                   </Button>
                                   <Button
                                     variant="outline"
                                     size="sm"
                                     onClick={() => handleDeleteField(field.id)}
+                                    className="min-h-[44px] shrink-0 sm:w-auto"
                                   >
                                     Delete
                                   </Button>

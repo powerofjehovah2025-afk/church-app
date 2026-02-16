@@ -366,7 +366,7 @@ export function UserManagement() {
             </div>
           </div>
         </CardHeader>
-        <CardContent>
+        <CardContent className="min-w-0">
           {paginatedUsers.length === 0 ? (
             <div className="text-center py-12">
               <p className="text-slate-400">No users found</p>
@@ -376,36 +376,36 @@ export function UserManagement() {
               {paginatedUsers.map((user) => (
                 <div
                   key={user.id}
-                  className="flex items-center justify-between p-4 rounded-lg bg-slate-800/50 border border-slate-700/50"
+                  className="flex min-w-0 flex-col gap-3 rounded-lg border border-slate-700/50 bg-slate-800/50 p-4 sm:flex-row sm:items-center sm:justify-between"
                 >
-                  <div className="flex-1">
-                    <div className="flex items-center gap-3 flex-wrap">
-                      <p className="text-white font-medium">
+                  <div className="min-w-0 flex-1">
+                    <div className="flex flex-wrap items-center gap-3">
+                      <p className="truncate text-white font-medium">
                         {user.full_name || "No name"}
                       </p>
                       <span
-                        className={`px-2 py-1 rounded text-xs font-medium border ${getRoleBadgeColor(user.role)}`}
+                        className={`shrink-0 rounded border px-2 py-1 text-xs font-medium ${getRoleBadgeColor(user.role)}`}
                       >
                         {user.role || "member"}
                       </span>
                     </div>
-                    <p className="text-sm text-slate-400 mt-1">{user.email}</p>
+                    <p className="mt-1 truncate text-sm text-slate-400">{user.email}</p>
                   </div>
-                  <div className="flex items-center gap-3">
+                  <div className="flex min-w-0 flex-col gap-2 sm:flex-row sm:items-center sm:gap-3">
                     <Button
                       variant="outline"
                       size="sm"
                       onClick={() => window.location.href = `/admin/members/${user.id}`}
-                      className="bg-slate-800/50 border-slate-700/50"
+                      className="min-h-[44px] w-full shrink-0 bg-slate-800/50 border-slate-700/50 sm:w-auto"
                     >
-                      <User className="h-4 w-4 mr-2" />
+                      <User className="mr-2 h-4 w-4 shrink-0" />
                       View Details
                     </Button>
                     <Button
                       variant="outline"
                       size="sm"
                       onClick={() => handleOpenMemberDialog(user)}
-                      className="bg-slate-800/50 border-slate-700/50"
+                      className="min-h-[44px] w-full shrink-0 bg-slate-800/50 border-slate-700/50 sm:w-auto"
                     >
                       Edit Skills
                     </Button>
@@ -414,7 +414,7 @@ export function UserManagement() {
                       onValueChange={(newRole) => handleRoleChange(user.id, newRole, user.full_name)}
                       disabled={changingRoleUserId === user.id}
                     >
-                      <SelectTrigger className="w-[140px] bg-slate-800/50 border-slate-700/50 text-white">
+                      <SelectTrigger className="min-h-[44px] w-full bg-slate-800/50 border-slate-700/50 text-white sm:w-[140px]">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
@@ -428,7 +428,7 @@ export function UserManagement() {
                       </SelectContent>
                     </Select>
                     {changingRoleUserId === user.id && (
-                      <Loader2 className="h-4 w-4 animate-spin text-blue-400" />
+                      <Loader2 className="h-4 w-4 shrink-0 animate-spin text-blue-400" />
                     )}
                   </div>
                 </div>

@@ -174,20 +174,20 @@ export function AnnouncementsManager() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="min-w-0 space-y-6">
       {/* Header with Create Button */}
-      <Card className="bg-slate-900/40 border-slate-700/50">
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <div>
+      <Card className="min-w-0 bg-slate-900/40 border-slate-700/50">
+        <CardHeader className="min-w-0">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="min-w-0">
               <CardTitle className="text-white">Announcements</CardTitle>
-              <CardDescription className="text-slate-400">
+              <CardDescription className="text-slate-400 text-pretty break-words">
                 {announcements.length} announcement{announcements.length !== 1 ? "s" : ""}
               </CardDescription>
             </div>
-            <div className="flex items-center gap-3">
+            <div className="flex min-w-0 flex-col gap-3 sm:flex-row sm:items-center">
               <Select value={targetAudience} onValueChange={setTargetAudience}>
-                <SelectTrigger className="w-40 bg-slate-800/50 border-slate-700/50 text-white">
+                <SelectTrigger className="min-h-[44px] w-full bg-slate-800/50 border-slate-700/50 text-white sm:w-40">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -196,8 +196,11 @@ export function AnnouncementsManager() {
                   <SelectItem value="member">Member</SelectItem>
                 </SelectContent>
               </Select>
-              <Button onClick={handleOpenCreateDialog} className="bg-blue-600 hover:bg-blue-700">
-                <Plus className="h-4 w-4 mr-2" />
+              <Button
+                onClick={handleOpenCreateDialog}
+                className="min-h-[44px] w-full shrink-0 bg-blue-600 hover:bg-blue-700 sm:w-auto"
+              >
+                <Plus className="mr-2 h-4 w-4 shrink-0" />
                 Create Announcement
               </Button>
             </div>
@@ -207,65 +210,65 @@ export function AnnouncementsManager() {
 
       {/* Announcements List */}
       {announcements.length === 0 ? (
-        <Card className="bg-slate-900/40 border-slate-700/50">
-          <CardContent className="pt-6">
-            <div className="text-center py-12">
+        <Card className="min-w-0 bg-slate-900/40 border-slate-700/50">
+          <CardContent className="min-w-0 pt-6">
+            <div className="py-12 text-center">
               <p className="text-slate-400">No announcements found</p>
             </div>
           </CardContent>
         </Card>
       ) : (
-        <div className="space-y-4">
+        <div className="min-w-0 space-y-4">
           {announcements.map((announcement) => (
             <Card
               key={announcement.id}
-              className={`bg-slate-900/40 border-slate-700/50 ${
+              className={`min-w-0 bg-slate-900/40 border-slate-700/50 ${
                 announcement.is_pinned ? "border-yellow-500/50 bg-yellow-500/5" : ""
               }`}
             >
-              <CardContent className="pt-6">
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-2">
+              <CardContent className="min-w-0 pt-6">
+                <div className="flex min-w-0 flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                  <div className="min-w-0 flex-1">
+                    <div className="mb-2 flex flex-wrap items-center gap-2">
                       {announcement.is_pinned && (
-                        <Pin className="h-4 w-4 text-yellow-400 fill-yellow-400" />
+                        <Pin className="h-4 w-4 shrink-0 fill-yellow-400 text-yellow-400" />
                       )}
-                      <h3 className="text-white font-semibold text-lg">{announcement.title}</h3>
-                      <Badge className={getAudienceColor(announcement.target_audience)}>
+                      <h3 className="min-w-0 truncate text-lg font-semibold text-white">{announcement.title}</h3>
+                      <Badge className={`shrink-0 ${getAudienceColor(announcement.target_audience)}`}>
                         {announcement.target_audience}
                       </Badge>
                     </div>
-                    <p className="text-slate-300 whitespace-pre-wrap mb-3">{announcement.content}</p>
-                    <div className="flex items-center gap-4 text-xs text-slate-500">
-                      <span>
+                    <p className="mb-3 whitespace-pre-wrap break-words text-slate-300">{announcement.content}</p>
+                    <div className="flex flex-wrap items-center gap-2 text-xs text-slate-500 sm:gap-4">
+                      <span className="shrink-0">
                         By: {(announcement as { creator?: { full_name?: string; email?: string } }).creator?.full_name || (announcement as { creator?: { full_name?: string; email?: string } }).creator?.email || "Unknown"}
                       </span>
-                      <span>
+                      <span className="shrink-0">
                         {new Date(announcement.created_at).toLocaleDateString()}
                       </span>
                       {announcement.expires_at && (
-                        <span>
+                        <span className="shrink-0">
                           Expires: {new Date(announcement.expires_at).toLocaleDateString()}
                         </span>
                       )}
                     </div>
                   </div>
-                  <div className="flex items-center gap-2 ml-4">
+                  <div className="flex min-w-0 shrink-0 flex-row items-center gap-2 sm:ml-4">
                     <Button
                       variant="outline"
                       size="sm"
                       onClick={() => handleOpenEditDialog(announcement)}
-                      className="border-slate-700"
+                      className="min-h-[44px] shrink-0 border-slate-700 sm:w-auto"
                     >
-                      <Edit className="h-4 w-4" />
+                      <Edit className="h-4 w-4 shrink-0" />
                     </Button>
                     <Button
                       variant="outline"
                       size="sm"
                       onClick={() => handleDelete(announcement.id)}
-                      className="border-red-700 text-red-400 hover:bg-red-500/20"
+                      className="min-h-[44px] shrink-0 border-red-700 text-red-400 hover:bg-red-500/20 sm:w-auto"
                     >
-                      <Trash2 className="h-4 w-4" />
+                      <Trash2 className="h-4 w-4 shrink-0" />
                     </Button>
                   </div>
                 </div>
@@ -311,11 +314,11 @@ export function AnnouncementsManager() {
               />
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div className="space-y-2">
                 <Label className="text-slate-300">Target Audience</Label>
                 <Select value={selectedAudience} onValueChange={setSelectedAudience}>
-                  <SelectTrigger className="bg-slate-800/50 border-slate-700/50 text-white">
+                  <SelectTrigger className="min-h-[44px] bg-slate-800/50 border-slate-700/50 text-white">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -336,7 +339,7 @@ export function AnnouncementsManager() {
                   type="date"
                   value={expiresAt}
                   onChange={(e) => setExpiresAt(e.target.value)}
-                  className="bg-slate-800/50 border-slate-700/50 text-white"
+                  className="min-h-[44px] bg-slate-800/50 border-slate-700/50 text-white"
                 />
               </div>
             </div>
